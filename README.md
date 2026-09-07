@@ -50,7 +50,7 @@ The system will follow established software engineering principles and architect
 * **Modular monolithic architecture based on Hexagonal Architecture (Ports and Adapters)**, separating the domain logic from infrastructure and external technologies.
 * **Domain-Driven Design (DDD) and Event-Driven Architecture (EDA)** principles to model the transport domain and decouple application components following a monolith-first approach.
 * **Integration of multiple data sources** through dedicated adapters, together with the ingestion, normalization, and processing of heterogeneous data into a consistent internal representation.
-* **RESTful API** to expose application data and functionality to clients and other consumers.
+* **Full-stack web application**, with a **Java and Spring Boot** backend exposing a RESTful API and a **React** frontend implemented as a Single-Page Application (SPA).
 * **Authentication and authorization** using **JWT tokens and role-based access control**, with different permissions for anonymous, registered, and administrator users.
 * **Alert subscription and notification management**, allowing registered users to subscribe to alerts related to selected transport lines and receive notifications by email.
 * **Persistence and management of application data**, including the information required by the application and its audit capabilities.

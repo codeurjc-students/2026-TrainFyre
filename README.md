@@ -79,6 +79,20 @@ to the extent possible; these are:
   drastically reducing errors, and enabling code modification without fear,
   thanks to a safety net of automated tests created before the source code
 
+A Gantt chart will be added at the end of the project to properly showcase the 
+phases, for the moment the project has the following table:
+
+| Phase   | Description                                  | Deadline     |
+| ------- | -------------------------------------------- | ------------ |
+| Phase 1 | Definition of functionalities and screens    | 15 September |
+| Phase 2 | Repository, testing and CI                   | 15 October   |
+| Phase 3 | Version 0.1 - Basic functionality and Docker | 15 November  |
+| Phase 4 | Version 0.2 - Intermediate functionality     | 15 December  |
+| Phase 5 | Version 1.0 - Advanced functionality         | 15 January   |
+| Phase 6 | Report                                       | 15 May       |
+| Phase 7 | Defense                                      | 15 June      |
+
+
 The Gantt chart will be added [HERE] when it is created.
 You can see the current project status on its related GitHub project on: "Follow-up"
 
@@ -89,7 +103,7 @@ The following table summarizes the main functionalities planned for TrainFyre an
 
 |                  | Anonymous                                                               | Registered                                                      | Admin                                                            |
 | ---------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Basic**        | Register in the system                                                  | Log in and log out                                              | Manage system entities through CRUD operations                   |
+| **Basic**        | Register in the system                                                  | Log in and log out and upload and his profile pictures          | Manage system entities through CRUD operations                   |
 | **Intermediate** | View the current status of transport lines and general alert statistics | Create and manage alert subscriptions and receive notifications | View system and transport alert statistics and audit information |
 | **Advanced**     | TODO                                                                    | TODO                                                            | TODO                                                             |
 
@@ -124,7 +138,8 @@ as some of these features may depend on technologies or services that have not y
 
 ### Entities
 
-The current domain model is centered around transport lines, maps, and users. Following Domain-Driven Design (DDD) principles, the model distinguishes between entities, value objects, and domain or integration events according to their responsibilities within the domain.
+The current domain model is centered around transport lines, maps, and users. Following Domain-Driven Design (DDD) principles,
+the model distinguishes between entities, value objects, and domain or integration events according to their responsibilities within the domain.
 
 The main entities currently identified are:
 
@@ -137,15 +152,23 @@ The current model also includes concepts that are deliberately not modeled as en
 * **Alert subscription** is modeled as a **Value Object** associated with the `User` aggregate, as it represents subscription information rather than an independently identifiable entity.
 * **Alert** and **Notification** are modeled as **domain or integration events**, representing relevant occurrences that can trigger or communicate changes within the system rather than persistent domain entities.
 
-The domain model is still subject to refinement as the requirements and implementation progress. Additional entities or concepts may be identified if required by the evolving domain or by functionalities introduced in later iterations. The final attributes, relationships, aggregate boundaries, and persistence details will be documented once they have been sufficiently validated.
+The domain model is still subject to refinement as the requirements and implementation progress.
+Additional entities or concepts may be identified if required by the evolving domain or by functionalities introduced in later iterations.
+The final attributes, relationships, aggregate boundaries, and persistence details will be documented once they have been sufficiently validated.
+
+To better showcase the design here we have some UMLS:
+
+Classes UML: [TODO]
+
+Component Diagram: [TODO]
 
 ### User permissions
 
 The application defines three user roles:
 
 * **Anonymous users** can access public information, including transport line status and general alert-related statistics, and can register an account.
-* **Registered users** can authenticate, manage their alert subscriptions, and receive notifications related to the transport lines they are interested in.
-* **Administrators** have access to management operations over application entities, as well as system and audit information.
+* **Registered users** can authenticate, manage their alert subscriptions, and receive notifications related to the transport lines they are interested in. They also can upload and edit ther profile pictures.
+* **Administrators** have access to management operations over application entities, as well as complete system and audit information access.
 
 The authorization model will follow the principle of least privilege,
 ensuring that users can only perform operations allowed by their role and, where applicable, on data they own.
@@ -157,10 +180,8 @@ The detailed authorization rules for individual resources will be documented as 
 The application is required to support image uploads.
 The specific domain entities associated with images have not yet been finalized.
 
-This decision will be made during the detailed design of the domain model,
-taking into account the actual value of images for the application and avoiding introducing image-related functionality where it does not provide a clear benefit.
-
-Once the affected entities have been identified, this section will document the type and purpose of each image and how it is managed by the application.
+However at the moment the class User is confirmed that will have an image related to each User entity,
+as shown in the previous uml, basically a profile picture.
 
 ### Charts
 
@@ -188,6 +209,8 @@ Other complementary technologies may be considered during later iterations if th
 
 The application will include advanced data processing or querying beyond basic CRUD operations.
 The current direction is to provide useful analysis over the collected transport alerts, such as filtering and aggregating alerts by transport line and time period.
+
+There also may be an advance query to find all affected users by an Alert.
 
 The exact algorithm or advanced query has not yet been finalized because it depends on the final structure and characteristics of the collected alert data.
 The selected solution will be documented once the data model and the requirements for the corresponding functionality have been sufficiently defined.

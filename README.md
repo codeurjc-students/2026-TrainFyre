@@ -103,7 +103,7 @@ The following table summarizes the main functionalities planned for TrainFyre an
 
 |                  | Anonymous                                                               | Registered                                                      | Admin                                                            |
 | ---------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Basic**        | Register in the system                                                  | Log in and log out and upload and his profile pictures          | Manage system entities through CRUD operations                   |
+| **Basic**        | Register in the system                                                  | Log in and log out and upload and update his profile pictures   | Manage system entities through CRUD operations                   |
 | **Intermediate** | View the current status of transport lines and general alert statistics | Create and manage alert subscriptions and receive notifications | View system and transport alert statistics and audit information |
 | **Advanced**     | TODO                                                                    | TODO                                                            | TODO                                                             |
 

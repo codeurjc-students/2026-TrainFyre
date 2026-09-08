@@ -5,9 +5,10 @@
 A system capable of collecting data from various transport sources. 
 This data will be used and processed to provide various functionalities, 
 such as allowing users to receive notifications regarding lines of interest
-and statistics related to those lines.
+and statistics related to those lines. Such as the following picture:
 
-[TODO example screens]
+<img width="1513" height="1326" alt="image" src="https://github.com/user-attachments/assets/932bb643-7ec7-4d2f-b310-dba05c2f9182" />
+
 
 ## Objectives
 
@@ -158,9 +159,12 @@ The final attributes, relationships, aggregate boundaries, and persistence detai
 
 To better showcase the design here we have some UMLS:
 
-Classes UML: [TODO]
+Classes UML: <img width="973" height="478" alt="image" src="https://github.com/user-attachments/assets/51bf9088-451e-4891-bf85-388f15b88d20" />
 
-Component Diagram: [TODO]
+
+Component Diagram: <img width="1596" height="814" alt="image" src="https://github.com/user-attachments/assets/a8c03b6f-2ee6-4866-bd51-d90c836d0c5f" />
+
+As you can see entities and modules are not yet completly defined.
 
 ### User permissions
 

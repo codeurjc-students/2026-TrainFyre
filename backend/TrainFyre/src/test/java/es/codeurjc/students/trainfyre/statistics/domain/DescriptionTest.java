@@ -15,11 +15,17 @@ public class DescriptionTest {
         });
     }
 
-
     @Test
     void shouldRejectNullSummary(){
         assertThrows(IllegalArgumentException.class, () -> {
             new Description(name, null);
+        });
+    }
+
+    @Test
+    void shouldRejectBlankName(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Description("\n\t", summary);
         });
     }
 }

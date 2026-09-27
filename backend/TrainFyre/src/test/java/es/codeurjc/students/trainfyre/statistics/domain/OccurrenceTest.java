@@ -1,7 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.domain;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Duration;
@@ -24,6 +24,13 @@ class OccurrenceTest {
     @Test
     void durationShouldBeZeroIfNull(){
         Occurrence occurrence = new Occurrence(timestamp, null);
-        Assertions.assertEquals(Duration.ZERO, occurrence.duration());
+        assertEquals(Duration.ZERO, occurrence.duration());
+    }
+
+    @Test
+    void durationShouldNotBeNegative(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Occurrence(timestamp, Duration.ofMinutes(-2));
+        });
     }
 }

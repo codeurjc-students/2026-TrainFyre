@@ -15,6 +15,6 @@ public record Occurrence(ZonedDateTime timestamp, Duration duration) {
     }
 
     public boolean isInstantaneous() {
-        return false;
+        return duration.isZero();
     }
 }

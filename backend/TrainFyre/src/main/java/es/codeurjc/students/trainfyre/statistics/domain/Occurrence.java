@@ -10,5 +10,6 @@ public record Occurrence(ZonedDateTime timestamp, Duration duration) {
 
     public Occurrence{
         if(timestamp == null) throw new IllegalArgumentException("timestamp should not be null");
+        if(duration == null) duration = Duration.ZERO;
     }
 }

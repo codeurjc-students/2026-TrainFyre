@@ -15,4 +15,11 @@ class ClassificationTest {
         });
     }
 
+    @Test
+    void shouldRejectNullCause(){
+        assertThrows(IllegalArgumentException.class, ()-> {
+            new Classification(severity, null);
+        });
+    }
+
 }

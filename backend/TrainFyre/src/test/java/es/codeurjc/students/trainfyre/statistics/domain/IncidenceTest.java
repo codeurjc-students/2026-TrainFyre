@@ -21,5 +21,11 @@ class IncidenceTest {
             Incidence.createIncidence(null, occurrence, description, classification);
         });
     }
+    @Test
+    void shouldRejectNullOccurrence(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            Incidence.createIncidence(affectedNetwork, null, description, classification);
+        });
+    }
 
 }

@@ -1,0 +1,10 @@
+package es.codeurjc.students.trainfyre.statistics.domain;
+
+import org.jmolecules.ddd.annotation.ValueObject;
+
+import java.time.Duration;
+import java.time.ZonedDateTime;
+
+@ValueObject
+public record Occurrence(ZonedDateTime timestamp, Duration duration) {
+}

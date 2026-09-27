@@ -28,4 +28,11 @@ public class DescriptionTest {
             new Description("\n\t", summary);
         });
     }
+
+    @Test
+    void shouldRejectBlankSummary(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Description(name, "\n\t");
+        });
+    }
 }

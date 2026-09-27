@@ -5,5 +5,5 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import java.util.List;
 
 @ValueObject
-public record AffectedNetwork(long mapId, List<Long> lineIds) {
+public record AffectedNetwork(Long mapId, List<Long> lineIds) {
 }

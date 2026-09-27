@@ -16,20 +16,21 @@ class AffectedNetworkTest {
 
     @Test
     void shouldRejectNullMap(){
-
         assertThrows(IllegalArgumentException.class, () -> {
             new AffectedNetwork(null, lineIds);
         });
-
     }
 
     @Test
-    void shouldRejectNullLineIds(){
-
+    void shouldRejectNullLineIds() {
         assertThrows(IllegalArgumentException.class, () -> {
             new AffectedNetwork(mapId, null);
         });
-
     }
 
+    @Test
+    void shouldRejectEmptyLineIds() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new AffectedNetwork(mapId, List.of()));
+    }
 }

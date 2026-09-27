@@ -25,6 +25,8 @@ public class Incidence {
 
     public static Incidence createIncidence(AffectedNetwork affectedNetwork, Occurrence occurrence, Description description, Classification classification){
 
+        if (affectedNetwork == null) throw new IllegalArgumentException("affected network should not be null");
+
         UUID id = UUID.randomUUID();
 
         return new Incidence(id, affectedNetwork, occurrence, description, classification);

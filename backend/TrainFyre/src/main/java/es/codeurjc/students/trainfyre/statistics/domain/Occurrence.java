@@ -19,6 +19,6 @@ public record Occurrence(ZonedDateTime timestamp, Duration duration) {
     }
 
     public ZonedDateTime endsAt() {
-        return ZonedDateTime.now(); // just for the test to compile
+        return timestamp.plus(duration);
     }
 }

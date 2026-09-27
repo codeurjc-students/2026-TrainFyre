@@ -33,4 +33,10 @@ class OccurrenceTest {
             new Occurrence(timestamp, Duration.ofMinutes(-2));
         });
     }
+
+    @Test
+    void shouldReturnInstantaneusIfDurationIsZero(){
+        Occurrence occurrence = new Occurrence(timestamp, Duration.ZERO);
+        assertEquals(true, occurrence.isInstantaneous());
+    }
 }

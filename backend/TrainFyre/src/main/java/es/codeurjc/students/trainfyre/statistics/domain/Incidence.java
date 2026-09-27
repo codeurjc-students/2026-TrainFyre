@@ -31,6 +31,7 @@ public class Incidence {
         if (occurrence == null) throw new IllegalArgumentException("occurrence should not be null");
         if (description == null) throw new IllegalArgumentException("description should not be null");
         if (classification == null) throw new IllegalArgumentException("classification should not be null");
+        if(classification.severity().equals(Severity.INFORMATIONAL) && !occurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence must have Duration.ZERO");
 
         UUID id = UUID.randomUUID();
 

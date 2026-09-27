@@ -13,7 +13,7 @@ class IncidenceTest {
     private AffectedNetwork affectedNetwork = new AffectedNetwork(1L, Arrays.asList(1L, 2L, 3L));
     private Occurrence occurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
     private Description description = new Description("Train failure", "The train's engine has broken down and won't start.");
-    private Classification classification = new Classification(Severity.MODERATE, Cause.MEDICAL_EMERGENCY);
+    private Classification classification = new Classification(Severity.INFORMATIONAL, Cause.MEDICAL_EMERGENCY);
 
     @Test
     void shouldRejectNullAffectedNetwork(){
@@ -39,6 +39,13 @@ class IncidenceTest {
             Incidence.createIncidence(affectedNetwork, occurrence, description, null);
         });
     }
+    @Test
+    void shouldRejectInformationalIncidenceWithNonZeroDuration(){
+        assertThrows(IllegalArgumentException.class, () -> {
+            Incidence.createIncidence(affectedNetwork, occurrence, description, classification);
+        });
+    }
+
 
 
 }

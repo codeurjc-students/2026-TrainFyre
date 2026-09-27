@@ -11,7 +11,7 @@ public class DescriptionTest {
     @Test
     void shouldRejectNullName(){
         assertThrows(IllegalArgumentException.class, () -> {
-           new Description(null, name);
+           new Description(null, summary);
         });
     }
 }

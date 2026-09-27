@@ -1,11 +1,13 @@
 package es.codeurjc.students.trainfyre.statistics.domain;
 
+import lombok.Getter;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
 
 import java.util.UUID;
 
 @Entity
+@Getter
 public class Incidence {
 
     @Identity
@@ -31,45 +33,5 @@ public class Incidence {
 
         return new Incidence(id, affectedNetwork, occurrence, description, classification);
 
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public AffectedNetwork getAffectedNetwork() {
-        return affectedNetwork;
-    }
-
-    public void setAffectedNetwork(AffectedNetwork affectedNetwork) {
-        this.affectedNetwork = affectedNetwork;
-    }
-
-    public Occurrence getOccurrence() {
-        return occurrence;
-    }
-
-    public void setOccurrence(Occurrence occurrence) {
-        this.occurrence = occurrence;
-    }
-
-    public Description getDescription() {
-        return description;
-    }
-
-    public void setDescription(Description description) {
-        this.description = description;
-    }
-
-    public Classification getClassification() {
-        return classification;
-    }
-
-    public void setClassification(Classification classification) {
-        this.classification = classification;
     }
 }

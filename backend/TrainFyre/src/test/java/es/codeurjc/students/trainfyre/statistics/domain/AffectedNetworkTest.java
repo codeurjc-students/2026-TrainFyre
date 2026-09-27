@@ -23,4 +23,13 @@ class AffectedNetworkTest {
 
     }
 
+    @Test
+    void shouldRejectNullLineIds(){
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AffectedNetwork(mapId, null);
+        });
+
+    }
+
 }

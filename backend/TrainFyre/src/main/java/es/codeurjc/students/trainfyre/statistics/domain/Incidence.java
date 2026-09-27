@@ -30,6 +30,7 @@ public class Incidence {
         if (affectedNetwork == null) throw new IllegalArgumentException("affected network should not be null");
         if (occurrence == null) throw new IllegalArgumentException("occurrence should not be null");
         if (description == null) throw new IllegalArgumentException("description should not be null");
+        if (classification == null) throw new IllegalArgumentException("classification should not be null");
 
         UUID id = UUID.randomUUID();
 

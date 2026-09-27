@@ -17,4 +17,8 @@ public record Occurrence(ZonedDateTime timestamp, Duration duration) {
     public boolean isInstantaneous() {
         return duration.isZero();
     }
+
+    public ZonedDateTime endsAt() {
+        return ZonedDateTime.now(); // just for the test to compile
+    }
 }

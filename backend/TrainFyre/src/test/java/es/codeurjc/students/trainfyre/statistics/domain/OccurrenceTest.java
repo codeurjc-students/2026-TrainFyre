@@ -39,4 +39,10 @@ class OccurrenceTest {
         Occurrence occurrence = new Occurrence(timestamp, Duration.ZERO);
         assertEquals(true, occurrence.isInstantaneous());
     }
+
+    @Test
+    void shouldReturnEndTime(){
+        Occurrence occurrence = new Occurrence(timestamp, duration);
+        assertEquals(timestamp.plus(duration), occurrence.endsAt());
+    }
 }

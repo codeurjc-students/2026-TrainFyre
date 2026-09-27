@@ -6,4 +6,8 @@ import java.util.List;
 
 @ValueObject
 public record AffectedNetwork(Long mapId, List<Long> lineIds) {
+
+    public AffectedNetwork{
+        if(mapId == null) throw  new IllegalArgumentException("map id should not be null");
+    }
 }

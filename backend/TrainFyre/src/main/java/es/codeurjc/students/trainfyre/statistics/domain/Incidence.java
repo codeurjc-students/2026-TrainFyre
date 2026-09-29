@@ -31,7 +31,7 @@ public class Incidence {
         if (occurrence == null) throw new IllegalArgumentException("occurrence should not be null");
         if (description == null) throw new IllegalArgumentException("description should not be null");
         if (classification == null) throw new IllegalArgumentException("classification should not be null");
-        if(classification.severity().equals(Severity.INFORMATIONAL) && !occurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence must have Duration.ZERO");
+        ensureInformationalIncidenceIsInstantaneous(classification, occurrence);
 
         UUID id = UUID.randomUUID();
 
@@ -46,7 +46,7 @@ public class Incidence {
 
     public void changeOccurrence(Occurrence newOccurrence) {
         if (newOccurrence == null) throw new IllegalArgumentException("occurrence should not be null");
-        if(this.classification.severity().equals(Severity.INFORMATIONAL) && !newOccurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence cannot change duration to other different than zero, must have Duration.ZERO");
+        ensureInformationalIncidenceIsInstantaneous(classification, newOccurrence);
         this.occurrence = newOccurrence;
     }
 
@@ -58,5 +58,9 @@ public class Incidence {
     public void changeClassification(Classification newClassification) {
         if (newClassification == null) throw new IllegalArgumentException("classification should not be null");
         this.classification = newClassification;
+    }
+
+    private static void ensureInformationalIncidenceIsInstantaneous(Classification classification, Occurrence occurrence){
+        if(classification.severity().equals(Severity.INFORMATIONAL) && !occurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence must have Duration.ZERO");
     }
 }

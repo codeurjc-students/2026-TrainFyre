@@ -143,4 +143,17 @@ class IncidenceTest {
 
     }
 
+    @Test
+    void shouldNotAllowAnNonZeroDurationIncidenceToChangeToInformational(){
+
+        Classification criticalClassification = new Classification(Severity.CRITICAL, Cause.MEDICAL_EMERGENCY);
+        Classification informalClassification = new Classification(Severity.INFORMATIONAL, Cause.MEDICAL_EMERGENCY);
+        Occurrence notZeroDurationOccurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
+
+        Incidence incidence = anIncidence().withClassification(criticalClassification).withOccurrence(notZeroDurationOccurrence).build();
+
+        assertThrows(IllegalArgumentException.class, () -> incidence.changeClassification(informalClassification));
+
+    }
+
 }

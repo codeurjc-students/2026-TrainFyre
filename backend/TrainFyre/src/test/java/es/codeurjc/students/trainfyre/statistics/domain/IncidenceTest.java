@@ -139,4 +139,12 @@ class IncidenceTest {
 
     }
 
+    @Test
+    void shouldRejectNullClassificationWhenChanged(){
+
+        Incidence incidence = anIncidence().build();
+        assertThrows(IllegalArgumentException.class, () -> incidence.changeClassification(null));
+
+    }
+
 }

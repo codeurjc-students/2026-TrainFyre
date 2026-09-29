@@ -134,9 +134,10 @@ class IncidenceTest {
     void shouldNotAllowAnInformationalIncidenceToChangeToNonZeroDuration(){
 
         Classification informalClassification = new Classification(Severity.INFORMATIONAL, Cause.MEDICAL_EMERGENCY);
+        Occurrence zeroDurationOccurrence = new Occurrence(ZonedDateTime.now(), Duration.ZERO);
         Occurrence notZeroDurationOccurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
 
-        Incidence incidence = anIncidence().withClassification(informalClassification).build();
+        Incidence incidence = anIncidence().withClassification(informalClassification).withOccurrence(zeroDurationOccurrence).build();
 
         assertThrows(IllegalArgumentException.class, () -> incidence.changeOccurrence(notZeroDurationOccurrence));
 

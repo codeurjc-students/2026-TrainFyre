@@ -1,4 +1,6 @@
-package es.codeurjc.students.trainfyre.statistics.domain;
+package es.codeurjc.students.trainfyre.statistics;
+
+import es.codeurjc.students.trainfyre.statistics.domain.*;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -60,6 +62,28 @@ public class IncidenceTestBuilder {
                 occurrence,
                 description,
                 classification
+        );
+    }
+
+    public static AffectedNetwork generateDefaultAffectedNetwork() {
+        return new AffectedNetwork(1L, List.of(1L, 2L, 3L));
+    }
+    public static Occurrence generateDefaultOccurrence() {
+        return new Occurrence(
+                ZonedDateTime.parse("2026-01-01T10:00:00Z"),
+                Duration.ofMinutes(30)
+        );
+    }
+    public static Description generateDefaultDescription() {
+        return new Description(
+                "Train failure",
+                "The train's engine has broken down and won't start."
+        );
+    }
+    public static Classification generateDefaultClassification() {
+        return new Classification(
+                Severity.MODERATE,
+                Cause.MEDICAL_EMERGENCY
         );
     }
 }

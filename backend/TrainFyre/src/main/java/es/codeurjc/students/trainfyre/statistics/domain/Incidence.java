@@ -52,6 +52,6 @@ public class Incidence {
     }
 
     public void changeClassification(Classification newClassification) {
-
+        this.classification = newClassification;
     }
 }

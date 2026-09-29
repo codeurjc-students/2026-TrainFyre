@@ -115,36 +115,20 @@ class IncidenceTest {
         assertEquals(expectedValue, getter.apply(incidence));
     }
 
-    @Test
-    void shouldRejectNullAffectedNetworkWhenChanged(){
-
-        Incidence incidence = anIncidence().build();
-        assertThrows(IllegalArgumentException.class, () -> incidence.changeAffectedNetwork(null));
-
+    static Stream<Arguments> invalidNullChanges() {
+        return Stream.of(
+                Arguments.of("affected network",(Executable) () -> anIncidence().build().changeAffectedNetwork(null)),
+                Arguments.of("occurrence",(Executable) () -> anIncidence().build().changeOccurrence(null)),
+                Arguments.of("description",(Executable) () -> anIncidence().build().changeDescription(null)),
+                Arguments.of("classification",(Executable) () -> anIncidence().build().changeClassification(null))
+        );
     }
 
-    @Test
-    void shouldRejectNullOccurrenceWhenChanged(){
-
-        Incidence incidence = anIncidence().build();
-        assertThrows(IllegalArgumentException.class, () -> incidence.changeOccurrence(null));
-
+    @ParameterizedTest(name = "should reject null {0} when changed")
+    @MethodSource("invalidNullChanges")
+    void shouldRejectNullArgumentsWhenChanged(String field, Executable change) {
+        assertThrows(IllegalArgumentException.class, change);
     }
 
-    @Test
-    void shouldRejectNullDescriptionWhenChanged(){
-
-        Incidence incidence = anIncidence().build();
-        assertThrows(IllegalArgumentException.class, () -> incidence.changeDescription(null));
-
-    }
-
-    @Test
-    void shouldRejectNullClassificationWhenChanged(){
-
-        Incidence incidence = anIncidence().build();
-        assertThrows(IllegalArgumentException.class, () -> incidence.changeClassification(null));
-
-    }
 
 }

@@ -39,10 +39,6 @@ public class Incidence {
 
     }
 
-    public void changeDescription(Description newDescription){
-        this.description = newDescription;
-    }
-
     public void changeAffectedNetwork(AffectedNetwork newAffectedNetwork) {
         if (newAffectedNetwork == null) throw new IllegalArgumentException("affected network should not be null");
         this.affectedNetwork = newAffectedNetwork;
@@ -51,6 +47,10 @@ public class Incidence {
     public void changeOccurrence(Occurrence newOccurrence) {
         if (newOccurrence == null) throw new IllegalArgumentException("occurrence should not be null");
         this.occurrence = newOccurrence;
+    }
+
+    public void changeDescription(Description newDescription){
+        this.description = newDescription;
     }
 
     public void changeClassification(Classification newClassification) {

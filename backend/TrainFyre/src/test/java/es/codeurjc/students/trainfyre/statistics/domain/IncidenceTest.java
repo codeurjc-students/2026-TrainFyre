@@ -50,7 +50,7 @@ class IncidenceTest {
     void shouldAllowToChangeDescription(){
 
         Description newDescription = new Description("New Description", "This is the new description!!!");
-        Incidence incidence = Incidence.createIncidence(affectedNetwork, occurrence, description, classification);
+        Incidence incidence = Incidence.createIncidence(affectedNetwork, occurrence, description, new Classification(Severity.MODERATE, Cause.MEDICAL_EMERGENCY));
 
         incidence.changeDescription(newDescription);
         assertEquals(newDescription, incidence.getDescription());

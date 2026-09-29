@@ -1,6 +1,4 @@
-package es.codeurjc.students.trainfyre.statistics;
-
-import es.codeurjc.students.trainfyre.statistics.domain.*;
+package es.codeurjc.students.trainfyre.statistics.domain;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;

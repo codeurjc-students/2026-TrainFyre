@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
-import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
+import static es.codeurjc.students.trainfyre.statistics.domain.IncidenceTestBuilder.anIncidence;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

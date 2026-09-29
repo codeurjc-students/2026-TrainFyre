@@ -115,4 +115,12 @@ class IncidenceTest {
         assertEquals(expectedValue, getter.apply(incidence));
     }
 
+    @Test
+    void shouldRejectNullAffectedNetworkWhenChanged(){
+
+        Incidence incidence = anIncidence().build();
+        assertThrows(IllegalArgumentException.class, () -> incidence.changeAffectedNetwork(null));
+
+    }
+
 }

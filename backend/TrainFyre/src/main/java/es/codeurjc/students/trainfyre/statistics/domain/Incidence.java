@@ -44,6 +44,7 @@ public class Incidence {
     }
 
     public void changeAffectedNetwork(AffectedNetwork newAffectedNetwork) {
+        if (newAffectedNetwork == null) throw new IllegalArgumentException("affected network should not be null");
         this.affectedNetwork = newAffectedNetwork;
     }
 

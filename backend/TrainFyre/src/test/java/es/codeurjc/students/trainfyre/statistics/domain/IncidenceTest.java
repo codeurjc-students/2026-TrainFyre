@@ -13,6 +13,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 class IncidenceTest {
@@ -52,6 +53,17 @@ class IncidenceTest {
 
         incidence.changeDescription(newDescription);
         assertEquals(newDescription, incidence.getDescription());
+
+    }
+
+    @Test
+    void shouldAllowToChangeAffectedNetwork(){
+
+        AffectedNetwork newAffectedNetwork = new AffectedNetwork(3L, List.of(1L));
+        Incidence incidence = anIncidence().build();
+
+        incidence.changeAffectedNetwork(newAffectedNetwork);
+        assertEquals(newAffectedNetwork, incidence.getAffectedNetwork());
 
     }
 

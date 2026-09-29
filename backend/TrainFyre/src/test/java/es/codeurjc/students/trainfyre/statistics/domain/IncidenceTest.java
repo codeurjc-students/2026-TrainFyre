@@ -131,4 +131,12 @@ class IncidenceTest {
 
     }
 
+    @Test
+    void shouldRejectNullDescriptionWhenChanged(){
+
+        Incidence incidence = anIncidence().build();
+        assertThrows(IllegalArgumentException.class, () -> incidence.changeDescription(null));
+
+    }
+
 }

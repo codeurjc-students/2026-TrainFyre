@@ -1,12 +1,12 @@
 package es.codeurjc.students.trainfyre.statistics.domain;
 
 import lombok.Getter;
-import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
 import java.util.UUID;
 
-@Entity
+@AggregateRoot
 @Getter
 public class Incidence {
 

@@ -67,6 +67,16 @@ class IncidenceTest {
 
     }
 
+    @Test
+    void shouldAllowToChangeOccurrence(){
+
+        Occurrence newOccurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(50));
+        Incidence incidence = anIncidence().build();
+
+        incidence.changeOccurrence(newOccurrence);
+        assertEquals(newOccurrence, incidence.getOccurrence());
+    }
+
 
 
 }

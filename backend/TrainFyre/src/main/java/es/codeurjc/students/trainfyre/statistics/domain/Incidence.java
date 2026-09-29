@@ -48,5 +48,6 @@ public class Incidence {
     }
 
     public void changeOccurrence(Occurrence newOccurrence) {
+        this.occurrence = newOccurrence;
     }
 }

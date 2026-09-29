@@ -4,5 +4,7 @@ import es.codeurjc.students.trainfyre.common.EntityPort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
 
+import java.util.UUID;
+
 @SecondaryPort
-public interface IncidencePort extends EntityPort<Incidence> { }
+public interface IncidencePort extends EntityPort<Incidence, UUID> { }

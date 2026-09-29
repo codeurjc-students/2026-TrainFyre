@@ -123,4 +123,12 @@ class IncidenceTest {
 
     }
 
+    @Test
+    void shouldRejectNullOccurrenceWhenChanged(){
+
+        Incidence incidence = anIncidence().build();
+        assertThrows(IllegalArgumentException.class, () -> incidence.changeOccurrence(null));
+
+    }
+
 }

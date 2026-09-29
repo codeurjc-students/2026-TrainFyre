@@ -50,6 +50,7 @@ public class Incidence {
     }
 
     public void changeDescription(Description newDescription){
+        if (newDescription == null) throw new IllegalArgumentException("description should not be null");
         this.description = newDescription;
     }
 

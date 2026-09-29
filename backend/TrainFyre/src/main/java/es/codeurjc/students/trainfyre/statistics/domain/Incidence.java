@@ -57,6 +57,7 @@ public class Incidence {
 
     public void changeClassification(Classification newClassification) {
         if (newClassification == null) throw new IllegalArgumentException("classification should not be null");
+        ensureInformationalIncidenceIsInstantaneous(newClassification, this.occurrence);
         this.classification = newClassification;
     }
 

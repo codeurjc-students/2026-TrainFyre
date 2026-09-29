@@ -11,7 +11,7 @@ import java.util.UUID;
 public class Incidence {
 
     @Identity
-    private UUID id;
+    private final UUID id;
     private AffectedNetwork affectedNetwork;
     private Occurrence occurrence;
     private Description description;

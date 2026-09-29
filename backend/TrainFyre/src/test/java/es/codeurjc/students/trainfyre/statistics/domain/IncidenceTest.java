@@ -9,32 +9,29 @@ import static es.codeurjc.students.trainfyre.statistics.domain.IncidenceTestBuil
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.function.Executable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
+
 class IncidenceTest {
 
-    @Test
-    void shouldRejectNullAffectedNetwork(){
-        assertThrows(IllegalArgumentException.class, () -> {
-            anIncidence().withAffectedNetwork(null).build();
-        });
+    static Stream<Executable> invalidNullArguments() {
+        return Stream.of(
+                () -> anIncidence().withAffectedNetwork(null).build(),
+                () -> anIncidence().withOccurrence(null).build(),
+                () -> anIncidence().withDescription(null).build(),
+                () -> anIncidence().withClassification(null).build()
+        );
     }
-    @Test
-    void shouldRejectNullOccurrence(){
-        assertThrows(IllegalArgumentException.class, () -> {
-            anIncidence().withOccurrence(null).build();
-        });
+
+    @ParameterizedTest
+    @MethodSource("invalidNullArguments")
+    void shouldRejectNullArguments(Executable creation) {
+        assertThrows(IllegalArgumentException.class, creation);
     }
-    @Test
-    void shouldRejectNullDescription(){
-        assertThrows(IllegalArgumentException.class, () -> {
-            anIncidence().withDescription(null).build();
-        });
-    }
-    @Test
-    void shouldRejectNullClassification(){
-        assertThrows(IllegalArgumentException.class, () -> {
-            anIncidence().withClassification(null).build();
-        });
-    }
+
     @Test
     void shouldRejectInformationalIncidenceWithNonZeroDuration(){
 
@@ -46,6 +43,7 @@ class IncidenceTest {
         });
 
     }
+
     @Test
     void shouldAllowToChangeDescription(){
 

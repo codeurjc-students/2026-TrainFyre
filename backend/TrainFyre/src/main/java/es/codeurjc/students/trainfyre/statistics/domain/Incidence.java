@@ -49,6 +49,7 @@ public class Incidence {
     }
 
     public void changeOccurrence(Occurrence newOccurrence) {
+        if (newOccurrence == null) throw new IllegalArgumentException("occurrence should not be null");
         this.occurrence = newOccurrence;
     }
 

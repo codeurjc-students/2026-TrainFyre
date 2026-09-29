@@ -2,7 +2,7 @@ package es.codeurjc.students.trainfyre.statistics.application.service;
 
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
-import es.codeurjc.students.trainfyre.statistics.application.port.out.SaveIncidencePort;
+import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.jmolecules.architecture.hexagonal.Application;
@@ -12,10 +12,10 @@ import java.util.UUID;
 @Application
 public class CreateIncidenceService implements CreateIncidenceUseCase{
 
-    private SaveIncidencePort saveIncidencePort;
+    private IncidencePort incidencePort;
 
-    public CreateIncidenceService(SaveIncidencePort saveIncidencePort) {
-        this.saveIncidencePort = saveIncidencePort;
+    public CreateIncidenceService(IncidencePort incidencePort) {
+        this.incidencePort = incidencePort;
     }
 
     @CommandHandler
@@ -24,7 +24,7 @@ public class CreateIncidenceService implements CreateIncidenceUseCase{
 
         Incidence incidence = Incidence.createIncidence(input.affectedNetwork(), input.occurrence(), input.description(), input.classification());
 
-        saveIncidencePort.save(incidence);
+        incidencePort.save(incidence);
 
         return incidence.getId();
 

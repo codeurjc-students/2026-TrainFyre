@@ -2,7 +2,7 @@ package es.codeurjc.students.trainfyre.statistics.application;
 
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
-import es.codeurjc.students.trainfyre.statistics.application.port.out.SaveIncidencePort;
+import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.application.service.CreateIncidenceService;
 import es.codeurjc.students.trainfyre.statistics.domain.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ class CreateIncidenceServiceTest {
 
 
     @Mock
-    private SaveIncidencePort saveIncidencePort;
+    private IncidencePort incidencePort;
     private CreateIncidenceUseCase createIncidenceUseCase;
 
     private final AffectedNetwork affectedNetwork = new AffectedNetwork(1L, Arrays.asList(1L, 2L, 3L));
@@ -37,7 +37,7 @@ class CreateIncidenceServiceTest {
 
     @BeforeEach
     void setUp(){
-        createIncidenceUseCase = new CreateIncidenceService(saveIncidencePort);
+        createIncidenceUseCase = new CreateIncidenceService(incidencePort);
     }
 
 
@@ -48,7 +48,7 @@ class CreateIncidenceServiceTest {
 
         ArgumentCaptor<Incidence> captor = ArgumentCaptor.forClass(Incidence.class);
 
-        verify(saveIncidencePort).save(captor.capture());
+        verify(incidencePort).save(captor.capture());
 
         Incidence savedIncidence = captor.getValue();
 

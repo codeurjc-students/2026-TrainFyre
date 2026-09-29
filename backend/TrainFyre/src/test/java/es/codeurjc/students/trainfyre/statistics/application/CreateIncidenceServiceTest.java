@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.statistics.application;
 
+import es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
@@ -12,9 +13,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -29,10 +27,10 @@ class CreateIncidenceServiceTest {
     private IncidencePort incidencePort;
     private CreateIncidenceUseCase createIncidenceUseCase;
 
-    private final AffectedNetwork affectedNetwork = new AffectedNetwork(1L, Arrays.asList(1L, 2L, 3L));
-    private final Occurrence occurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
-    private final Description description = new Description("Train failure", "The train's engine has broken down and won't start.");
-    private final Classification classification = new Classification(Severity.MODERATE, Cause.MEDICAL_EMERGENCY);
+    private final AffectedNetwork affectedNetwork = IncidenceTestBuilder.generateDefaultAffectedNetwork();
+    private final Occurrence occurrence = IncidenceTestBuilder.generateDefaultOccurrence();
+    private final Description description = IncidenceTestBuilder.generateDefaultDescription();
+    private final Classification classification = IncidenceTestBuilder.generateDefaultClassification();
     private final CreateIncidenceCommand createIncidenceCommand = new CreateIncidenceCommand(affectedNetwork, occurrence, description, classification);
 
     @BeforeEach

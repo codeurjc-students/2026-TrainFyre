@@ -77,6 +77,16 @@ class IncidenceTest {
         assertEquals(newOccurrence, incidence.getOccurrence());
     }
 
+    @Test
+    void shouldAllowToChangeClassification(){
+
+        Classification newClassification = new Classification(Severity.CRITICAL, Cause.TECHNICAL_PROBLEM);
+        Incidence incidence = anIncidence().build();
+
+        incidence.changeClassification(newClassification);
+        assertEquals(newClassification, incidence.getClassification());
+    }
+
 
 
 }

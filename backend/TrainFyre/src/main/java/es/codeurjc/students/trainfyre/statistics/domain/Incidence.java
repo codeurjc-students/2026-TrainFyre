@@ -44,6 +44,6 @@ public class Incidence {
     }
 
     public void changeAffectedNetwork(AffectedNetwork newAffectedNetwork) {
-
+        this.affectedNetwork = newAffectedNetwork;
     }
 }

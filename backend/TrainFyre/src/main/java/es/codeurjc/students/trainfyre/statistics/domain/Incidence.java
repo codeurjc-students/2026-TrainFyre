@@ -40,5 +40,6 @@ public class Incidence {
     }
 
     public void changeDescription(Description newDescription){
+        this.description = newDescription;
     }
 }

@@ -46,6 +46,7 @@ public class Incidence {
 
     public void changeOccurrence(Occurrence newOccurrence) {
         if (newOccurrence == null) throw new IllegalArgumentException("occurrence should not be null");
+        if(this.classification.severity().equals(Severity.INFORMATIONAL) && !newOccurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence cannot change duration to other different than zero, must have Duration.ZERO");
         this.occurrence = newOccurrence;
     }
 

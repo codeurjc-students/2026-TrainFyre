@@ -4,53 +4,53 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 
+import static es.codeurjc.students.trainfyre.statistics.domain.IncidenceTestBuilder.anIncidence;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IncidenceTest {
 
-    private AffectedNetwork affectedNetwork = new AffectedNetwork(1L, Arrays.asList(1L, 2L, 3L));
-    private Occurrence occurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
-    private Description description = new Description("Train failure", "The train's engine has broken down and won't start.");
-    private Classification classification = new Classification(Severity.INFORMATIONAL, Cause.MEDICAL_EMERGENCY);
-
     @Test
     void shouldRejectNullAffectedNetwork(){
         assertThrows(IllegalArgumentException.class, () -> {
-            Incidence.createIncidence(null, occurrence, description, classification);
+            anIncidence().withAffectedNetwork(null).build();
         });
     }
     @Test
     void shouldRejectNullOccurrence(){
         assertThrows(IllegalArgumentException.class, () -> {
-            Incidence.createIncidence(affectedNetwork, null, description, classification);
+            anIncidence().withOccurrence(null).build();
         });
     }
     @Test
     void shouldRejectNullDescription(){
         assertThrows(IllegalArgumentException.class, () -> {
-            Incidence.createIncidence(affectedNetwork, occurrence, null, classification);
+            anIncidence().withDescription(null).build();
         });
     }
     @Test
     void shouldRejectNullClassification(){
         assertThrows(IllegalArgumentException.class, () -> {
-            Incidence.createIncidence(affectedNetwork, occurrence, description, null);
+            anIncidence().withClassification(null).build();
         });
     }
     @Test
     void shouldRejectInformationalIncidenceWithNonZeroDuration(){
+
+        Classification informalClassification = new Classification(Severity.INFORMATIONAL, Cause.MEDICAL_EMERGENCY);
+        Occurrence notZeroDurationOccurrence = new Occurrence(ZonedDateTime.now(), Duration.ofMinutes(30));
+
         assertThrows(IllegalArgumentException.class, () -> {
-            Incidence.createIncidence(affectedNetwork, occurrence, description, classification);
+            anIncidence().withClassification(informalClassification).withOccurrence(notZeroDurationOccurrence).build();
         });
+
     }
     @Test
     void shouldAllowToChangeDescription(){
 
         Description newDescription = new Description("New Description", "This is the new description!!!");
-        Incidence incidence = Incidence.createIncidence(affectedNetwork, occurrence, description, new Classification(Severity.MODERATE, Cause.MEDICAL_EMERGENCY));
+        Incidence incidence = anIncidence().build();
 
         incidence.changeDescription(newDescription);
         assertEquals(newDescription, incidence.getDescription());

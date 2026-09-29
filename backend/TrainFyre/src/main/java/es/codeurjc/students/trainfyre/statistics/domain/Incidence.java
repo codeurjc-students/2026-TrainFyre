@@ -38,4 +38,7 @@ public class Incidence {
         return new Incidence(id, affectedNetwork, occurrence, description, classification);
 
     }
+
+    public void changeDescription(Description newDescription){
+    }
 }

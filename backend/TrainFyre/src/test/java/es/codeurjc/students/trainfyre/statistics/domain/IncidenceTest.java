@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class IncidenceTest {
@@ -44,6 +45,16 @@ class IncidenceTest {
         assertThrows(IllegalArgumentException.class, () -> {
             Incidence.createIncidence(affectedNetwork, occurrence, description, classification);
         });
+    }
+    @Test
+    void shouldAllowToChangeDescription(){
+
+        Description newDescription = new Description("New Description", "This is the new description!!!");
+        Incidence incidence = Incidence.createIncidence(affectedNetwork, occurrence, description, classification);
+
+        incidence.changeDescription(newDescription);
+        assertEquals(newDescription, incidence.getDescription());
+
     }
 
 

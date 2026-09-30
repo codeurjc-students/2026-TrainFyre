@@ -24,7 +24,8 @@ public class IncidenceController {
 
     @PostMapping
     public ResponseEntity<UUID> createIncidence(@RequestBody CreateIncidenceCommand createIncidenceCommand) {
-        return null;
+        UUID id =  createIncidenceUseCase.execute(createIncidenceCommand);
+        return ResponseEntity.status(201).body(id);
     }
 
 

@@ -1,6 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.infrastructure.in;
 
 import es.codeurjc.students.trainfyre.common.Pageable;
+import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
@@ -21,6 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -94,6 +96,16 @@ class IncidenceControllerTest {
     void shouldGetIncidencesPaginated() throws Exception {
 
         GetAllIncidencesPaginatedQuery getAllIncidencesPaginatedQuery = new GetAllIncidencesPaginatedQuery(new Pageable(0, 10));
+
+        when(getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery))
+                .thenReturn(
+                        new PagedResponse<Incidence>(
+                                List.of(anIncidence().build()),
+                                0,
+                                10,
+                                1
+                        )
+                );
 
         mockMvc.perform(get("/incidence")
                         .param("page", "0")

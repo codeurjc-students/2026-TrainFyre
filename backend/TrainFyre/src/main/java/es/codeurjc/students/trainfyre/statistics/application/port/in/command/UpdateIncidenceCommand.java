@@ -14,5 +14,10 @@ public record UpdateIncidenceCommand(UUID uuid, AffectedNetwork changeAffectedNe
 
     public UpdateIncidenceCommand {
         Objects.requireNonNull(uuid, "id should not be null");
+        if(changeAffectedNetwork == null &&
+                changeOccurrence == null &&
+                changeDescription == null &&
+                changeClassification == null)
+        {throw new NullPointerException("At least one argument must not be null");}
     }
 }

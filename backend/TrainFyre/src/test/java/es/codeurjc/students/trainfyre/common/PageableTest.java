@@ -20,7 +20,7 @@ class PageableTest {
 
     @ParameterizedTest
     @MethodSource("invalidNullArguments")
-    void shouldRejectNullArguments(Integer page, Integer size){
+    void shouldRejectNullArguments(int page, int size){
         assertThrows(NullPointerException.class, () -> new Pageable(page, size));
     }
 

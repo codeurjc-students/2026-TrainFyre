@@ -13,4 +13,9 @@ class PageableTest {
         assertThrows(IllegalArgumentException.class, () -> new Pageable(-1, 5));
     }
 
+    @Test
+    void shouldRejectSizeZeroOrLess(){
+        assertThrows(IllegalArgumentException.class, () -> new Pageable(4, 0));
+    }
+
 }

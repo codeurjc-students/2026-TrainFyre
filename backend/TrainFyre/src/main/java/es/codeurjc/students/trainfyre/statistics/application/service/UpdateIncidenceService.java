@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class UpdateIncidenceService implements UpdateIncidenceUseCase  {
 
-    private IncidencePort incidencePort;
+    private final IncidencePort incidencePort;
 
     public UpdateIncidenceService(IncidencePort incidencePort){
         this.incidencePort = incidencePort;

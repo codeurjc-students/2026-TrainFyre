@@ -8,7 +8,7 @@ import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 
 public class GetIncidenceByIdService implements GetIncidenceByIdUseCase {
 
-    private IncidencePort incidencePort;
+    private final IncidencePort incidencePort;
 
     public GetIncidenceByIdService(IncidencePort incidencePort) {
         this.incidencePort = incidencePort;

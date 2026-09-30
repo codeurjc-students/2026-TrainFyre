@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public class CreateIncidenceService implements CreateIncidenceUseCase{
 
-    private IncidencePort incidencePort;
+    private final IncidencePort incidencePort;
 
     public CreateIncidenceService(IncidencePort incidencePort) {
         this.incidencePort = incidencePort;

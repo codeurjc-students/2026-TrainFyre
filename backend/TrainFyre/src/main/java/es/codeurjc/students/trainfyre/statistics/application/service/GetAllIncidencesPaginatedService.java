@@ -8,7 +8,7 @@ import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 
 public class GetAllIncidencesPaginatedService implements GetAllIncidencesPaginatedUseCase {
 
-    private IncidencePort incidencePort;
+    private final IncidencePort incidencePort;
 
     public GetAllIncidencesPaginatedService(IncidencePort incidencePort) {
         this.incidencePort = incidencePort;

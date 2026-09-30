@@ -7,7 +7,7 @@ import org.jmolecules.architecture.cqrs.CommandHandler;
 
 public class DeleteIncidenceService implements DeleteIncidenceUseCase {
 
-    private IncidencePort incidencePort;
+    private final IncidencePort incidencePort;
 
     public DeleteIncidenceService(IncidencePort incidencePort) {
         this.incidencePort = incidencePort;

@@ -9,6 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class PagedResponseTest {
 
     @Test
+    void shouldRejectNullList(){
+        assertThrows(NullPointerException.class, () -> new PagedResponse<Integer>(null, 1, 3,3));
+    }
+
+    @Test
     void shouldRejectNegativePage(){
         assertThrows(IllegalArgumentException.class, () -> new PagedResponse<Integer>(List.of(1,2,3), -1, 3,3));
     }

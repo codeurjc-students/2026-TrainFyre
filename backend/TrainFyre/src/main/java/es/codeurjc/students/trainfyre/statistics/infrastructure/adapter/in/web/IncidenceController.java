@@ -7,6 +7,7 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncid
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
@@ -48,7 +49,8 @@ public class IncidenceController {
     }
 
     @GetMapping("/{id}")
-    public IncidenceDetails getIncidenceById(@RequestParam UUID id){
-        return null;
+    public IncidenceDetails getIncidenceById(@PathVariable("id") UUID id){
+        GetIncidenceByIdQuery getIncidenceByIdQuery = new GetIncidenceByIdQuery(id);
+        return getIncidenceByIdUseCase.execute(getIncidenceByIdQuery);
     }
 }

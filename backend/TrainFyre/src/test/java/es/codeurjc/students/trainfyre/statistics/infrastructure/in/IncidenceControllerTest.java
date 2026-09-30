@@ -4,8 +4,10 @@ import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.*;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.in.web.IncidenceController;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,13 +39,15 @@ class IncidenceControllerTest {
     private CreateIncidenceUseCase createIncidenceUseCase;
     @Mock
     private GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase;
+    @Mock
+    private GetIncidenceByIdUseCase getIncidenceByIdUseCase
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase))
+                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase, getIncidenceByIdUseCase))
                 .build();
     }
 
@@ -115,4 +119,23 @@ class IncidenceControllerTest {
 
         verify(getAllIncidencesPaginatedUseCase).execute(getAllIncidencesPaginatedQuery);
     }
+
+    @Test
+    void shouldGetIncidenceById() throws Exception {
+
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        GetIncidenceByIdQuery getIncidenceByIdQuery = new GetIncidenceByIdQuery(id);
+        Incidence incidence = anIncidence().build();
+
+
+        when(getIncidenceByIdUseCase.execute(getIncidenceByIdQuery)).thenReturn(incidence.getIncidenceDetails());
+
+        mockMvc.perform(get("/incidence")
+                .param("id", "123e4567-e89b-12d3-a456-426614174000"))
+                .andExpect(status().isOk());
+
+        verify(getIncidenceByIdUseCase).execute(getIncidenceByIdQuery);
+    }
+
+
 }

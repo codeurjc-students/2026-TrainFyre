@@ -4,9 +4,11 @@ import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,16 @@ public class IncidenceController {
 
     private final CreateIncidenceUseCase createIncidenceUseCase;
     private final GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase;
+    private final GetIncidenceByIdUseCase getIncidenceByIdUseCase;
 
-    public IncidenceController(CreateIncidenceUseCase createIncidenceUseCase, GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase) {
+    public IncidenceController(
+            CreateIncidenceUseCase createIncidenceUseCase,
+            GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase,
+            GetIncidenceByIdUseCase getIncidenceByIdUseCase
+    ) {
         this.createIncidenceUseCase = createIncidenceUseCase;
         this.getAllIncidencesPaginatedUseCase = getAllIncidencesPaginatedUseCase;
+        this.getIncidenceByIdUseCase = getIncidenceByIdUseCase;
     }
 
     @PostMapping
@@ -39,5 +47,8 @@ public class IncidenceController {
         return getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery);
     }
 
-
+    @GetMapping
+    public IncidenceDetails getIncidenceById(@RequestParam UUID id){
+        return null;
+    }
 }

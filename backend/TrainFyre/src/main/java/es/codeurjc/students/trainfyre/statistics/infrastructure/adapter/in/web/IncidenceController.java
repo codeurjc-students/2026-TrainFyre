@@ -3,11 +3,8 @@ package es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.in.web;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -23,9 +20,9 @@ public class IncidenceController {
     }
 
     @PostMapping
-    public ResponseEntity<UUID> createIncidence(@RequestBody CreateIncidenceCommand createIncidenceCommand) {
-        UUID id =  createIncidenceUseCase.execute(createIncidenceCommand);
-        return ResponseEntity.status(201).body(id);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UUID createIncidence(@RequestBody CreateIncidenceCommand createIncidenceCommand) {
+        return createIncidenceUseCase.execute(createIncidenceCommand);
     }
 
 

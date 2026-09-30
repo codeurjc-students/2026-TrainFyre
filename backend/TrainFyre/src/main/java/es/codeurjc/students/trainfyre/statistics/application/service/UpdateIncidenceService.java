@@ -4,6 +4,7 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.UpdateIncid
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import org.jmolecules.architecture.cqrs.CommandHandler;
 
 import java.util.Optional;
 
@@ -15,6 +16,7 @@ public class UpdateIncidenceService implements UpdateIncidenceUseCase  {
         this.incidencePort = incidencePort;
     }
 
+    @CommandHandler
     @Override
     public Void execute(UpdateIncidenceCommand input) {
 

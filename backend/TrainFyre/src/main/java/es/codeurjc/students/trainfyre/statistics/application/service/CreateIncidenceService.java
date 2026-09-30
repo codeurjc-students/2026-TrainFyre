@@ -5,11 +5,9 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.command.Cre
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import org.jmolecules.architecture.cqrs.CommandHandler;
-import org.jmolecules.architecture.hexagonal.Application;
 
 import java.util.UUID;
 
-@Application
 public class CreateIncidenceService implements CreateIncidenceUseCase{
 
     private IncidencePort incidencePort;

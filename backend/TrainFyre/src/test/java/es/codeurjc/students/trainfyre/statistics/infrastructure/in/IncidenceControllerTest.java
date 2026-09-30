@@ -40,7 +40,7 @@ class IncidenceControllerTest {
     @Mock
     private GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase;
     @Mock
-    private GetIncidenceByIdUseCase getIncidenceByIdUseCase
+    private GetIncidenceByIdUseCase getIncidenceByIdUseCase;
 
     private MockMvc mockMvc;
 
@@ -130,11 +130,11 @@ class IncidenceControllerTest {
 
         when(getIncidenceByIdUseCase.execute(getIncidenceByIdQuery)).thenReturn(incidence.getIncidenceDetails());
 
-        mockMvc.perform(get("/incidence")
-                .param("id", "123e4567-e89b-12d3-a456-426614174000"))
+        mockMvc.perform(get("/incidence/{id}", id))
                 .andExpect(status().isOk());
 
         verify(getIncidenceByIdUseCase).execute(getIncidenceByIdQuery);
+
     }
 
 

@@ -47,7 +47,7 @@ public class IncidenceController {
         return getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public IncidenceDetails getIncidenceById(@RequestParam UUID id){
         return null;
     }

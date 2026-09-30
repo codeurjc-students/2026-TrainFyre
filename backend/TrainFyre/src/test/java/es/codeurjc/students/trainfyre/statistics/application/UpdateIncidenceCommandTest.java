@@ -8,6 +8,8 @@ import es.codeurjc.students.trainfyre.statistics.domain.Description;
 import es.codeurjc.students.trainfyre.statistics.domain.Occurrence;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class UpdateIncidenceCommandTest {
@@ -21,6 +23,13 @@ class UpdateIncidenceCommandTest {
     void shouldRejectNullUUID(){
         assertThrows(NullPointerException.class,
                 () -> new UpdateIncidenceCommand(null, affectedNetwork, occurrence, description, classification)
+        );
+    }
+
+    @Test
+    void shouldRejectAllNullArguments(){
+        assertThrows(NullPointerException.class,
+                () -> new UpdateIncidenceCommand(UUID.randomUUID(), null, null, null, null)
         );
     }
 }

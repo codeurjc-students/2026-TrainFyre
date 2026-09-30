@@ -99,7 +99,7 @@ class IncidenceControllerTest {
 
         when(getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery))
                 .thenReturn(
-                        new PagedResponse<Incidence>(
+                        new PagedResponse<>(
                                 List.of(anIncidence().build()),
                                 0,
                                 10,

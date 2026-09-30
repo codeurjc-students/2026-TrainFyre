@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 
 import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -153,6 +154,20 @@ class IncidenceTest {
         Incidence incidence = anIncidence().withClassification(criticalClassification).withOccurrence(notZeroDurationOccurrence).build();
 
         assertThrows(IllegalArgumentException.class, () -> incidence.changeClassification(informalClassification));
+
+    }
+
+    @Test
+    void shouldReturnIncidenceDetails(){
+
+        Incidence incidence = anIncidence().build();
+
+        IncidenceDetails incidenceDetails = incidence.getIncidenceDetails();
+
+        assertThat(incidenceDetails.affectedNetwork()).isEqualTo(incidence.getAffectedNetwork());
+        assertThat(incidenceDetails.occurrence()).isEqualTo(incidence.getOccurrence());
+        assertThat(incidenceDetails.description()).isEqualTo(incidence.getDescription());
+        assertThat(incidenceDetails.classification()).isEqualTo(incidence.getClassification());
 
     }
 

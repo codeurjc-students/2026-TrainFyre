@@ -61,6 +61,10 @@ public class Incidence {
         this.classification = newClassification;
     }
 
+    public IncidenceDetails getIncidenceDetails(){
+        return null;
+    }
+
     private static void ensureInformationalIncidenceIsInstantaneous(Classification classification, Occurrence occurrence){
         if(classification.severity().equals(Severity.INFORMATIONAL) && !occurrence.isInstantaneous()) throw new IllegalArgumentException("an informational incidence must have Duration.ZERO");
     }

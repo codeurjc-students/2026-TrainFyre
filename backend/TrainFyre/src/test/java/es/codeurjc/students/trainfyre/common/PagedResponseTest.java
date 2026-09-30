@@ -23,4 +23,9 @@ public class PagedResponseTest {
         assertThrows(IllegalArgumentException.class, () -> new PagedResponse<Integer>(List.of(1,2,3), 0, -1,3));
     }
 
+    @Test
+    void shouldRejectNegativeTotalElements(){
+        assertThrows(IllegalArgumentException.class, () -> new PagedResponse<Integer>(List.of(1,2,3), 0, 0,-1));
+    }
+
 }

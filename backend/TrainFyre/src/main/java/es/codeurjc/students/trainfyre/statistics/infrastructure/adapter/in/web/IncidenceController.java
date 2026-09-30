@@ -1,9 +1,11 @@
 package es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.in.web;
 
+import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.http.HttpStatus;
@@ -32,7 +34,9 @@ public class IncidenceController {
 
     @GetMapping
     public PagedResponse<Incidence> getAllIncidencesPaginated(@RequestParam int page, @RequestParam int size){
-        return null;
+        Pageable pageable = new Pageable(page, size);
+        GetAllIncidencesPaginatedQuery getAllIncidencesPaginatedQuery = new GetAllIncidencesPaginatedQuery(pageable);
+        return getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery);
     }
 
 

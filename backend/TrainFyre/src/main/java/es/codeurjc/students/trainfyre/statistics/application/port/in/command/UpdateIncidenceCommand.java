@@ -9,5 +9,5 @@ import org.jmolecules.architecture.cqrs.Command;
 import java.util.UUID;
 
 @Command
-public record UpdateIncidenceCommand(UUID uuid, AffectedNetwork affectedNetwork, Occurrence occurrence, Description description, Classification classification) {
+public record UpdateIncidenceCommand(UUID uuid, AffectedNetwork changeAffectedNetwork, Occurrence changeOccurrence, Description changeDescription, Classification changeClassification) {
 }

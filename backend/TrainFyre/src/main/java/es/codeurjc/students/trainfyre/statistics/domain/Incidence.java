@@ -62,7 +62,7 @@ public class Incidence {
     }
 
     public IncidenceDetails getIncidenceDetails(){
-        return null;
+        return new IncidenceDetails(affectedNetwork, occurrence, description, classification);
     }
 
     private static void ensureInformationalIncidenceIsInstantaneous(Classification classification, Occurrence occurrence){

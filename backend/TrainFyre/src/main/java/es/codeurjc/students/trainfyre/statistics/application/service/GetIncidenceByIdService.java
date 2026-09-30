@@ -19,12 +19,6 @@ public class GetIncidenceByIdService implements GetIncidenceByIdUseCase {
 
         Incidence incidence = incidencePort.findById(input.id(), Incidence.class);
 
-        return
-                new IncidenceDetails(
-                        incidence.getAffectedNetwork(),
-                        incidence.getOccurrence(),
-                        incidence.getDescription(),
-                        incidence.getClassification()
-                );
+        return incidence.getIncidenceDetails();
     }
 }

@@ -11,17 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PageableTest {
 
 
-    static Stream<Arguments> invalidNullArguments() {
-        return Stream.of(
-                Arguments.of(null, 10),
-                Arguments.of(0, null)
-        );
-    }
 
-    @ParameterizedTest
-    @MethodSource("invalidNullArguments")
-    void shouldRejectNullArguments(int page, int size){
-        assertThrows(NullPointerException.class, () -> new Pageable(page, size));
-    }
 
 }

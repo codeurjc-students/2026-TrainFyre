@@ -16,6 +16,7 @@ public class DeleteIncidenceService implements DeleteIncidenceUseCase {
     @CommandHandler
     @Override
     public Void execute(DeleteIncidenceCommand input) {
+        incidencePort.delete(input.id());
         return null;
     }
 }

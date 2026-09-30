@@ -16,6 +16,6 @@ public class GetAllIncidencesPaginatedService implements GetAllIncidencesPaginat
 
     @Override
     public PagedResponse<Incidence> execute(GetAllIncidencesPaginatedQuery input) {
-        return null;
+        return incidencePort.findAll(input.pageable());
     }
 }

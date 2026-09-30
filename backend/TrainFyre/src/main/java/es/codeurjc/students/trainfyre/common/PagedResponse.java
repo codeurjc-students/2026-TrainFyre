@@ -9,5 +9,6 @@ public record PagedResponse<T>(List<T> content, int page, int size, long totalEl
         Objects.requireNonNull(content, "content should not be null");
         if(page < 0) throw new IllegalArgumentException("page should not be negative");
         if(size < 0) throw new IllegalArgumentException("size should not be negative");
+        if(totalElements < 0) throw new IllegalArgumentException("total elements should not be negative");
     }
 }

@@ -11,12 +11,14 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIn
 import es.codeurjc.students.trainfyre.statistics.application.service.UpdateIncidenceService;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
+import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@AllArgsConstructor
 @PrimaryAdapter
 @RestController
 @RequestMapping("/incidence")
@@ -28,14 +30,6 @@ public class IncidenceController {
     private final GetIncidenceByIdUseCase getIncidenceByIdUseCase;
     private final UpdateIncidenceUseCase updateIncidenceUseCase;
     private final DeleteIncidenceUseCase deleteIncidenceUseCase;
-
-    public IncidenceController(CreateIncidenceUseCase createIncidenceUseCase, GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase, GetIncidenceByIdUseCase getIncidenceByIdUseCase, UpdateIncidenceUseCase updateIncidenceUseCase, DeleteIncidenceUseCase deleteIncidenceUseCase) {
-        this.createIncidenceUseCase = createIncidenceUseCase;
-        this.getAllIncidencesPaginatedUseCase = getAllIncidencesPaginatedUseCase;
-        this.getIncidenceByIdUseCase = getIncidenceByIdUseCase;
-        this.updateIncidenceUseCase = updateIncidenceUseCase;
-        this.deleteIncidenceUseCase = deleteIncidenceUseCase;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

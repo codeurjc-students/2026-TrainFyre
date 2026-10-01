@@ -34,6 +34,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public Incidence findById(UUID id, Class<Incidence> incidenceClass) {
+        Objects.requireNonNull(id, "id should not be null");
         return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Incidence not found: " + id));
     }
 

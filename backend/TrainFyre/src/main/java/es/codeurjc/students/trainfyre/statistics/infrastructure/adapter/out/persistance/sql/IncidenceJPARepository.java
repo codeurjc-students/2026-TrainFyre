@@ -40,6 +40,8 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public PagedResponse<Incidence> findAll(Pageable pageable) {
+        Objects.requireNonNull(pageable, "pageable should not be null");
+
         Page<Incidence> result = repository.findAll(
                 PageRequest.of(pageable.page(), pageable.size())
         );

@@ -9,6 +9,7 @@ import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -30,7 +31,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public Incidence findById(UUID id, Class<Incidence> incidenceClass) {
-        return repository.findById(id).orElseThrow();
+        return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Incidence not found: " + id));
     }
 
     @Override

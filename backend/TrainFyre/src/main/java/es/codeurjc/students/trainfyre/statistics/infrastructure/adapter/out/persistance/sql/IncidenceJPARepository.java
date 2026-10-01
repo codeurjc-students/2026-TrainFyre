@@ -5,10 +5,12 @@ import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import lombok.AllArgsConstructor;
+import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
 
 import java.util.UUID;
 
 @AllArgsConstructor
+@SecondaryAdapter
 public class IncidenceJPARepository implements IncidencePort {
 
     private final SpringDataIncidenceRepository repository;

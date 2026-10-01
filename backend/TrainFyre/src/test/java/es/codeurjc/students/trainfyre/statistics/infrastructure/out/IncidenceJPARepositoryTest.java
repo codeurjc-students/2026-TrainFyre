@@ -95,6 +95,22 @@ class IncidenceJPARepositoryTest {
         verify(repository).findById(id);
     }
 
+    @Test
+    void shouldDescribeIncidenceNotFound() {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        NoSuchElementException exception = assertThrows(
+                NoSuchElementException.class,
+                () -> adapter.findById(id, Incidence.class)
+        );
+
+        assertEquals("Incidence not found: " + id, exception.getMessage());
+        verify(repository).findById(id);
+    }
+
+
 
 
 

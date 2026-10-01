@@ -148,4 +148,18 @@ class IncidenceJPARepositoryTest {
         verifyNoInteractions(repository);
     }
 
+    @Test
+    void shouldRejectNullPageable() {
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> adapter.findAll(null)
+        );
+
+        assertEquals("pageable should not be null", exception.getMessage());
+        verifyNoInteractions(repository);
+    }
+
+
 }

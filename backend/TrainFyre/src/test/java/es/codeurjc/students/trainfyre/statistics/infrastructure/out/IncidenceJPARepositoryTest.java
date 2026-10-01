@@ -1,5 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.infrastructure.out;
 
+import es.codeurjc.students.trainfyre.common.Pageable;
+import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceJPARepository;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.SpringDataIncidenceRepository;
@@ -7,11 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,6 +61,29 @@ class IncidenceJPARepositoryTest {
         assertSame(incidence, result);
         verify(repository).findById(id);
     }
+
+    @Test
+    void shouldFindIncidencesPaginated() {
+        Incidence first = anIncidence().build();
+        Incidence second = anIncidence().build();
+        Pageable pageable = new Pageable(1, 2);
+        PageRequest pageRequest = PageRequest.of(1, 2);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+
+        when(repository.findAll(pageRequest)).thenReturn(
+                new PageImpl<>(List.of(first, second), pageRequest, 5)
+        );
+
+        PagedResponse<Incidence> result = adapter.findAll(pageable);
+
+        assertEquals(List.of(first, second), result.content());
+        assertEquals(1, result.page());
+        assertEquals(2, result.size());
+        assertEquals(5L, result.totalElements());
+        verify(repository).findAll(pageRequest);
+    }
+
+
 
 
 }

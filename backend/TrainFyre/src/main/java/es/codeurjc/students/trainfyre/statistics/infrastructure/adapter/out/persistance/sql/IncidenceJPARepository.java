@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public Void delete(UUID id) {
+        Objects.requireNonNull(id, "id should not be null");
         repository.deleteById(id);
         return null;
     }

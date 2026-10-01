@@ -5,9 +5,12 @@ import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.UpdateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
+import es.codeurjc.students.trainfyre.statistics.application.service.UpdateIncidenceService;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
@@ -21,18 +24,17 @@ import java.util.UUID;
 @RequestMapping("/incidence")
 public class IncidenceController {
 
+
     private final CreateIncidenceUseCase createIncidenceUseCase;
     private final GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase;
     private final GetIncidenceByIdUseCase getIncidenceByIdUseCase;
+    private final UpdateIncidenceUseCase updateIncidenceUseCase;
 
-    public IncidenceController(
-            CreateIncidenceUseCase createIncidenceUseCase,
-            GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase,
-            GetIncidenceByIdUseCase getIncidenceByIdUseCase
-    ) {
+    public IncidenceController(CreateIncidenceUseCase createIncidenceUseCase, GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase, GetIncidenceByIdUseCase getIncidenceByIdUseCase, UpdateIncidenceUseCase updateIncidenceUseCase) {
         this.createIncidenceUseCase = createIncidenceUseCase;
         this.getAllIncidencesPaginatedUseCase = getAllIncidencesPaginatedUseCase;
         this.getIncidenceByIdUseCase = getIncidenceByIdUseCase;
+        this.updateIncidenceUseCase = updateIncidenceUseCase;
     }
 
     @PostMapping
@@ -53,4 +55,9 @@ public class IncidenceController {
         GetIncidenceByIdQuery getIncidenceByIdQuery = new GetIncidenceByIdQuery(id);
         return getIncidenceByIdUseCase.execute(getIncidenceByIdQuery);
     }
+
+   @PutMapping
+    public Void updateIncidence(@RequestBody UpdateIncidenceCommand updateIncidenceCommand){
+        return null;
+   }
 }

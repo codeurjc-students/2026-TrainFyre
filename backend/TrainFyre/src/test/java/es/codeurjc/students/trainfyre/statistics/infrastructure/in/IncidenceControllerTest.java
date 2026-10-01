@@ -5,7 +5,9 @@ import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.UpdateIncidenceUseCase;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.*;
@@ -27,8 +29,7 @@ import java.util.UUID;
 import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,13 +42,15 @@ class IncidenceControllerTest {
     private GetAllIncidencesPaginatedUseCase getAllIncidencesPaginatedUseCase;
     @Mock
     private GetIncidenceByIdUseCase getIncidenceByIdUseCase;
+    @Mock
+    private UpdateIncidenceUseCase updateIncidenceUseCase;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase, getIncidenceByIdUseCase))
+                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase, getIncidenceByIdUseCase, updateIncidenceUseCase))
                 .build();
     }
 
@@ -135,6 +138,36 @@ class IncidenceControllerTest {
 
         verify(getIncidenceByIdUseCase).execute(getIncidenceByIdQuery);
 
+    }
+
+    @Test
+    void shouldUpdateIncidence() throws Exception {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        UpdateIncidenceCommand command = new UpdateIncidenceCommand(
+                id,
+                null,
+                null,
+                new Description("Avería actualizada", "Servicio restablecido"),
+                null
+        );
+
+        String json = """
+            {
+              "uuid": "123e4567-e89b-12d3-a456-426614174000",
+              "changeDescription": {
+                "name": "Avería actualizada",
+                "summary": "Servicio restablecido"
+              }
+            }
+            """;
+
+        mockMvc.perform(put("/incidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+
+        verify(updateIncidenceUseCase).execute(command);
     }
 
 

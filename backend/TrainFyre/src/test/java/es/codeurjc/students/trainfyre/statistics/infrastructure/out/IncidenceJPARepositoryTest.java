@@ -3,10 +3,12 @@ package es.codeurjc.students.trainfyre.statistics.infrastructure.out;
 import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceEntity;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceJPARepository;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.SpringDataIncidenceRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
@@ -44,22 +46,40 @@ class IncidenceJPARepositoryTest {
 
         adapter.save(incidence);
 
-        verify(repository).save(incidence);
+        ArgumentCaptor<IncidenceEntity> captor =
+                ArgumentCaptor.forClass(IncidenceEntity.class);
+        verify(repository).save(captor.capture());
+
+        IncidenceEntity saved = captor.getValue();
+        assertEquals(incidence.getId(), saved.getId());
+        assertEquals(incidence.getAffectedNetwork().mapId(), saved.getMapId());
+        assertEquals(incidence.getAffectedNetwork().lineIds(), saved.getLineIds());
+        assertEquals(incidence.getOccurrence().timestamp(), saved.getTimestamp());
+        assertEquals(incidence.getOccurrence().duration(), saved.getDuration());
+        assertEquals(incidence.getDescription().name(), saved.getName());
+        assertEquals(incidence.getDescription().summary(), saved.getSummary());
+        assertEquals(incidence.getClassification().severity(), saved.getSeverity());
+        assertEquals(incidence.getClassification().cause(), saved.getCause());
     }
+
 
     @Test
     void shouldFindIncidenceById() {
-        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        Incidence incidence = anIncidence().build();
+        Incidence original = anIncidence().build();
+        UUID id = original.getId();
         IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
 
-        when(repository.findById(id)).thenReturn(Optional.of(incidence));
+        when(repository.findById(id))
+                .thenReturn(Optional.of(new IncidenceEntity(original)));
 
         Incidence result = adapter.findById(id, Incidence.class);
 
-        assertSame(incidence, result);
+        assertNotSame(original, result);
+        assertEquals(id, result.getId());
+        assertEquals(original.getIncidenceDetails(), result.getIncidenceDetails());
         verify(repository).findById(id);
     }
+
 
     @Test
     void shouldFindIncidencesPaginated() {
@@ -70,17 +90,33 @@ class IncidenceJPARepositoryTest {
         IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
 
         when(repository.findAll(pageRequest)).thenReturn(
-                new PageImpl<>(List.of(first, second), pageRequest, 5)
+                new PageImpl<>(
+                        List.of(
+                                new IncidenceEntity(first),
+                                new IncidenceEntity(second)
+                        ),
+                        pageRequest,
+                        5
+                )
         );
 
         PagedResponse<Incidence> result = adapter.findAll(pageable);
 
-        assertEquals(List.of(first, second), result.content());
         assertEquals(1, result.page());
         assertEquals(2, result.size());
         assertEquals(5L, result.totalElements());
+        assertEquals(2, result.content().size());
+
+        assertEquals(first.getId(), result.content().get(0).getId());
+        assertEquals(first.getIncidenceDetails(),
+                result.content().get(0).getIncidenceDetails());
+        assertEquals(second.getId(), result.content().get(1).getId());
+        assertEquals(second.getIncidenceDetails(),
+                result.content().get(1).getIncidenceDetails());
+
         verify(repository).findAll(pageRequest);
     }
+
 
     @Test
     void shouldFailWhenIncidenceDoesNotExist() {

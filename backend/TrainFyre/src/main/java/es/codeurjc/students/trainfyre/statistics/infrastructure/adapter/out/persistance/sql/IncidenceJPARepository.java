@@ -27,24 +27,28 @@ public class IncidenceJPARepository implements IncidencePort {
     }
 
     @Override
-    public void save(Incidence entity) {
-        Objects.requireNonNull(entity, "incidence should not be null");
-        repository.save(entity);
+    public void save(Incidence incidence) {
+        Objects.requireNonNull(incidence, "incidence should not be null");
+        repository.save(new IncidenceEntity(incidence));
     }
 
     @Override
     public Incidence findById(UUID id, Class<Incidence> incidenceClass) {
         Objects.requireNonNull(id, "id should not be null");
-        return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Incidence not found: " + id));
+
+        return repository.findById(id)
+                .map(IncidenceEntity::toDomain)
+                .orElseThrow(() ->
+                        new NoSuchElementException("Incidence not found: " + id));
     }
 
     @Override
     public PagedResponse<Incidence> findAll(Pageable pageable) {
         Objects.requireNonNull(pageable, "pageable should not be null");
 
-        Page<Incidence> result = repository.findAll(
-                PageRequest.of(pageable.page(), pageable.size())
-        );
+        Page<Incidence> result = repository
+                .findAll(PageRequest.of(pageable.page(), pageable.size()))
+                .map(IncidenceEntity::toDomain);
 
         return new PagedResponse<>(
                 result.getContent(),
@@ -53,4 +57,5 @@ public class IncidenceJPARepository implements IncidencePort {
                 result.getTotalElements()
         );
     }
+
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @AggregateRoot
@@ -38,6 +39,24 @@ public class Incidence {
         return new Incidence(id, affectedNetwork, occurrence, description, classification);
 
     }
+
+    public static Incidence reconstitute(
+            UUID id,
+            AffectedNetwork affectedNetwork,
+            Occurrence occurrence,
+            Description description,
+            Classification classification
+    ) {
+        Objects.requireNonNull(id, "id should not be null");
+        Objects.requireNonNull(affectedNetwork, "affected network should not be null");
+        Objects.requireNonNull(occurrence, "occurrence should not be null");
+        Objects.requireNonNull(description, "description should not be null");
+        Objects.requireNonNull(classification, "classification should not be null");
+        ensureInformationalIncidenceIsInstantaneous(classification, occurrence);
+
+        return new Incidence(id, affectedNetwork, occurrence, description, classification);
+    }
+
 
     public void changeAffectedNetwork(AffectedNetwork newAffectedNetwork) {
         if (newAffectedNetwork == null) throw new IllegalArgumentException("affected network should not be null");

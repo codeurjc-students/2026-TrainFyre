@@ -13,12 +13,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
 import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,6 +81,18 @@ class IncidenceJPARepositoryTest {
         assertEquals(2, result.size());
         assertEquals(5L, result.totalElements());
         verify(repository).findAll(pageRequest);
+    }
+
+    @Test
+    void shouldFailWhenIncidenceDoesNotExist() {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+                () -> adapter.findById(id, Incidence.class));
+
+        verify(repository).findById(id);
     }
 
 

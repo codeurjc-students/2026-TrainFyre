@@ -2,11 +2,9 @@ package es.codeurjc.students.trainfyre.statistics.infrastructure.in;
 
 import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.CreateIncidenceUseCase;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncidencesPaginatedUseCase;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.GetIncidenceByIdUseCase;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.UpdateIncidenceUseCase;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.*;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
+import es.codeurjc.students.trainfyre.statistics.application.port.in.command.DeleteIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
@@ -44,13 +42,15 @@ class IncidenceControllerTest {
     private GetIncidenceByIdUseCase getIncidenceByIdUseCase;
     @Mock
     private UpdateIncidenceUseCase updateIncidenceUseCase;
+    @Mock
+    private DeleteIncidenceUseCase deleteIncidenceUseCase;
 
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase, getIncidenceByIdUseCase, updateIncidenceUseCase))
+                .standaloneSetup(new IncidenceController(createIncidenceUseCase, getAllIncidencesPaginatedUseCase, getIncidenceByIdUseCase, updateIncidenceUseCase, deleteIncidenceUseCase))
                 .build();
     }
 
@@ -169,6 +169,27 @@ class IncidenceControllerTest {
 
         verify(updateIncidenceUseCase).execute(command);
     }
+
+    @Test
+    void shouldDeleteIncidence() throws Exception {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        DeleteIncidenceCommand command = new DeleteIncidenceCommand(id);
+
+        String json = """
+            {
+              "id": "123e4567-e89b-12d3-a456-426614174000"
+            }
+            """;
+
+        mockMvc.perform(delete("/incidence")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(deleteIncidenceUseCase).execute(command);
+    }
+
 
 
 }

@@ -57,6 +57,7 @@ public class IncidenceController {
     }
 
    @PutMapping
+   @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void updateIncidence(@RequestBody UpdateIncidenceCommand updateIncidenceCommand){
         return updateIncidenceUseCase.execute(updateIncidenceCommand);
    }

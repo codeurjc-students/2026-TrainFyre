@@ -164,7 +164,7 @@ class IncidenceControllerTest {
         mockMvc.perform(put("/incidence")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
         verify(updateIncidenceUseCase).execute(command);

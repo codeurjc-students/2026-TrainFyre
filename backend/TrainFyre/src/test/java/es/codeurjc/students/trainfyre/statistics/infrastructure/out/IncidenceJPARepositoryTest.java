@@ -19,8 +19,7 @@ import java.util.UUID;
 
 import static es.codeurjc.students.trainfyre.statistics.IncidenceTestBuilder.anIncidence;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class IncidenceJPARepositoryTest {
@@ -108,6 +107,19 @@ class IncidenceJPARepositoryTest {
 
         assertEquals("Incidence not found: " + id, exception.getMessage());
         verify(repository).findById(id);
+    }
+
+    @Test
+    void shouldRejectNullIdWhenDeleting() {
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> adapter.delete(null)
+        );
+
+        assertEquals("id should not be null", exception.getMessage());
+        verifyNoInteractions(repository);
     }
 
 

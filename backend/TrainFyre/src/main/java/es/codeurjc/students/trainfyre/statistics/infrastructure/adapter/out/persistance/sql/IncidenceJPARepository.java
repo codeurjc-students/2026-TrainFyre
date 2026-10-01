@@ -28,6 +28,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public void save(Incidence entity) {
+        Objects.requireNonNull(entity, "incidence should not be null");
         repository.save(entity);
     }
 

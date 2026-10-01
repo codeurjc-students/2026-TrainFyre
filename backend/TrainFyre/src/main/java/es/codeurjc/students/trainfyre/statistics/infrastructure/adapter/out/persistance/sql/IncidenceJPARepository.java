@@ -15,6 +15,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public Void delete(UUID id) {
+        repository.deleteById(id);
         return null;
     }
 

@@ -122,8 +122,17 @@ class IncidenceJPARepositoryTest {
         verifyNoInteractions(repository);
     }
 
+    @Test
+    void shouldRejectNullIncidenceWhenSaving() {
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
 
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> adapter.save(null)
+        );
 
-
-
+        assertEquals("incidence should not be null", exception.getMessage());
+        verifyNoInteractions(repository);
+    }
+    
 }

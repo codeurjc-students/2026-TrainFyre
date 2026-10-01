@@ -6,6 +6,8 @@ import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidenceP
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.UUID;
 
@@ -33,6 +35,15 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public PagedResponse<Incidence> findAll(Pageable pageable) {
-        return null;
+        Page<Incidence> result = repository.findAll(
+                PageRequest.of(pageable.page(), pageable.size())
+        );
+
+        return new PagedResponse<>(
+                result.getContent(),
+                result.getNumber(),
+                result.getSize(),
+                result.getTotalElements()
+        );
     }
 }

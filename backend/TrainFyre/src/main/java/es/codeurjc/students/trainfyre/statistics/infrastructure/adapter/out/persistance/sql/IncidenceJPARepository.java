@@ -28,7 +28,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public Incidence findById(UUID id, Class<Incidence> incidenceClass) {
-        return null;
+        return repository.findById(id).orElseThrow();
     }
 
     @Override

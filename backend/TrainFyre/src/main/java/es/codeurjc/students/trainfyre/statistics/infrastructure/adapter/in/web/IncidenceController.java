@@ -65,6 +65,6 @@ public class IncidenceController {
    @DeleteMapping
    @ResponseStatus(HttpStatus.NO_CONTENT)
    public Void deleteIncidence(@RequestBody DeleteIncidenceCommand deleteIncidenceCommand){
-        return null;
+        return deleteIncidenceUseCase.execute(deleteIncidenceCommand);
    }
 }

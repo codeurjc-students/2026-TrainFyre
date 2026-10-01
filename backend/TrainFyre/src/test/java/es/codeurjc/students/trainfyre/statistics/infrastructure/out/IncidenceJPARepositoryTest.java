@@ -134,5 +134,18 @@ class IncidenceJPARepositoryTest {
         assertEquals("incidence should not be null", exception.getMessage());
         verifyNoInteractions(repository);
     }
-    
+
+    @Test
+    void shouldRejectNullIdWhenFindingById() {
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+
+        NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> adapter.findById(null, Incidence.class)
+        );
+
+        assertEquals("id should not be null", exception.getMessage());
+        verifyNoInteractions(repository);
+    }
+
 }

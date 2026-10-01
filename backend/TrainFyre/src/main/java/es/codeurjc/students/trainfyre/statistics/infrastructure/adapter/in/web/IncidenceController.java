@@ -58,6 +58,6 @@ public class IncidenceController {
 
    @PutMapping
     public Void updateIncidence(@RequestBody UpdateIncidenceCommand updateIncidenceCommand){
-        return null;
+        return updateIncidenceUseCase.execute(updateIncidenceCommand);
    }
 }

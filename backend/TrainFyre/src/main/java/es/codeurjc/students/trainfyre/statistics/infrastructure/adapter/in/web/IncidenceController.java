@@ -8,7 +8,6 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.command.Del
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
-import es.codeurjc.students.trainfyre.statistics.application.service.UpdateIncidenceService;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
 import lombok.AllArgsConstructor;

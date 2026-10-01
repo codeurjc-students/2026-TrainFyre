@@ -23,7 +23,7 @@ public class IncidenceJPARepository implements IncidencePort {
 
     @Override
     public void save(Incidence entity) {
-
+        repository.save(entity);
     }
 
     @Override

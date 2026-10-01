@@ -1,4 +1,4 @@
-package es.codeurjc.students.trainfyre.statistics.infrastructure;
+package es.codeurjc.students.trainfyre.statistics.infrastructure.service;
 
 import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;

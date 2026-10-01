@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Repository;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @AllArgsConstructor
 @SecondaryAdapter
+@Repository
 public class IncidenceJPARepository implements IncidencePort {
 
     private final SpringDataIncidenceRepository repository;

@@ -4,17 +4,17 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.UpdateIncid
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
+@AllArgsConstructor
 public class UpdateIncidenceService implements UpdateIncidenceUseCase  {
 
     private final IncidencePort incidencePort;
-
-    public UpdateIncidenceService(IncidencePort incidencePort){
-        this.incidencePort = incidencePort;
-    }
 
     @CommandHandler
     @Override

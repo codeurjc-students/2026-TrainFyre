@@ -5,14 +5,14 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.GetAllIncid
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAllIncidencesPaginatedQuery;
 import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidencePort;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
+@AllArgsConstructor
 public class GetAllIncidencesPaginatedService implements GetAllIncidencesPaginatedUseCase {
 
     private final IncidencePort incidencePort;
-
-    public GetAllIncidencesPaginatedService(IncidencePort incidencePort) {
-        this.incidencePort = incidencePort;
-    }
 
     @Override
     public PagedResponse<Incidence> execute(GetAllIncidencesPaginatedQuery input) {

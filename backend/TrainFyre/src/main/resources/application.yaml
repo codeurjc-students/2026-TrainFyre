@@ -1,3 +1,7 @@
 spring:
   application:
     name: TrainFyre
+  datasource:
+    url: ${INCIDENCIAS_DB_URL}
+    username: ${INCIDENCIAS_DB_USER}
+    password: ${INCIDENCIAS_DB_PASSWORD}

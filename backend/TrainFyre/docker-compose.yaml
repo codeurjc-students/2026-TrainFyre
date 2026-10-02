@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: trainfyre
+      POSTGRES_USER: trainfyre
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+    tmpfs:
+      - /var/lib/postgresql:rw,size=512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trainfyre -d trainfyre"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
+      SPRING_DATASOURCE_USERNAME: trainfyre
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+    depends_on:
+      db:
+        condition: service_healthy
+

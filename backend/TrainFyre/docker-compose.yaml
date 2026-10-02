@@ -19,6 +19,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
       SPRING_DATASOURCE_USERNAME: trainfyre
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}

@@ -23,6 +23,9 @@ services:
       SPRING_DATASOURCE_USERNAME: trainfyre
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
+      SPRING_SQL_INIT_MODE: always
+
     depends_on:
       db:
         condition: service_healthy

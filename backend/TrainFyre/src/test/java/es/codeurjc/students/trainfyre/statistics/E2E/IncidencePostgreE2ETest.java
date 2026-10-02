@@ -40,8 +40,8 @@ import static org.hamcrest.Matchers.not;
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.jpa.hibernate.ddl-auto=create-drop"
 )
-@Import(IncidenceE2ETest.PostgresConfig.class)
-class IncidenceE2ETest {
+@Import(IncidencePostgreE2ETest.PostgresConfig.class)
+class IncidencePostgreE2ETest {
 
     @TestConfiguration(proxyBeanMethods = false)
     static class PostgresConfig {

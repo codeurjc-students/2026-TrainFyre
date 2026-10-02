@@ -1,0 +1,223 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /incidence:
+    get:
+      tags:
+      - incidence-controller
+      operationId: getAllIncidencesPaginated
+      parameters:
+      - name: page
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PagedResponseIncidence"
+    put:
+      tags:
+      - incidence-controller
+      operationId: updateIncidence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateIncidenceCommand"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    post:
+      tags:
+      - incidence-controller
+      operationId: createIncidence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateIncidenceCommand"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+    delete:
+      tags:
+      - incidence-controller
+      operationId: deleteIncidence
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteIncidenceCommand"
+        required: true
+      responses:
+        "204":
+          description: No Content
+  /incidence/{id}:
+    get:
+      tags:
+      - incidence-controller
+      operationId: getIncidenceById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/IncidenceDetails"
+components:
+  schemas:
+    AffectedNetwork:
+      type: object
+      properties:
+        mapId:
+          type: integer
+          format: int64
+        lineIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    Classification:
+      type: object
+      properties:
+        severity:
+          type: string
+          enum:
+          - CRITICAL
+          - HIGH
+          - MODERATE
+          - LOW
+          - INFORMATIONAL
+        cause:
+          type: string
+          enum:
+          - WEATHER
+          - MAINTENANCE
+          - STRIKE
+          - TECHNICAL_PROBLEM
+          - MEDICAL_EMERGENCY
+          - POLICE_ACTION
+          - HOLIDAY
+          - OTHER
+    Description:
+      type: object
+      properties:
+        name:
+          type: string
+        summary:
+          type: string
+    Occurrence:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        duration:
+          type: string
+          format: duration
+        instantaneous:
+          type: boolean
+    UpdateIncidenceCommand:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        changeAffectedNetwork:
+          $ref: "#/components/schemas/AffectedNetwork"
+        changeOccurrence:
+          $ref: "#/components/schemas/Occurrence"
+        changeDescription:
+          $ref: "#/components/schemas/Description"
+        changeClassification:
+          $ref: "#/components/schemas/Classification"
+    CreateIncidenceCommand:
+      type: object
+      properties:
+        affectedNetwork:
+          $ref: "#/components/schemas/AffectedNetwork"
+        occurrence:
+          $ref: "#/components/schemas/Occurrence"
+        description:
+          $ref: "#/components/schemas/Description"
+        classification:
+          $ref: "#/components/schemas/Classification"
+    Incidence:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        affectedNetwork:
+          $ref: "#/components/schemas/AffectedNetwork"
+        occurrence:
+          $ref: "#/components/schemas/Occurrence"
+        description:
+          $ref: "#/components/schemas/Description"
+        classification:
+          $ref: "#/components/schemas/Classification"
+        incidenceDetails:
+          $ref: "#/components/schemas/IncidenceDetails"
+    IncidenceDetails:
+      type: object
+      properties:
+        affectedNetwork:
+          $ref: "#/components/schemas/AffectedNetwork"
+        occurrence:
+          $ref: "#/components/schemas/Occurrence"
+        description:
+          $ref: "#/components/schemas/Description"
+        classification:
+          $ref: "#/components/schemas/Classification"
+    PagedResponseIncidence:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Incidence"
+        page:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int32
+        totalElements:
+          type: integer
+          format: int64
+    DeleteIncidenceCommand:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid

@@ -215,6 +215,14 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>3.16.0</version>
+            <scope>test</scope>
+        </dependency>
+
+
 
     </dependencies>
 
@@ -236,6 +244,12 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>4.21.12</version>
             </plugin>
         </plugins>
     </build>

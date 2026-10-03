@@ -1,0 +1,58 @@
+name: Unit tests
+
+# Se ejecuta en cada push a cualquier rama EXCEPTO main.
+# En main (merge de un PR) se ejecuta el workflow "Full test suite".
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+# Si se hace un nuevo push a la misma rama, se cancela la ejecución anterior.
+concurrency:
+  group: unit-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend/TrainFyre
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 26
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '26'
+          cache: maven
+          cache-dependency-path: backend/TrainFyre/pom.xml
+
+      # Se excluyen los tests que arrancan contexto de Spring o usan Docker:
+      #   *IntegrationTest            -> @SpringBootTest / @DataJpaTest
+      #   *E2ETest                    -> @SpringBootTest + Testcontainers (Postgres / MariaDB)
+      #   TrainFyreApplicationTests   -> carga completa del contexto
+      # Quedan: dominio, comandos/queries, servicios (Mockito), controlador (Mockito)
+      # y ArchitectureTest (Spring Modulith).
+      - name: Run unit tests
+        run: >
+          mvn -B -ntp test
+          -Dtest='!*IntegrationTest,!*E2ETest,!TrainFyreApplicationTests'
+          -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: backend/TrainFyre/target/surefire-reports/
+          retention-days: 7

@@ -56,7 +56,7 @@ jobs:
       # Docker viene instalado en ubuntu-latest, así que Testcontainers
       # (postgres:16-alpine y MariaDB) funciona sin configuración extra.
       # "verify" ejecuta todos los tests, empaqueta y genera el informe JaCoCo;
-      # después, en la misma invocación, el scanner de Maven envía todo a Sonar.
+      # después, en la misma invocación, el scanner de Maven envía a Sonar.
       - name: Build, test and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # decoración del PR

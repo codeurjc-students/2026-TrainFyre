@@ -225,6 +225,29 @@
                 <artifactId>gatling-maven-plugin</artifactId>
                 <version>4.21.12</version>
             </plugin>
+
+            <!-- Cobertura de código (la lee SonarQube Cloud desde target/site/jacoco/jacoco.xml).
+                 0.8.15 es la primera versión con soporte oficial para Java 26. -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.15</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

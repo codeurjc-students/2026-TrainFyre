@@ -1,6 +1,8 @@
-name: Full test suite
+name: Full test suite + SonarQube Cloud
 
 # Se ejecuta al abrir/actualizar un PR hacia main y cuando se hace merge a main.
+# Ejecuta TODOS los tests (unitarios, integración y E2E), genera la cobertura
+# con JaCoCo y envía el análisis a SonarQube Cloud en la misma ejecución.
 on:
   pull_request:
     branches:
@@ -12,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read   # necesario para que Sonar analice/decore el PR
 
 concurrency:
   group: full-tests-${{ github.event.pull_request.number || github.ref }}
@@ -23,7 +26,7 @@ defaults:
 
 jobs:
   full-tests:
-    name: Unit + Integration + E2E
+    name: Unit + Integration + E2E + Sonar
     runs-on: ubuntu-latest
     # No se lanza en PRs en borrador (sí en el push a main).
     if: github.event_name == 'push' || github.event.pull_request.draft == false
@@ -32,6 +35,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0   # Sonar necesita el historial completo para atribuir "new code"
 
       - name: Set up JDK 26
         uses: actions/setup-java@v5
@@ -41,17 +46,34 @@ jobs:
           cache: maven
           cache-dependency-path: backend/TrainFyre/pom.xml
 
-      # Docker ya viene instalado en ubuntu-latest, por lo que Testcontainers
+      - name: Cache SonarQube Cloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      # Docker viene instalado en ubuntu-latest, así que Testcontainers
       # (postgres:16-alpine y MariaDB) funciona sin configuración extra.
-      # "verify" ejecuta todos los tests (unitarios, integración y E2E)
-      # y además comprueba que la aplicación empaqueta correctamente.
-      - name: Run all tests
-        run: mvn -B -ntp verify
+      # "verify" ejecuta todos los tests, empaqueta y genera el informe JaCoCo;
+      # después, en la misma invocación, el scanner de Maven envía todo a Sonar.
+      - name: Build, test and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # decoración del PR
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: >
+          mvn -B -ntp verify
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.organization=codeurjc-students
+          -Dsonar.projectKey=codeurjc-students_2026-TrainFyre
 
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-test-reports
-          path: backend/TrainFyre/target/surefire-reports/
+          path: |
+            backend/TrainFyre/target/surefire-reports/
+            backend/TrainFyre/target/site/jacoco/
           retention-days: 7

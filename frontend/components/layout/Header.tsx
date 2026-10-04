@@ -1,18 +1,18 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 
-export type OpcionMenu = {
+export type OptionMenu = {
     id: string
-    nombre: string
+    name: string
 }
 
 type HeaderProps = {
-    opciones: readonly OpcionMenu[]
-    paginaActual: string
-    onCambiarPagina: (id: string) => void
+    options: readonly OptionMenu[]
+    currentPage: string
+    onChangePage: (id: string) => void
 }
 
-export function Header({opciones, paginaActual, onCambiarPagina,}: Readonly<HeaderProps>) {
+export function Header({options, currentPage, onChangePage,}: Readonly<HeaderProps>) {
     return (
         <header className="w-full border-b bg-background">
             <div className="flex h-16 w-full items-center justify-between px-6">
@@ -20,20 +20,20 @@ export function Header({opciones, paginaActual, onCambiarPagina,}: Readonly<Head
                     variant="ghost"
                     size="icon"
                     aria-label="Ir a inicio"
-                    onClick={() => onCambiarPagina("inicio")}
+                    onClick={() => onChangePage("inicio")}
                 >
                     <span aria-hidden="true">◆</span>
                 </Button>
 
                 <nav className="flex items-center gap-2" aria-label="Menú principal">
-                    {opciones.map((opcion) => (
+                    {options.map((option) => (
                         <Button
-                            key={opcion.id}
-                            variant={paginaActual === opcion.id ? "secondary" : "ghost"}
-                            aria-pressed={paginaActual === opcion.id}
-                            onClick={() => onCambiarPagina(opcion.id)}
+                            key={option.id}
+                            variant={currentPage === option.id ? "secondary" : "ghost"}
+                            aria-pressed={currentPage === option.id}
+                            onClick={() => onChangePage(option.id)}
                         >
-                            {opcion.nombre}
+                            {option.name}
                         </Button>
                     ))}
 

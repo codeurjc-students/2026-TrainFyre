@@ -32,6 +32,7 @@ export function Incidences() {
                     </h1>
                     <p className="mt-2 text-muted-foreground">
                         Consulta las líneas afectadas y el retraso previsto.
+                        En un futuro se mostrarán estadísticas.
                     </p>
                 </div>
 
@@ -48,7 +49,7 @@ export function Incidences() {
             )}
 
             <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-                <label className="mb-5 flex w-fit flex-col gap-1 text-sm font-medium">
+                <label className="mb-5 flex w-fit flex-col gap-1 text-sm font-medium px-6 py-4">
                     <select
                         value={mapa}
                         onChange={(event) => setMapa(event.target.value)}

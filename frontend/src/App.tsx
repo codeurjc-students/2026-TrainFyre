@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { AppLayout } from "@/components/layout/AppLayout"
 import { Inicio } from "./pages/Inicio"
-import { Incidencias } from "./pages/Incidencias"
+import { Incidences } from "./pages/Incidences.tsx"
 
 const pages = [
     { id: "inicio", name: "Inicio", components: Inicio },
-    { id: "incidencias", name: "Incidencias", components: Incidencias },
+    { id: "incidencias", name: "Incidencias", components: Incidences },
 ]
 
 export default function App() {

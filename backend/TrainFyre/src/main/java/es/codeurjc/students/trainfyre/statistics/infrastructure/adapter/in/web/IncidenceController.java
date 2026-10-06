@@ -21,6 +21,7 @@ import java.util.UUID;
 @PrimaryAdapter
 @RestController
 @RequestMapping("/incidence")
+@CrossOrigin(origins = "http://localhost:5173")
 public class IncidenceController {
 
 

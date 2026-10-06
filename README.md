@@ -33,7 +33,7 @@ TrainFyre is a full-stack application for monitoring, classifying, and presentin
 
 ## Project overview
 
-TrainFyre collects and processes alerts from different transport-related sources in order to offer a service similar to that provided by official transit information portals and mobility apps.
+TrainFyre collects and processes alerts from different transport-related sources in order to offer a service similar to that provided by official transit information portals and mobility applications.
 
 The current architecture follows these principles:
 
@@ -60,12 +60,8 @@ The current architecture follows these principles:
 - Detailed incident listing and filtering
 - Administration of system entities
 
-### Advanced functionality
-
-- Advanced alerts and notifications
-- Event-driven integration expansions
-- Additional cloud-based services or AI-powered enhancements
-- Scalability and observability improvements
+> [!NOTE]
+> The advanced functionality is still pending definition and will be documented when it is actually designed and implemented. No advanced features have been added to the project yet.
 
 ## Screens and navigation
 

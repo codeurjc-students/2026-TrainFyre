@@ -11,31 +11,81 @@ Once the backend is running locally:
 
 ## API base path
 
-The project currently follows a REST architecture and exposes endpoints under an API version prefix. The main patterns are:
+The REST API is currently exposed at the root with the following base path:
 
-- `/api/v1/...`
+- `/incidence`
 
-## Domain objects
+## Implemented endpoints
 
-The main backend domain modeled in the current implementation is centered on transport incidents, including:
+### Incidence management
 
-- `Incidence`
-- `Map`
-- `Line`
-- `User`
+The `IncidenceController` exposes the following endpoints for managing incidences:
 
-The backend module `statistics` contains the incident model and persistence logic.
-
-## Example endpoints
-
+**Create incidence (POST)**
 ```http
-GET /api/v1/incidences?page=0&size=20
-GET /api/v1/incidences/{id}
-POST /api/v1/incidences
+POST /incidence
+Content-Type: application/json
+
+{
+  "affectedNetwork": { "mapId": 1, "lineIds": [1, 2, 3] },
+  "occurrence": { "timestamp": "2026-10-06T10:00:00Z", "duration": "PT2H" },
+  "description": { "name": "Line 5 Delay", "summary": "Delays due to technical issues" },
+  "classification": { "severity": "WARNING", "cause": "TECHNICAL" }
+}
 ```
+Response: HTTP 201 Created with incidence UUID
 
-## OpenAPI specification files
+**Get all incidences (GET)**
+```http
+GET /incidence?page=0&size=20
+```
+Response: HTTP 200 OK with paginated list of incidences
 
-The generated specification is expected to be stored under a dedicated docs area, and the backend is configured to generate OpenAPI output directly from the controllers and annotations.
+**Get incidence by ID (GET)**
+```http
+GET /incidence/{id}
+```
+Response: HTTP 200 OK with incidence details or 404 if not found
 
-The repository currently keeps the project structure aligned with the backend and frontend folders, and the runtime docs can be generated directly from the running application.
+**Update incidence (PUT)**
+```http
+PUT /incidence
+Content-Type: application/json
+
+{
+  "id": "uuid-of-incidence",
+  "affectedNetwork": { ... },
+  "occurrence": { ... },
+  "description": { ... },
+  "classification": { ... }
+}
+```
+Response: HTTP 204 No Content
+
+**Delete incidence (DELETE)**
+```http
+DELETE /incidence
+Content-Type: application/json
+
+{
+  "id": "uuid-of-incidence"
+}
+```
+Response: HTTP 204 No Content
+
+## CORS configuration
+
+The backend is configured to accept CORS requests from `http://localhost:5173` (the development frontend). This allows the React SPA to communicate with the backend during development.
+
+## OpenAPI specification
+
+The complete API specification is automatically generated from the Spring Boot annotations and is available via Swagger UI at runtime. The specification includes:
+
+- Request/response schemas
+- Parameter documentation
+- HTTP status codes
+- Data type definitions
+
+## Future API expansion
+
+As the project progresses through phases 3-5, additional endpoints for users, maps, and lines will be added. The API documentation will be updated accordingly.

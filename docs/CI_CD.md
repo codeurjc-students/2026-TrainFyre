@@ -44,11 +44,26 @@ The project requires:
 cd backend/TrainFyre
 mvn verify
 
-cd ../..
+cd ../...
 cd frontend
 npm run test:unit
 npm run test:coverage
 ```
+
+## API readiness check
+
+The CI workflow includes an automatic check to wait for the backend API to be ready before running integration and E2E tests:
+
+```bash
+for i in $(seq 1 60); do
+  if curl -fsS "http://localhost:8080/incidence?page=0&size=1" > /dev/null; then
+    echo "API ready"; exit 0
+  fi
+  echo "Waiting for the API ($i/60)..."; sleep 3
+done
+```
+
+This ensures the API is fully operational before proceeding with client-server integration tests.
 
 ## Deployment logic
 

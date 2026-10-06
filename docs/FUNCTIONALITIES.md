@@ -29,12 +29,7 @@ This document identifies the main functionalities of TrainFyre and classifies th
 
 ## Advanced functionality
 
-The advanced functionality is still under analysis and may evolve based on the final requirements and technical constraints. Planned improvements include:
-
-- Advanced notification systems
-- More sophisticated alert analysis and aggregation logic
-- Cloud integration and infrastructure scalability
-- AI-assisted features or recommendation mechanisms
+The advanced functionality is still under analysis and may evolve based on the final requirements and technical constraints. No advanced features have been implemented or planned yet.
 
 ## Role matrix
 
@@ -42,4 +37,4 @@ The advanced functionality is still under analysis and may evolve based on the f
 | --- | --- | --- | --- |
 | Basic | Register in the system; general public status | Log in/out; profile management; subscriptions | CRUD on system entities |
 | Intermediate | View public reports and status | Manage subscriptions; view alert data | View alert statistics and admin panels |
-| Advanced | Not yet defined | Optional advanced use cases | Complex analytics, integrations, and evolving platform features |
+| Advanced | Not yet defined | Not yet defined | Not yet defined |

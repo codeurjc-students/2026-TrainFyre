@@ -24,6 +24,12 @@ This document records the main uses of AI tools in the project, as required by t
 - Configuration: planning and documentation support
 - Use: organization of the repository structure, README modularization, and generation of CI/test guidance aligned with the actual project
 
+- Date: 2026-10-06
+- Objective: comprehensive repository validation, documentation cleanup, and verification against Phase 2 requirements
+- Tool: GitHub Copilot (AI assistant)
+- Configuration: code analysis, repository structure review, and documentation alignment verification
+- Use: complete audit of repository against Phase 2 specification; removal of non-matching documentation (Spring Security references, frontend template README); documentation of real API endpoints from IncidenceController; validation of CI/CD workflows, testing strategy, and build configuration; comprehensive consistency check between documentation and actual codebase; final verification checklist for Phase 2 completion
+
 ## Additional notes
 
 All content generated with AI assistance has been reviewed and adapted to the actual implementation of TrainFyre. The student remains responsible for the correctness and final quality of the project deliverables.

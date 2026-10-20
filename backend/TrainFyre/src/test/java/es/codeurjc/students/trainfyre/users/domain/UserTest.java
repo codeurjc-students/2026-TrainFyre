@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
 
@@ -50,6 +49,18 @@ class UserTest {
         user.addAlertSubscription(subscription);
 
         assertEquals(List.of(subscription), user.getAlertSubscriptions());
+    }
+
+    @Test
+    void shouldRejectNullSubscription() {
+        var user = User.createUser("pablo", "valid-password");
+
+        assertThrows(
+                NullPointerException.class,
+                () -> user.addAlertSubscription(null)
+        );
+
+        assertTrue(user.getAlertSubscriptions().isEmpty());
     }
 
 }

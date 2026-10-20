@@ -2,6 +2,7 @@ package es.codeurjc.students.trainfyre.users.domain;
 
 import org.jmolecules.ddd.annotation.AggregateRoot;
 
+import java.util.Objects;
 import java.util.UUID;
 
 @AggregateRoot
@@ -21,6 +22,9 @@ public class User {
     }
 
     public static User createUser(String username, String password){
+
+        Objects.requireNonNull(username, "Username should not be null");
+        Objects.requireNonNull(password, "Password should not be null");
 
         UUID id = UUID.randomUUID();
 

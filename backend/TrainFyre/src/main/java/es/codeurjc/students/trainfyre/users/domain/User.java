@@ -41,6 +41,7 @@ public class User {
     }
 
     public void addAlertSubscription(AlertSubscription subscription){
+        Objects.requireNonNull(subscription, "Subscription should not be null");
         alertSubscriptions.add(subscription);
     }
 

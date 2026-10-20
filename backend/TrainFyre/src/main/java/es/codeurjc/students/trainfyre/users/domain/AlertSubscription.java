@@ -5,6 +5,7 @@ import org.jmolecules.ddd.annotation.ValueObject;
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,4 +19,6 @@ public record AlertSubscription(Set<Long> lines, ZonedDateTime startTime, ZonedD
         Objects.requireNonNull(daysOfTheWeek, "daysOfTheWeek should not be null");
         Objects.requireNonNull(expiration, "expiration should not be null");
     }
+
+    public boolean isAffected(List<Long> lineIds, ZonedDateTime timestamp){return false;}
 }

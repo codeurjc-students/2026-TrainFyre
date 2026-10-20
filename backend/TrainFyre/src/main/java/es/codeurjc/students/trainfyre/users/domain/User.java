@@ -40,7 +40,9 @@ public class User {
 
     }
 
-    public void addAlertSubscription(AlertSubscription subscription){}
+    public void addAlertSubscription(AlertSubscription subscription){
+        alertSubscriptions.add(subscription);
+    }
 
 
     public List<AlertSubscription> getAlertSubscriptions() {

@@ -20,5 +20,15 @@ public record AlertSubscription(Set<Long> lines, ZonedDateTime startTime, ZonedD
         Objects.requireNonNull(expiration, "expiration should not be null");
     }
 
-    public boolean isAffected(List<Long> lineIds, ZonedDateTime timestamp){return false;}
+    public boolean isAffected(List<Long> lineIds, ZonedDateTime timestamp){
+
+        var time = timestamp.toLocalTime();
+
+        return !timestamp.isAfter(expiration)
+                && daysOfTheWeek.contains(timestamp.getDayOfWeek())
+                && !time.isBefore(startTime.toLocalTime())
+                && !time.isAfter(endTime.toLocalTime())
+                && lineIds.stream().anyMatch(lines::contains);
+
+    }
 }

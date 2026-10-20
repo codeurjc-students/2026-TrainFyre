@@ -1,6 +1,7 @@
 package es.codeurjc.students.trainfyre.users.domain;
 
 import org.jmolecules.ddd.annotation.AggregateRoot;
+import org.jmolecules.ddd.annotation.Identity;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 @AggregateRoot
 public class User {
 
+    @Identity
     private final UUID id;
     private String username;
     private String password;

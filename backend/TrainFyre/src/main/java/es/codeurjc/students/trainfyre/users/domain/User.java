@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.users.domain;
 
+import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @AggregateRoot
+@Getter
 public class User {
 
     @Identity
@@ -37,5 +39,11 @@ public class User {
         return new User(id, username, password, new ArrayList<AlertSubscription>());
 
     }
+
+
+    public List<AlertSubscription> getAlertSubscriptions() {
+        return List.copyOf(alertSubscriptions);
+    }
+
 
 }

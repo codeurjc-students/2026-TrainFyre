@@ -15,8 +15,8 @@ public class User {
 
     @Identity
     private final UUID id;
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
     private final List<AlertSubscription> alertSubscriptions;
 
 
@@ -36,7 +36,7 @@ public class User {
 
         UUID id = UUID.randomUUID();
 
-        return new User(id, username, password, new ArrayList<AlertSubscription>());
+        return new User(id, username, password, new ArrayList<>());
 
     }
 

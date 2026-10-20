@@ -40,6 +40,8 @@ public class User {
 
     }
 
+    public void addAlertSubscription(AlertSubscription subscription){}
+
 
     public List<AlertSubscription> getAlertSubscriptions() {
         return List.copyOf(alertSubscriptions);

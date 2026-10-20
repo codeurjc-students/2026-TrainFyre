@@ -3,6 +3,8 @@ package es.codeurjc.students.trainfyre.users.domain;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,13 +15,15 @@ public class User {
     private final UUID id;
     private String username;
     private String password;
+    private final List<AlertSubscription> alertSubscriptions;
 
 
-    private User(UUID id, String username, String password){
+    private User(UUID id, String username, String password, List<AlertSubscription> alertSubscriptions){
 
         this.id = id;
         this.username = username;
         this.password = password;
+        this.alertSubscriptions = alertSubscriptions;
 
     }
 
@@ -30,7 +34,7 @@ public class User {
 
         UUID id = UUID.randomUUID();
 
-        return new User(id, username, password);
+        return new User(id, username, password, new ArrayList<AlertSubscription>());
 
     }
 

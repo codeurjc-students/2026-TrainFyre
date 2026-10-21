@@ -50,7 +50,9 @@ public class User {
         username = newUsername;
     }
 
-    public void changePassword(String newPassword){}
+    public void changePassword(String newPassword){
+        Objects.requireNonNull(newPassword, "password should not be null");
+    }
 
 
     public List<AlertSubscription> getAlertSubscriptions() {

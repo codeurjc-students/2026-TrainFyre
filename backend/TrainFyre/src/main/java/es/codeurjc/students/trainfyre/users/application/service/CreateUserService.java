@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.users.application.service;
 import es.codeurjc.students.trainfyre.users.application.port.in.CreateUserUseCase;
 import es.codeurjc.students.trainfyre.users.application.port.in.command.CreateUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
+import es.codeurjc.students.trainfyre.users.domain.User;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,12 @@ public class CreateUserService implements CreateUserUseCase {
     @CommandHandler
     @Override
     public UUID execute(CreateUserCommand input) {
-        return null;
+
+        User user = User.createUser(input.username(), input.password());
+
+        userPort.save(user);
+
+        return user.getId();
+
     }
 }

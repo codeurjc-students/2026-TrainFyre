@@ -15,7 +15,7 @@ public class User {
 
     @Identity
     private final UUID id;
-    private final String username;
+    private String username;
     private final String password;
     private final List<AlertSubscription> alertSubscriptions;
 
@@ -47,6 +47,7 @@ public class User {
 
     public void changeUsername(String newUsername){
         Objects.requireNonNull(newUsername, "username should not be null");
+        username = newUsername;
     }
 
 

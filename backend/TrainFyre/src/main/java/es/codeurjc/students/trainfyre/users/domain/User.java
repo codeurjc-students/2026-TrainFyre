@@ -16,7 +16,7 @@ public class User {
     @Identity
     private final UUID id;
     private String username;
-    private final String password;
+    private String password;
     private final List<AlertSubscription> alertSubscriptions;
 
 
@@ -52,6 +52,7 @@ public class User {
 
     public void changePassword(String newPassword){
         Objects.requireNonNull(newPassword, "password should not be null");
+        password = newPassword;
     }
 
 

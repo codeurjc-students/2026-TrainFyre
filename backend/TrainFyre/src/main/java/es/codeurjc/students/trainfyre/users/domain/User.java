@@ -47,7 +47,11 @@ public class User {
 
     public void deleteAlertSubscription(AlertSubscription subscription){
         Objects.requireNonNull(subscription, "subscription should not be null");
-        alertSubscriptions.remove(subscription);
+        if (!alertSubscriptions.remove(subscription)) {
+            throw new IllegalArgumentException(
+                    "Subscription does not belong to this user"
+            );
+        }
     }
 
     public void changeUsername(String newUsername){

@@ -42,6 +42,13 @@ public class User {
 
     public void addAlertSubscription(AlertSubscription subscription){
         Objects.requireNonNull(subscription, "Subscription should not be null");
+
+        if (alertSubscriptions.contains(subscription)) {
+            throw new IllegalArgumentException(
+                    "Subscription already exists for this user"
+            );
+        }
+
         alertSubscriptions.add(subscription);
     }
 

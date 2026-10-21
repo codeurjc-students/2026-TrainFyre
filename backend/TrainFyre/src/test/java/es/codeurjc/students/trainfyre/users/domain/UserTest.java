@@ -92,6 +92,17 @@ class UserTest {
         );
     }
 
+    @Test
+    void changePasswordShouldUpdatePassword() {
+        var user = User.createUser("pablo", "valid-password");
+
+        user.changePassword("new-password");
+
+        assertEquals("new-password", user.getPassword());
+    }
+
+
+
 
 
 

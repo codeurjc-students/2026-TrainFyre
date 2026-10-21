@@ -148,6 +148,35 @@ class UserTest {
     }
 
 
+    @Test
+    void addAlertSubscriptionShouldThrowIllegalArgumentExceptionWhenSubscriptionAlreadyExists() {
+        var user = User.createUser("pablo", "valid-password");
+        var start = ZonedDateTime.parse("2026-10-19T08:00:00Z");
+        var subscription = new AlertSubscription(
+                Set.of(1L),
+                start,
+                start.plusHours(2),
+                EnumSet.of(DayOfWeek.MONDAY),
+                start.plusMonths(1)
+        );
+        var duplicate = new AlertSubscription(
+                Set.of(1L),
+                start,
+                start.plusHours(2),
+                EnumSet.of(DayOfWeek.MONDAY),
+                start.plusMonths(1)
+        );
+        user.addAlertSubscription(subscription);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> user.addAlertSubscription(duplicate)
+        );
+
+        assertEquals(List.of(subscription), user.getAlertSubscriptions());
+    }
+
+
 
 
 }

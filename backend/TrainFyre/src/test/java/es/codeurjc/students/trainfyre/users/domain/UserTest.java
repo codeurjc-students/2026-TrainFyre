@@ -9,6 +9,7 @@ import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.Set;
 
@@ -174,6 +175,34 @@ class UserTest {
         );
 
         assertEquals(List.of(subscription), user.getAlertSubscriptions());
+    }
+
+
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource("nullReconstitutionArguments")
+    void reconstituteShouldThrowNullPointerExceptionWhenArgumentIsNull(
+            String scenario,
+            UUID id,
+            String username,
+            String password,
+            List<AlertSubscription> alertSubscriptions
+    ) {
+        assertThrows(
+                NullPointerException.class,
+                () -> User.reconstitute(id, username, password, alertSubscriptions)
+        );
+    }
+
+    private static Stream<Arguments> nullReconstitutionArguments() {
+        var id = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        List<AlertSubscription> subscriptions = List.of();
+
+        return Stream.of(
+                Arguments.of("id null", null, "pablo", "valid-password", subscriptions),
+                Arguments.of("username null", id, null, "valid-password", subscriptions),
+                Arguments.of("password null", id, "pablo", null, subscriptions),
+                Arguments.of("alertSubscriptions null", id, "pablo", "valid-password", null)
+        );
     }
 
 

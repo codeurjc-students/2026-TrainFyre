@@ -40,6 +40,9 @@ public class User {
 
     }
 
+    public static User reconstitute(UUID id, String username, String password, List<AlertSubscription> alertSubscriptions){return null;}
+
+
     public void addAlertSubscription(AlertSubscription subscription){
         Objects.requireNonNull(subscription, "Subscription should not be null");
 

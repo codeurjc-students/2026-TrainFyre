@@ -4,9 +4,10 @@ import es.codeurjc.students.trainfyre.users.domain.AlertSubscription;
 import org.jmolecules.architecture.cqrs.Command;
 
 import java.util.List;
+import java.util.UUID;
 
 @Command
-public record UpdateUserCommand(String username, String password, List<AlertSubscription> alertSubscriptionListToAdd, List<AlertSubscription> alertSubscriptionListToDelete) {
+public record UpdateUserCommand(UUID id, String username, String password, List<AlertSubscription> alertSubscriptionListToAdd, List<AlertSubscription> alertSubscriptionListToDelete) {
 
     public UpdateUserCommand {
         if (username == null

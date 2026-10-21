@@ -45,7 +45,9 @@ public class User {
         alertSubscriptions.add(subscription);
     }
 
-    public void deleteAlertSubscription(AlertSubscription subscription){}
+    public void deleteAlertSubscription(AlertSubscription subscription){
+        Objects.requireNonNull(subscription, "subscription should not be null");
+    }
 
     public void changeUsername(String newUsername){
         Objects.requireNonNull(newUsername, "username should not be null");

@@ -47,7 +47,8 @@ public class User {
         Objects.requireNonNull(password, "Password should not be null");
         Objects.requireNonNull(alertSubscriptions, "alertSubscriptions should not be null");
 
-        return null;}
+        return new User(id, username, password, alertSubscriptions);
+    }
 
 
     public void addAlertSubscription(AlertSubscription subscription){

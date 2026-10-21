@@ -41,4 +41,26 @@ class CreateUserServiceTest {
         );
     }
 
+    @Test
+    void shouldPropagateExceptionWhenSavingFails() {
+        // Given
+        CreateUserCommand command =
+                new CreateUserCommand("pablo", "valid-password");
+
+        RuntimeException persistenceFailure =
+                new RuntimeException("Could not save user");
+
+        doThrow(persistenceFailure)
+                .when(userPort)
+                .save(any(User.class));
+
+        // When
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> service.execute(command)
+        );
+
+        // Then
+        assertSame(persistenceFailure, thrown);
+    }
 }

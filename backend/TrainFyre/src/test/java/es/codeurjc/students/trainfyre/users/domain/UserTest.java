@@ -63,4 +63,15 @@ class UserTest {
         assertTrue(user.getAlertSubscriptions().isEmpty());
     }
 
+    @Test
+    void changeUsernameShouldThrowNullPointerExceptionWhenUsernameIsNull() {
+        var user = User.createUser("pablo", "valid-password");
+
+        assertThrows(
+                NullPointerException.class,
+                () -> user.changeUsername(null)
+        );
+    }
+
+
 }

@@ -45,6 +45,8 @@ public class User {
         alertSubscriptions.add(subscription);
     }
 
+    public void changeUsername(String newUsername){}
+
 
     public List<AlertSubscription> getAlertSubscriptions() {
         return List.copyOf(alertSubscriptions);

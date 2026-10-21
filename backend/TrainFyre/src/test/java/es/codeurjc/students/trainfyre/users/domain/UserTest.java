@@ -73,5 +73,15 @@ class UserTest {
         );
     }
 
+    @Test
+    void changeUsernameShouldUpdateUsername() {
+        var user = User.createUser("pablo", "valid-password");
+
+        user.changeUsername("nuevo-username");
+
+        assertEquals("nuevo-username", user.getUsername());
+    }
+
+
 
 }

@@ -205,6 +205,31 @@ class UserTest {
         );
     }
 
+    @Test
+    void reconstituteShouldRestoreUserState() {
+        var id = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        var username = "pablo";
+        var password = "valid-password";
+        var start = ZonedDateTime.parse("2026-10-19T08:00:00Z");
+        var subscription = new AlertSubscription(
+                Set.of(1L),
+                start,
+                start.plusHours(2),
+                EnumSet.of(DayOfWeek.MONDAY),
+                start.plusMonths(1)
+        );
+        var subscriptions = List.of(subscription);
+
+        var user = User.reconstitute(id, username, password, subscriptions);
+
+        assertNotNull(user);
+        assertEquals(id, user.getId());
+        assertEquals(username, user.getUsername());
+        assertEquals(password, user.getPassword());
+        assertEquals(subscriptions, user.getAlertSubscriptions());
+    }
+
+
 
 
 

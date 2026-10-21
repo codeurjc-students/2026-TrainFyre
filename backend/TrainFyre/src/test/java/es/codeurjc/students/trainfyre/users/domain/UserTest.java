@@ -101,6 +101,15 @@ class UserTest {
         assertEquals("new-password", user.getPassword());
     }
 
+    @Test
+    void deleteAlertSubscriptionShouldThrowNullPointerExceptionWhenSubscriptionIsNull() {
+        var user = User.createUser("pablo", "valid-password");
+
+        assertThrows(
+                NullPointerException.class,
+                () -> user.deleteAlertSubscription(null)
+        );
+    }
 
 
 

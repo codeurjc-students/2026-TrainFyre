@@ -50,6 +50,8 @@ public class User {
         username = newUsername;
     }
 
+    public void changePassword(String newPassword){}
+
 
     public List<AlertSubscription> getAlertSubscriptions() {
         return List.copyOf(alertSubscriptions);

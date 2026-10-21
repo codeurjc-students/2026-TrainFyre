@@ -82,6 +82,17 @@ class UserTest {
         assertEquals("nuevo-username", user.getUsername());
     }
 
+    @Test
+    void changePasswordShouldThrowNullPointerExceptionWhenPasswordIsNull() {
+        var user = User.createUser("pablo", "valid-password");
+
+        assertThrows(
+                NullPointerException.class,
+                () -> user.changePassword(null)
+        );
+    }
+
+
 
 
 }

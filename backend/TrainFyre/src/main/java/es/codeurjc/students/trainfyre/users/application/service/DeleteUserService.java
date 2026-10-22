@@ -15,6 +15,9 @@ public class DeleteUserService implements DeleteUserUseCase {
 
     @Override
     public Void execute(DeleteUserCommand input) {
+
+        userPort.delete(input.id());
+
         return null;
     }
 }

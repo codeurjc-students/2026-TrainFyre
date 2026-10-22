@@ -4,6 +4,7 @@ import es.codeurjc.students.trainfyre.users.application.port.in.DeleteUserUseCas
 import es.codeurjc.students.trainfyre.users.application.port.in.command.DeleteUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import lombok.AllArgsConstructor;
+import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
 
@@ -13,6 +14,7 @@ public class DeleteUserService implements DeleteUserUseCase {
 
     private final UserPort userPort;
 
+    @CommandHandler
     @Override
     public Void execute(DeleteUserCommand input) {
 

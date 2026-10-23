@@ -18,6 +18,14 @@ public record AlertSubscription(Set<Long> lines, ZonedDateTime startTime, ZonedD
         Objects.requireNonNull(endTime, "endTime should not be null");
         Objects.requireNonNull(daysOfTheWeek, "daysOfTheWeek should not be null");
         Objects.requireNonNull(expiration, "expiration should not be null");
+
+        lines = Set.copyOf(lines);
+        daysOfTheWeek = daysOfTheWeek.clone();
+    }
+
+    @Override
+    public EnumSet<DayOfWeek> daysOfTheWeek() {
+        return daysOfTheWeek.clone();
     }
 
     public boolean isAffected(List<Long> lineIds, ZonedDateTime timestamp){

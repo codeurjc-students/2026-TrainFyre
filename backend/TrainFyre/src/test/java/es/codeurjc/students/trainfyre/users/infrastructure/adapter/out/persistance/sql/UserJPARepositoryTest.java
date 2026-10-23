@@ -19,8 +19,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 @AutoConfigureTestDatabase(
@@ -93,4 +92,13 @@ class UserJPARepositoryTest {
             return new PostgreSQLContainer("postgres:18-alpine");
         }
     }
+
+    @Test
+    void saveShouldRejectNullUser() {
+        assertThrows(
+                NullPointerException.class,
+                () -> adapter.save(null)
+        );
+    }
+
 }

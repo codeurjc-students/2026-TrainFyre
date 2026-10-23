@@ -229,6 +229,85 @@ class UserTest {
         assertEquals(subscriptions, user.getAlertSubscriptions());
     }
 
+    @ParameterizedTest(name = "[{index}] {0}")
+    @org.junit.jupiter.params.provider.ValueSource(strings = {
+            "original list changes do not affect user",
+            "returned list cannot be modified",
+            "immutable input still allows aggregate operations"
+    })
+    void shouldProtectSubscriptionsFromExternalMutation(String scenario) {
+        var start = ZonedDateTime.parse("2026-10-19T08:00:00Z");
+        var subscription = new AlertSubscription(
+                Set.of(1L),
+                start,
+                start.plusHours(2),
+                EnumSet.of(DayOfWeek.MONDAY),
+                start.plusMonths(1)
+        );
+        List<AlertSubscription> subscriptions =
+                scenario.equals("immutable input still allows aggregate operations")
+                        ? List.of(subscription)
+                        : new java.util.ArrayList<>(List.of(subscription));
+
+        var user = User.reconstitute(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                "pablo",
+                "valid-password",
+                subscriptions
+        );
+
+        switch (scenario) {
+            case "original list changes do not affect user" -> {
+                subscriptions.clear();
+
+                assertEquals(List.of(subscription), user.getAlertSubscriptions());
+
+                user.deleteAlertSubscription(subscription);
+
+                assertTrue(subscriptions.isEmpty());
+
+                user.addAlertSubscription(subscription);
+
+                assertTrue(subscriptions.isEmpty());
+                assertEquals(List.of(subscription), user.getAlertSubscriptions());
+            }
+            case "returned list cannot be modified" -> {
+                var exposedSubscriptions = user.getAlertSubscriptions();
+
+                assertAll(
+                        () -> assertThrows(
+                                UnsupportedOperationException.class,
+                                () -> exposedSubscriptions.add(subscription)
+                        ),
+                        () -> assertThrows(
+                                UnsupportedOperationException.class,
+                                () -> exposedSubscriptions.remove(0)
+                        ),
+                        () -> assertThrows(
+                                UnsupportedOperationException.class,
+                                () -> exposedSubscriptions.set(0, subscription)
+                        ),
+                        () -> assertThrows(
+                                UnsupportedOperationException.class,
+                                exposedSubscriptions::clear
+                        )
+                );
+
+                assertEquals(List.of(subscription), user.getAlertSubscriptions());
+            }
+            case "immutable input still allows aggregate operations" -> {
+                user.deleteAlertSubscription(subscription);
+
+                assertTrue(user.getAlertSubscriptions().isEmpty());
+
+                user.addAlertSubscription(subscription);
+
+                assertEquals(List.of(subscription), user.getAlertSubscriptions());
+                assertEquals(List.of(subscription), subscriptions);
+            }
+            default -> fail("Unexpected scenario: " + scenario);
+        }
+    }
 
 
 

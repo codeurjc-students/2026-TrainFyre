@@ -23,6 +23,8 @@ public class UserJPARepository implements UserPort {
     @Override
     public void save(User entity) {
 
+        repository.save(new UserEntity(entity));
+
     }
 
     @Override

@@ -11,5 +11,7 @@ public record UserDetails(String username, List<AlertSubscription> alertSubscrip
     public UserDetails {
         Objects.requireNonNull(username, "username should not be null");
         Objects.requireNonNull(alertSubscriptions, "alertSubscriptions should not be null");
+
+        alertSubscriptions = List.copyOf(alertSubscriptions);
     }
 }

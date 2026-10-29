@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.users.infrastructure.adapter.in.web;
 import es.codeurjc.students.trainfyre.users.application.port.in.CreateUserUseCase;
 import es.codeurjc.students.trainfyre.users.application.port.in.GetUserByIdUseCase;
 import es.codeurjc.students.trainfyre.users.application.port.in.command.CreateUserCommand;
+import es.codeurjc.students.trainfyre.users.application.port.in.query.GetUserByIdQuery;
 import es.codeurjc.students.trainfyre.users.domain.UserDetails;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
@@ -29,6 +30,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDetails getUserById(@PathVariable("id") UUID id) {
-        return null;
+        GetUserByIdQuery getUserByIdQuery = new GetUserByIdQuery(id);
+        return getUserByIdUseCase.execute(getUserByIdQuery);
     }
 }

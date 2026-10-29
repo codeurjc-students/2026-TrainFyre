@@ -42,6 +42,7 @@ class GetUserByIdServiceTest {
 
         User user = User.reconstitute(
                 USER_ID,
+                0L,
                 "pablo",
                 "stored-password",
                 subscriptions
@@ -67,6 +68,7 @@ class GetUserByIdServiceTest {
 
         User user = User.reconstitute(
                 USER_ID,
+                0L,
                 "pablo",
                 "stored-password",
                 List.of()

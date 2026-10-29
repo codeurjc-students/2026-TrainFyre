@@ -310,6 +310,7 @@ class UpdateUserServiceTest {
     private static User existingUser(AlertSubscription... subscriptions) {
         return User.reconstitute(
                 USER_ID,
+                0L,
                 ORIGINAL_USERNAME,
                 ORIGINAL_PASSWORD,
                 new ArrayList<>(List.of(subscriptions))

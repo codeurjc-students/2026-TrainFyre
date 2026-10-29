@@ -15,14 +15,16 @@ public class User {
 
     @Identity
     private final UUID id;
+    private final Long version;
     private String username;
     private String password;
     private final List<AlertSubscription> alertSubscriptions;
 
 
-    private User(UUID id, String username, String password, List<AlertSubscription> alertSubscriptions){
+    private User(UUID id, Long version, String username, String password, List<AlertSubscription> alertSubscriptions){
 
         this.id = id;
+        this.version = version;
         this.username = username;
         this.password = password;
         this.alertSubscriptions = new ArrayList<>(alertSubscriptions);
@@ -36,18 +38,18 @@ public class User {
 
         UUID id = UUID.randomUUID();
 
-        return new User(id, username, password, new ArrayList<>());
+        return new User(id,null, username, password, new ArrayList<>());
 
     }
 
-    public static User reconstitute(UUID id, String username, String password, List<AlertSubscription> alertSubscriptions){
+    public static User reconstitute(UUID id, Long version, String username, String password, List<AlertSubscription> alertSubscriptions){
 
         Objects.requireNonNull(id, "id should not be null");
         Objects.requireNonNull(username, "Username should not be null");
         Objects.requireNonNull(password, "Password should not be null");
         Objects.requireNonNull(alertSubscriptions, "alertSubscriptions should not be null");
 
-        return new User(id, username, password, alertSubscriptions);
+        return new User(id, version, username, password, alertSubscriptions);
     }
 
 

@@ -189,7 +189,7 @@ class UserTest {
     ) {
         assertThrows(
                 NullPointerException.class,
-                () -> User.reconstitute(id, username, password, alertSubscriptions)
+                () -> User.reconstitute(id,0L, username, password, alertSubscriptions)
         );
     }
 
@@ -220,7 +220,7 @@ class UserTest {
         );
         var subscriptions = List.of(subscription);
 
-        var user = User.reconstitute(id, username, password, subscriptions);
+        var user = User.reconstitute(id,0L, username, password, subscriptions);
 
         assertNotNull(user);
         assertEquals(id, user.getId());
@@ -251,6 +251,7 @@ class UserTest {
 
         var user = User.reconstitute(
                 UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                0L,
                 "pablo",
                 "valid-password",
                 subscriptions

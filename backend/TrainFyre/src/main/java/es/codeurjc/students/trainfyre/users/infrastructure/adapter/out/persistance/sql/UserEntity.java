@@ -51,6 +51,7 @@ public class UserEntity {
 
     public UserEntity(User user) {
         this.id = user.getId();
+        this.version = user.getVersion();
         this.username = user.getUsername();
         this.password = user.getPassword();
 
@@ -68,6 +69,7 @@ public class UserEntity {
 
         return User.reconstitute(
                 id,
+                version,
                 username,
                 password,
                 subscriptions

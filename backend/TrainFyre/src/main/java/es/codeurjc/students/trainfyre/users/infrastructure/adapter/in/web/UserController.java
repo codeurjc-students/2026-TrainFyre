@@ -49,6 +49,6 @@ public class UserController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void deleteUser(@RequestBody DeleteUserCommand deleteUserCommand){
-        return null;
+        return deleteUserUseCase.execute(deleteUserCommand);
     }
 }

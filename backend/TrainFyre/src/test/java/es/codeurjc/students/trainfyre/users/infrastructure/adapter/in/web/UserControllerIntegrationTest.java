@@ -1,8 +1,10 @@
 package es.codeurjc.students.trainfyre.users.infrastructure.adapter.in.web;
 
+import es.codeurjc.students.trainfyre.users.application.port.in.command.UpdateUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.application.service.CreateUserService;
 import es.codeurjc.students.trainfyre.users.application.service.GetUserByIdService;
+import es.codeurjc.students.trainfyre.users.application.service.UpdateUserService;
 import es.codeurjc.students.trainfyre.users.domain.AlertSubscription;
 import es.codeurjc.students.trainfyre.users.domain.User;
 import es.codeurjc.students.trainfyre.users.domain.UserDetails;
@@ -20,24 +22,22 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(UserController.class)
 @Import({
         CreateUserService.class,
-        GetUserByIdService.class
+        GetUserByIdService.class,
+        UpdateUserService.class
 })
+
 
 class UserControllerIntegrationTest {
 
@@ -142,5 +142,129 @@ class UserControllerIntegrationTest {
 
         verify(userPort).findById(id, User.class);
     }
+
+    @ParameterizedTest(name = "[{index}] {0}")
+    @ValueSource(strings = {
+            "updated username",
+            "updated password",
+            "added subscriptions",
+            "removed subscription",
+            "removed all subscriptions",
+            "combined changes",
+            "updated username with empty subscription lists"
+    })
+    void updateShouldSaveExpectedChangesUsingRealService(
+            String scenario
+    ) throws Exception {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        var first = updateSubscription(1L);
+        var second = updateSubscription(2L);
+        var third = updateSubscription(3L);
+        var fourth = updateSubscription(4L);
+
+        var user = User.reconstitute(
+                id,
+                3L,
+                "original-username",
+                "original-password",
+                List.of(first, second)
+        );
+
+        String username = null;
+        String password = null;
+        List<AlertSubscription> subscriptionsToAdd = null;
+        List<AlertSubscription> subscriptionsToDelete = null;
+
+        String expectedUsername = "original-username";
+        String expectedPassword = "original-password";
+        List<AlertSubscription> expectedSubscriptions = List.of(first, second);
+
+        switch (scenario) {
+            case "updated username" -> {
+                username = "updated-username";
+                expectedUsername = username;
+            }
+            case "updated password" -> {
+                password = "updated-password";
+                expectedPassword = password;
+            }
+            case "added subscriptions" -> {
+                subscriptionsToAdd = List.of(third, fourth);
+                expectedSubscriptions = List.of(first, second, third, fourth);
+            }
+            case "removed subscription" -> {
+                subscriptionsToDelete = List.of(first);
+                expectedSubscriptions = List.of(second);
+            }
+            case "removed all subscriptions" -> {
+                subscriptionsToDelete = List.of(first, second);
+                expectedSubscriptions = List.of();
+            }
+            case "combined changes" -> {
+                username = "updated-username";
+                password = "updated-password";
+                subscriptionsToAdd = List.of(third, fourth);
+                subscriptionsToDelete = List.of(first);
+
+                expectedUsername = username;
+                expectedPassword = password;
+                expectedSubscriptions = List.of(second, third, fourth);
+            }
+            case "updated username with empty subscription lists" -> {
+                username = "updated-username";
+                subscriptionsToAdd = List.of();
+                subscriptionsToDelete = List.of();
+
+                expectedUsername = username;
+            }
+            default -> throw new AssertionError(
+                    "Unexpected scenario: " + scenario
+            );
+        }
+
+        var command = new UpdateUserCommand(
+                id,
+                username,
+                password,
+                subscriptionsToAdd,
+                subscriptionsToDelete
+        );
+
+        when(userPort.findById(id, User.class)).thenReturn(user);
+
+        mockMvc.perform(put("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        var userCaptor = ArgumentCaptor.forClass(User.class);
+
+        verify(userPort).findById(id, User.class);
+        verify(userPort).save(userCaptor.capture());
+
+        var savedUser = userCaptor.getValue();
+
+        assertThat(savedUser.getId()).isEqualTo(id);
+        assertThat(savedUser.getVersion()).isEqualTo(3L);
+        assertThat(savedUser.getUsername()).isEqualTo(expectedUsername);
+        assertThat(savedUser.getPassword()).isEqualTo(expectedPassword);
+        assertThat(savedUser.getAlertSubscriptions())
+                .containsExactlyElementsOf(expectedSubscriptions);
+    }
+
+    private AlertSubscription updateSubscription(long lineId) {
+        var start = ZonedDateTime.parse("2026-10-19T08:00:00Z");
+
+        return new AlertSubscription(
+                Set.of(lineId),
+                start,
+                start.plusHours(2),
+                EnumSet.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY),
+                start.plusMonths(1)
+        );
+    }
+
 
 }

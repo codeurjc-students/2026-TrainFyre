@@ -5,6 +5,7 @@ import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.application.service.CreateUserService;
 import es.codeurjc.students.trainfyre.users.application.service.GetUserByIdService;
 import es.codeurjc.students.trainfyre.users.application.service.UpdateUserService;
+import es.codeurjc.students.trainfyre.users.application.service.DeleteUserService;
 import es.codeurjc.students.trainfyre.users.domain.AlertSubscription;
 import es.codeurjc.students.trainfyre.users.domain.User;
 import es.codeurjc.students.trainfyre.users.domain.UserDetails;
@@ -35,7 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({
         CreateUserService.class,
         GetUserByIdService.class,
-        UpdateUserService.class
+        UpdateUserService.class,
+        DeleteUserService.class
 })
 
 
@@ -265,6 +267,27 @@ class UserControllerIntegrationTest {
                 start.plusMonths(1)
         );
     }
+
+    @Test
+    void deleteShouldDeleteUserAndReturnNoContentUsingRealService()
+            throws Exception {
+        UUID id = UUID.fromString(
+                "123e4567-e89b-12d3-a456-426614174000"
+        );
+
+        mockMvc.perform(delete("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "id": "%s"
+                            }
+                            """.formatted(id)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(userPort).delete(id);
+    }
+
 
 
 }

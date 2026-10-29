@@ -5,11 +5,12 @@ import es.codeurjc.students.trainfyre.users.domain.User;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,7 +49,13 @@ public class UserJPARepository implements UserPort {
 
 
     @Override
+    @Transactional(readOnly = true)
     public User findById(UUID id, Class<User> userClass) {
-        return null;
+        Objects.requireNonNull(id, "id should not be null");
+
+        return repository.findById(id)
+                .map(UserEntity::toDomain)
+                .orElseThrow(() ->
+                        new NoSuchElementException("User not found: " + id));
     }
 }

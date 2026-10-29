@@ -21,7 +21,7 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UUID createUser(@RequestBody CreateUserCommand createUserCommand) {
-        return null;
+        return createUserUseCase.execute(createUserCommand);
     }
 
 }

@@ -26,6 +26,10 @@ public class UserJPARepository implements UserPort {
 
     @Override
     public Void delete(UUID id) {
+        Objects.requireNonNull(id, "id should not be null");
+
+        repository.deleteById(id);
+
         return null;
     }
 

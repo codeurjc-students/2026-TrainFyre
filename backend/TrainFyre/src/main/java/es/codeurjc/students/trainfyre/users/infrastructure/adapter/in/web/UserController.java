@@ -1,7 +1,9 @@
 package es.codeurjc.students.trainfyre.users.infrastructure.adapter.in.web;
 
 import es.codeurjc.students.trainfyre.users.application.port.in.CreateUserUseCase;
+import es.codeurjc.students.trainfyre.users.application.port.in.GetUserByIdUseCase;
 import es.codeurjc.students.trainfyre.users.application.port.in.command.CreateUserCommand;
+import es.codeurjc.students.trainfyre.users.domain.UserDetails;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class UserController {
 
     private final CreateUserUseCase createUserUseCase;
+    private final GetUserByIdUseCase getUserByIdUseCase;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -24,4 +27,8 @@ public class UserController {
         return createUserUseCase.execute(createUserCommand);
     }
 
+    @GetMapping("/{id}")
+    public UserDetails getUserById(@PathVariable("id") UUID id) {
+        return null;
+    }
 }

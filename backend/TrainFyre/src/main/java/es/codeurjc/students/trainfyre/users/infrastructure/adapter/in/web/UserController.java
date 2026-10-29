@@ -40,6 +40,6 @@ public class UserController {
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void updateUser(@RequestBody UpdateUserCommand updateUserCommand) {
-        return null;
+        return updateUserUseCase.execute(updateUserCommand);
     }
 }

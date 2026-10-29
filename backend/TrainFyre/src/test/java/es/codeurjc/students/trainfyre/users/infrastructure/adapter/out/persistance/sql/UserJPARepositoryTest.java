@@ -25,6 +25,7 @@ import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -315,7 +316,6 @@ class UserJPARepositoryTest {
 
             var existingUser = loadUser(user.getId());
 
-
             for (var current : existingUser.getAlertSubscriptions()) {
                 existingUser.deleteAlertSubscription(current);
             }
@@ -381,7 +381,6 @@ class UserJPARepositoryTest {
                     OptimisticLockingFailureException.class,
                     () -> newTransaction().executeWithoutResult(
                             firstTransaction -> {
-                                // T1 lee la revisión original.
                                 var firstUser =
                                         repository.findById(user.getId())
                                                 .orElseThrow()
@@ -392,8 +391,6 @@ class UserJPARepositoryTest {
                                         firstUser.getVersion()
                                 );
 
-                                // T2 suspende T1 y utiliza otra transacción
-                                // y otro contexto de persistencia.
                                 newTransaction().executeWithoutResult(
                                         secondTransaction -> {
                                             var secondUser =
@@ -415,9 +412,7 @@ class UserJPARepositoryTest {
                                             adapter.save(secondUser);
                                         }
                                 );
-                                // T2 ya ha confirmado.
 
-                                // T1 intenta guardar la revisión anterior.
                                 firstUser.addAlertSubscription(
                                         rejectedSubscription
                                 );
@@ -427,7 +422,6 @@ class UserJPARepositoryTest {
                     )
             );
 
-            // Se consulta después del rollback de T1.
             var persistedUser = loadUser(user.getId());
 
             assertNotNull(persistedUser.getVersion());
@@ -479,6 +473,116 @@ class UserJPARepositoryTest {
                         "The rejected subscription must not remain in the database"
                 );
             });
+        } finally {
+            deleteTestUser(user.getId());
+        }
+    }
+
+    @ParameterizedTest(name = "[{index}] {0}")
+    @ValueSource(strings = {
+            "existing user without subscriptions",
+            "existing user with ordered subscriptions",
+            "missing user",
+            "null id"
+    })
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void findByIdShouldRespectItsContract(String scenario) {
+        switch (scenario) {
+            case "missing user" -> {
+                assertThrows(
+                        NoSuchElementException.class,
+                        () -> adapter.findById(UUID.randomUUID(), User.class)
+                );
+                return;
+            }
+            case "null id" -> {
+                assertThrows(
+                        NullPointerException.class,
+                        () -> adapter.findById(null, User.class)
+                );
+                return;
+            }
+            case "existing user without subscriptions",
+                 "existing user with ordered subscriptions" -> {
+            }
+            default -> throw new AssertionError(
+                    "Unexpected scenario: " + scenario
+            );
+        }
+
+        var user = newTestUser();
+
+        if (scenario.equals("existing user with ordered subscriptions")) {
+            var start = ZonedDateTime.parse(
+                    "2026-10-19T08:00:00+02:00[Europe/Madrid]"
+            );
+
+            user.addAlertSubscription(
+                    new AlertSubscription(
+                            Set.of(3L, 4L),
+                            start.plusHours(3),
+                            start.plusHours(5),
+                            EnumSet.of(
+                                    DayOfWeek.WEDNESDAY,
+                                    DayOfWeek.FRIDAY
+                            ),
+                            start.plusMonths(2)
+                    )
+            );
+
+            user.addAlertSubscription(
+                    new AlertSubscription(
+                            Set.of(1L, 2L),
+                            start,
+                            start.plusHours(2),
+                            EnumSet.of(
+                                    DayOfWeek.MONDAY,
+                                    DayOfWeek.THURSDAY
+                            ),
+                            start.plusMonths(1)
+                    )
+            );
+        }
+
+        try {
+            newTransaction().executeWithoutResult(status ->
+                    adapter.save(user)
+            );
+
+            Long expectedVersion = newTransaction().execute(status ->
+                    repository.findById(user.getId())
+                            .orElseThrow()
+                            .getVersion()
+            );
+
+            assertNotNull(expectedVersion);
+
+            var foundUser = adapter.findById(user.getId(), User.class);
+
+            assertNotNull(foundUser);
+
+            assertAll(
+                    () -> assertEquals(
+                            user.getId(),
+                            foundUser.getId()
+                    ),
+                    () -> assertEquals(
+                            expectedVersion,
+                            foundUser.getVersion()
+                    ),
+                    () -> assertEquals(
+                            user.getUsername(),
+                            foundUser.getUsername()
+                    ),
+                    () -> assertEquals(
+                            user.getPassword(),
+                            foundUser.getPassword()
+                    ),
+                    () -> assertEquals(
+                            user.getAlertSubscriptions(),
+                            foundUser.getAlertSubscriptions()
+                    )
+            );
         } finally {
             deleteTestUser(user.getId());
         }

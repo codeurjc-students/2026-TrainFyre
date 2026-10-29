@@ -690,4 +690,99 @@ class UserJPARepositoryTest {
             return new PostgreSQLContainer("postgres:18-alpine");
         }
     }
+
+    @ParameterizedTest(name = "[{index}] subscriptions={0}")
+    @ValueSource(ints = {0, 1, 2})
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void deleteShouldRemoveUserAndItsSubscriptions(
+            int subscriptionCount
+    ) {
+        var user = newTestUser();
+        var otherUser = newTestUser();
+
+        for (int i = 1; i <= subscriptionCount; i++) {
+            user.addAlertSubscription(subscription(i));
+        }
+
+        otherUser.addAlertSubscription(subscription(1L));
+        otherUser.addAlertSubscription(subscription(2L));
+
+        try {
+            newTransaction().executeWithoutResult(status -> {
+                adapter.save(user);
+                adapter.save(otherUser);
+            });
+
+            List<UUID> subscriptionIds = newTransaction().execute(status ->
+                    repository.findById(user.getId())
+                            .orElseThrow()
+                            .getAlertSubscriptions()
+                            .stream()
+                            .map(AlertSubscriptionEntity::getId)
+                            .toList()
+            );
+
+            assertNotNull(subscriptionIds);
+            assertEquals(subscriptionCount, subscriptionIds.size());
+
+            var otherUserBeforeDelete = loadUser(otherUser.getId());
+
+            assertNull(adapter.delete(user.getId()));
+
+            newTransaction().executeWithoutResult(status -> {
+                assertTrue(
+                        repository.findById(user.getId()).isEmpty(),
+                        "The deleted user must not remain in the database"
+                );
+
+                assertEquals(
+                        0L,
+                        countRows(
+                                """
+                                select count(*)
+                                from user_alert_subscriptions
+                                where user_id = ?1
+                                """,
+                                user.getId()
+                        )
+                );
+
+                for (UUID subscriptionId : subscriptionIds) {
+                    assertSubscriptionRowsWereDeleted(subscriptionId);
+                }
+            });
+
+            var otherUserAfterDelete = loadUser(otherUser.getId());
+
+            assertAll(
+                    () -> assertEquals(
+                            otherUserBeforeDelete.getId(),
+                            otherUserAfterDelete.getId()
+                    ),
+                    () -> assertEquals(
+                            otherUserBeforeDelete.getVersion(),
+                            otherUserAfterDelete.getVersion()
+                    ),
+                    () -> assertEquals(
+                            otherUserBeforeDelete.getUsername(),
+                            otherUserAfterDelete.getUsername()
+                    ),
+                    () -> assertEquals(
+                            otherUserBeforeDelete.getPassword(),
+                            otherUserAfterDelete.getPassword()
+                    ),
+                    () -> assertEquals(
+                            otherUserBeforeDelete.getAlertSubscriptions(),
+                            otherUserAfterDelete.getAlertSubscriptions()
+                    )
+            );
+        } finally {
+            try {
+                deleteTestUser(user.getId());
+            } finally {
+                deleteTestUser(otherUser.getId());
+            }
+        }
+    }
+
 }

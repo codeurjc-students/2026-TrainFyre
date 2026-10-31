@@ -17,7 +17,8 @@ services:
   app:
     build: .
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8443:8443"
+
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
@@ -27,7 +28,19 @@ services:
       SPRING_JPA_DEFER_DATASOURCE_INITIALIZATION: "true"
       SPRING_SQL_INIT_MODE: always
 
+      TRAINFYRE_TLS_KEYSTORE: file:/run/trainfyre/trainfyre-local.p12
+      TRAINFYRE_TLS_PASSWORD: ${TRAINFYRE_TLS_PASSWORD:?Define TRAINFYRE_TLS_PASSWORD}
+
+    volumes:
+      - type: bind
+        source: ./secrets/trainfyre-local.p12
+        target: /run/trainfyre/trainfyre-local.p12
+        read_only: true
+        bind:
+          create_host_path: false
+
     depends_on:
       db:
         condition: service_healthy
+
 

@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+
+### enviroment ãnd secrets ###
+secrets/
 .env
 .env.*
 !.env.example

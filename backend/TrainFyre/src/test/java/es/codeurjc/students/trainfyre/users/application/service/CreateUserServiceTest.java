@@ -5,6 +5,7 @@ import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.User;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.UUID;
 
@@ -14,14 +15,22 @@ import static org.mockito.Mockito.*;
 
 class CreateUserServiceTest {
 
+    private static final String PASSWORD_HASH = "encoded-password-for-test";
+
     private final UserPort userPort = mock(UserPort.class);
-    private final CreateUserService service = new CreateUserService(userPort);
+    private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
+
+    private final CreateUserService service =
+            new CreateUserService(userPort, passwordEncoder);
 
     @Test
-    void shouldSaveUserAndReturnItsId() {
+    void shouldSaveUserWithEncodedPasswordAndReturnItsId() {
         // Given
         CreateUserCommand command =
                 new CreateUserCommand("pablo", "valid-password");
+
+        when(passwordEncoder.encode(command.password()))
+                .thenReturn(PASSWORD_HASH);
 
         // When
         UUID result = service.execute(command);
@@ -36,7 +45,7 @@ class CreateUserServiceTest {
                 () -> assertNotNull(savedUser.getId()),
                 () -> assertEquals(savedUser.getId(), result),
                 () -> assertEquals(command.username(), savedUser.getUsername()),
-                () -> assertEquals(command.password(), savedUser.getPassword()),
+                () -> assertEquals(PASSWORD_HASH, savedUser.getPassword()),
                 () -> assertTrue(savedUser.getAlertSubscriptions().isEmpty())
         );
     }
@@ -46,6 +55,9 @@ class CreateUserServiceTest {
         // Given
         CreateUserCommand command =
                 new CreateUserCommand("pablo", "valid-password");
+
+        when(passwordEncoder.encode(command.password()))
+                .thenReturn(PASSWORD_HASH);
 
         RuntimeException persistenceFailure =
                 new RuntimeException("Could not save user");
@@ -62,5 +74,28 @@ class CreateUserServiceTest {
 
         // Then
         assertSame(persistenceFailure, thrown);
+    }
+
+    @Test
+    void shouldPropagateEncodingFailureWithoutSaving() {
+        // Given
+        CreateUserCommand command =
+                new CreateUserCommand("pablo", "valid-password");
+
+        RuntimeException encodingFailure =
+                new RuntimeException("Could not encode password");
+
+        when(passwordEncoder.encode(command.password()))
+                .thenThrow(encodingFailure);
+
+        // When
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> service.execute(command)
+        );
+
+        // Then
+        assertSame(encodingFailure, thrown);
+        verify(userPort, never()).save(any(User.class));
     }
 }

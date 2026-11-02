@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.DayOfWeek;
 import java.time.ZonedDateTime;
@@ -29,24 +30,35 @@ class UpdateUserServiceTest {
             UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     private static final String ORIGINAL_USERNAME = "pablo";
-    private static final String ORIGINAL_PASSWORD = "original-password";
+
+    private static final String ORIGINAL_PASSWORD_HASH = "original-hash-for-test";
+    private static final String NEW_PASSWORD_HASH = "new-hash-for-test";
+    private static final String NEW_RAW_PASSWORD = "new-password";
 
     private final UserPort userPort = mock(UserPort.class);
-    private final UpdateUserService service = new UpdateUserService(userPort);
+    private final PasswordEncoder passwordEncoder = mock(PasswordEncoder.class);
 
-    @ParameterizedTest(name = "[{index}] username={0}, password={1}")
+    private final UpdateUserService service =
+            new UpdateUserService(userPort, passwordEncoder);
+
+    @ParameterizedTest(name = "[{index}] username={0}")
     @MethodSource("credentialUpdates")
     void shouldUpdateProvidedCredentialsAndPreserveOtherFields(
             String username,
             String password,
             String expectedUsername,
-            String expectedPassword
+            String expectedPasswordHash
     ) {
         // Given
         AlertSubscription existingSubscription = subscription(1L);
         User user = existingUser(existingSubscription);
 
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
+
+        if (password != null) {
+            when(passwordEncoder.encode(password))
+                    .thenReturn(NEW_PASSWORD_HASH);
+        }
 
         UpdateUserCommand command = new UpdateUserCommand(
                 USER_ID, username, password, null, null
@@ -59,9 +71,13 @@ class UpdateUserServiceTest {
         assertNull(result);
         assertSavedUser(
                 expectedUsername,
-                expectedPassword,
+                expectedPasswordHash,
                 List.of(existingSubscription)
         );
+
+        if (password == null) {
+            verifyNoInteractions(passwordEncoder);
+        }
     }
 
     @Test
@@ -82,7 +98,7 @@ class UpdateUserServiceTest {
         // Then
         assertSavedUser(
                 "new-username",
-                ORIGINAL_PASSWORD,
+                ORIGINAL_PASSWORD_HASH,
                 List.of(existingSubscription)
         );
     }
@@ -111,7 +127,7 @@ class UpdateUserServiceTest {
         // Then
         assertSavedUser(
                 ORIGINAL_USERNAME,
-                ORIGINAL_PASSWORD,
+                ORIGINAL_PASSWORD_HASH,
                 List.of(existingSubscription, firstToAdd, secondToAdd)
         );
     }
@@ -144,7 +160,7 @@ class UpdateUserServiceTest {
         // Then
         assertSavedUser(
                 ORIGINAL_USERNAME,
-                ORIGINAL_PASSWORD,
+                ORIGINAL_PASSWORD_HASH,
                 List.of(remainingSubscription)
         );
     }
@@ -158,11 +174,13 @@ class UpdateUserServiceTest {
         User user = existingUser(toDelete, toKeep);
 
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
+        when(passwordEncoder.encode(NEW_RAW_PASSWORD))
+                .thenReturn(NEW_PASSWORD_HASH);
 
         UpdateUserCommand command = new UpdateUserCommand(
                 USER_ID,
                 "new-username",
-                "new-password",
+                NEW_RAW_PASSWORD,
                 List.of(toAdd),
                 List.of(toDelete)
         );
@@ -173,7 +191,7 @@ class UpdateUserServiceTest {
         // Then
         assertSavedUser(
                 "new-username",
-                "new-password",
+                NEW_PASSWORD_HASH,
                 List.of(toKeep, toAdd)
         );
     }
@@ -185,7 +203,6 @@ class UpdateUserServiceTest {
 
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
-        // Otra instancia con el mismo valor que la suscripción existente.
         UpdateUserCommand command = new UpdateUserCommand(
                 USER_ID,
                 null,
@@ -281,9 +298,43 @@ class UpdateUserServiceTest {
         assertSame(persistenceFailure, thrown);
     }
 
+    @Test
+    void shouldPropagateEncodingFailureWithoutChangingPasswordOrSaving() {
+        // Given
+        User user = existingUser();
+
+        when(userPort.findById(USER_ID, User.class)).thenReturn(user);
+
+        RuntimeException encodingFailure =
+                new RuntimeException("Could not encode password");
+
+        when(passwordEncoder.encode(NEW_RAW_PASSWORD))
+                .thenThrow(encodingFailure);
+
+        UpdateUserCommand command = new UpdateUserCommand(
+                USER_ID, null, NEW_RAW_PASSWORD, null, null
+        );
+
+        // When
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> service.execute(command)
+        );
+
+        // Then
+        assertAll(
+                () -> assertSame(encodingFailure, thrown),
+                () -> assertEquals(
+                        ORIGINAL_PASSWORD_HASH,
+                        user.getPassword()
+                )
+        );
+        verify(userPort, never()).save(any(User.class));
+    }
+
     private void assertSavedUser(
             String expectedUsername,
-            String expectedPassword,
+            String expectedPasswordHash,
             List<AlertSubscription> expectedSubscriptions
     ) {
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
@@ -296,7 +347,10 @@ class UpdateUserServiceTest {
         assertAll(
                 () -> assertEquals(USER_ID, savedUser.getId()),
                 () -> assertEquals(expectedUsername, savedUser.getUsername()),
-                () -> assertEquals(expectedPassword, savedUser.getPassword()),
+                () -> assertEquals(
+                        expectedPasswordHash,
+                        savedUser.getPassword()
+                ),
                 () -> assertEquals(
                         expectedSubscriptions.size(),
                         savedSubscriptions.size()
@@ -312,7 +366,7 @@ class UpdateUserServiceTest {
                 USER_ID,
                 0L,
                 ORIGINAL_USERNAME,
-                ORIGINAL_PASSWORD,
+                ORIGINAL_PASSWORD_HASH,
                 new ArrayList<>(List.of(subscriptions))
         );
     }
@@ -333,19 +387,19 @@ class UpdateUserServiceTest {
                         "new-username",
                         null,
                         "new-username",
-                        ORIGINAL_PASSWORD
+                        ORIGINAL_PASSWORD_HASH
                 ),
                 Arguments.of(
                         null,
-                        "new-password",
+                        NEW_RAW_PASSWORD,
                         ORIGINAL_USERNAME,
-                        "new-password"
+                        NEW_PASSWORD_HASH
                 ),
                 Arguments.of(
                         "new-username",
-                        "new-password",
+                        NEW_RAW_PASSWORD,
                         "new-username",
-                        "new-password"
+                        NEW_PASSWORD_HASH
                 )
         );
     }

@@ -6,7 +6,9 @@ spring:
   sql:
     init:
       mode: always
-      data-locations: classpath:/seed/incidences-postgresql.sql
+      data-locations:
+        - classpath:/seed/incidences-postgresql.sql
+        - classpath:/seed/users-postgresql.sql
 
 server:
   port: 8443

@@ -5,6 +5,7 @@ import es.codeurjc.students.trainfyre.users.application.port.in.command.UpdateUs
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.User;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 public class UpdateUserService implements UpdateUserUseCase {
 
     private final UserPort userPort;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Void execute(UpdateUserCommand input) {
@@ -22,7 +25,8 @@ public class UpdateUserService implements UpdateUserUseCase {
         }
 
         if (input.password() != null) {
-            user.changePassword(input.password());
+            String passwordHash = passwordEncoder.encode(input.password());
+            user.changePassword(passwordHash);
         }
 
         var subscriptionsToAdd = input.alertSubscriptionListToAdd();

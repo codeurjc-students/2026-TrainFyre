@@ -164,7 +164,7 @@ class UserControllerIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        var expectedDetails = new UserDetails("pablo", subscriptions);
+        var expectedDetails = new UserDetails("pablo", subscriptions, Set.of(Role.USER));
 
         assertThat(objectMapper.readTree(response))
                 .isEqualTo(objectMapper.readTree(
@@ -545,14 +545,14 @@ class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.alertSubscriptions").isArray())
                 .andExpect(jsonPath("$.alertSubscriptions.length()").value(1))
                 .andExpect(jsonPath("$.password").doesNotExist())
-                .andExpect(jsonPath("$.roles").doesNotExist())
+                .andExpect(jsonPath("$.roles").isArray())
                 .andExpect(jsonPath("$.id").doesNotExist())
                 .andExpect(jsonPath("$.version").doesNotExist())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        var expectedDetails = new UserDetails("pablo", subscriptions);
+        var expectedDetails = new UserDetails("pablo", subscriptions, Set.of(Role.USER));
 
         assertThat(objectMapper.readTree(response))
                 .isEqualTo(objectMapper.readTree(

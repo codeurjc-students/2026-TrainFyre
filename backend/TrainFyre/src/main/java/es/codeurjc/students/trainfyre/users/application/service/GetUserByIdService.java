@@ -24,7 +24,7 @@ public class GetUserByIdService implements GetUserByIdUseCase {
 
         User user = userPort.findById(input.id(), User.class);
 
-        return new UserDetails(user.getUsername(), user.getAlertSubscriptions());
+        return new UserDetails(user.getUsername(), user.getAlertSubscriptions(), user.getRoles());
 
     }
 

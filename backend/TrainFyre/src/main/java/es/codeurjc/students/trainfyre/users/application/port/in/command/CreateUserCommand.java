@@ -11,4 +11,9 @@ public record CreateUserCommand(String username, String password) {
         Objects.requireNonNull(username, "usename should not be null");
         Objects.requireNonNull(password, "password should not be null");
     }
+
+    @Override
+    public String toString() {
+        return "CreateUserCommand[username=" + username + ", password=****]";
+    }
 }

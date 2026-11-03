@@ -5,8 +5,11 @@ import es.codeurjc.students.trainfyre.common.EntityPort;
 import es.codeurjc.students.trainfyre.users.domain.User;
 import org.jmolecules.architecture.hexagonal.SecondaryPort;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @SecondaryPort
 public interface UserPort extends EntityPort<User, UUID>, DeletePort<UUID> {
+
+    Optional<User> findByUsername(String username);
 }

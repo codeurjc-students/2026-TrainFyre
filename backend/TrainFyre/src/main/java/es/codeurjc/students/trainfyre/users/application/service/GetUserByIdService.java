@@ -4,6 +4,7 @@ import es.codeurjc.students.trainfyre.users.application.port.in.GetUserByIdUseCa
 import es.codeurjc.students.trainfyre.users.application.port.in.query.GetUserByIdQuery;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.User;
+import es.codeurjc.students.trainfyre.users.domain.UserAccessPolicy;
 import es.codeurjc.students.trainfyre.users.domain.UserDetails;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
@@ -18,6 +19,8 @@ public class GetUserByIdService implements GetUserByIdUseCase {
     @CommandHandler
     @Override
     public UserDetails execute(GetUserByIdQuery input) {
+
+        UserAccessPolicy.assertCanManage(input.requester(), input.id());
 
         User user = userPort.findById(input.id(), User.class);
 

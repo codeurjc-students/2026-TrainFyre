@@ -1,9 +1,12 @@
 package es.codeurjc.students.trainfyre.users.application.service;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
+import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
 import es.codeurjc.students.trainfyre.users.application.port.in.command.DeleteUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +23,9 @@ class DeleteUserServiceTest {
         UUID userId =
                 UUID.fromString("73a06591-345c-4eae-9f49-dfeef592a148");
 
-        DeleteUserCommand command = new DeleteUserCommand(userId);
+        DeleteUserCommand command = new DeleteUserCommand(
+                new AuthenticatedUser(userId, Set.of(Role.USER)), userId
+        );
 
         // When
         Void result = service.execute(command);
@@ -36,7 +41,9 @@ class DeleteUserServiceTest {
         UUID userId =
                 UUID.fromString("73a06591-345c-4eae-9f49-dfeef592a148");
 
-        DeleteUserCommand command = new DeleteUserCommand(userId);
+        DeleteUserCommand command = new DeleteUserCommand(
+                new AuthenticatedUser(userId, Set.of(Role.USER)), userId
+        );
 
         RuntimeException persistenceFailure =
                 new RuntimeException("Could not delete user");

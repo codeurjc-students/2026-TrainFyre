@@ -1,5 +1,7 @@
 package es.codeurjc.students.trainfyre.users.application.service;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
+import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
 import es.codeurjc.students.trainfyre.users.application.port.in.query.GetUserByIdQuery;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.AlertSubscription;
@@ -22,13 +24,16 @@ class GetUserByIdServiceTest {
     private static final UUID USER_ID =
             UUID.fromString("73a06591-345c-4eae-9f49-dfeef592a148");
 
+    private static final AuthenticatedUser REQUESTER =
+            new AuthenticatedUser(USER_ID, Set.of(Role.USER));
+
     private final UserPort userPort = mock(UserPort.class);
     private final GetUserByIdService service = new GetUserByIdService(userPort);
 
     @Test
     void shouldReturnUserDetailsWhenUserExists() {
         // Given
-        GetUserByIdQuery query = new GetUserByIdQuery(USER_ID);
+        GetUserByIdQuery query = new GetUserByIdQuery(REQUESTER, USER_ID);
 
         AlertSubscription subscription = new AlertSubscription(
                 Set.of(1L, 2L),
@@ -45,6 +50,7 @@ class GetUserByIdServiceTest {
                 0L,
                 "pablo",
                 "stored-password",
+                Set.of(Role.USER),
                 subscriptions
         );
 
@@ -64,13 +70,14 @@ class GetUserByIdServiceTest {
     @Test
     void shouldReturnEmptySubscriptionsWhenUserHasNoSubscriptions() {
         // Given
-        GetUserByIdQuery query = new GetUserByIdQuery(USER_ID);
+        GetUserByIdQuery query = new GetUserByIdQuery(REQUESTER, USER_ID);
 
         User user = User.reconstitute(
                 USER_ID,
                 0L,
                 "pablo",
                 "stored-password",
+                Set.of(Role.USER),
                 List.of()
         );
 
@@ -90,7 +97,7 @@ class GetUserByIdServiceTest {
     @Test
     void shouldPropagateExceptionWhenFindingUserFails() {
         // Given
-        GetUserByIdQuery query = new GetUserByIdQuery(USER_ID);
+        GetUserByIdQuery query = new GetUserByIdQuery(REQUESTER, USER_ID);
 
         RuntimeException persistenceFailure =
                 new RuntimeException("Could not find user");

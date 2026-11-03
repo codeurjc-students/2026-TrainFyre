@@ -1,5 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.E2E;
 
+import es.codeurjc.students.trainfyre.security.TestAccessTokens;
+import es.codeurjc.students.trainfyre.security.domain.AccessTokenIssuer;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.DeleteIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
@@ -54,6 +56,9 @@ class IncidenceMariaDbE2ETest {
     JsonMapper objectMapper;
 
     @Autowired
+    AccessTokenIssuer accessTokenIssuer;
+
+    @Autowired
     JdbcTemplate jdbcTemplate;
 
     private final List<UUID> createdIds = new ArrayList<>();
@@ -75,6 +80,7 @@ class IncidenceMariaDbE2ETest {
         // El GET por ID devuelve IncidenceDetails, sin campo "id".
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -89,6 +95,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -108,6 +115,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -150,6 +158,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -162,6 +171,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -177,6 +187,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -187,6 +198,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -196,6 +208,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -208,6 +221,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -230,6 +244,7 @@ class IncidenceMariaDbE2ETest {
 
         String response = given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
@@ -255,6 +270,7 @@ class IncidenceMariaDbE2ETest {
 
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
@@ -266,6 +282,7 @@ class IncidenceMariaDbE2ETest {
     private void deleteIncidence(UUID id) throws Exception {
         given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(
                         new DeleteIncidenceCommand(id)
@@ -279,6 +296,7 @@ class IncidenceMariaDbE2ETest {
     private JsonNode listPage(int page, int size) {
         String response = given()
                 .port(port)
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .when()

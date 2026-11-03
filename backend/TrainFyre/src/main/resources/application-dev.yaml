@@ -6,4 +6,15 @@ spring:
   sql:
     init:
       mode: always
-      data-locations: classpath:/seed/incidences-postgresql.sql
+      data-locations:
+        - classpath:/seed/incidences-postgresql.sql
+        - classpath:/seed/users-postgresql.sql
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: ${TRAINFYRE_TLS_KEYSTORE}
+    key-store-password: ${TRAINFYRE_TLS_PASSWORD}
+    key-store-type: PKCS12
+    key-alias: trainfyre-local

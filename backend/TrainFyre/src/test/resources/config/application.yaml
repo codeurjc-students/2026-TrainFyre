@@ -1,0 +1,5 @@
+trainfyre:
+  security:
+    jwt:
+      private-key: classpath:jwt/test-private.pem
+      public-key: classpath:jwt/test-public.pem

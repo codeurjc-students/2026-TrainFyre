@@ -58,7 +58,7 @@ public class UserController {
             @Valid @RequestBody UpdateUserRequest request,
             @AuthenticationPrincipal AuthenticatedUser requester
     ) {
-        return null;
+        return updateUserUseCase.execute(request.toCommand(requester, requester.id()));
     }
 
     @DeleteMapping("/{id}")

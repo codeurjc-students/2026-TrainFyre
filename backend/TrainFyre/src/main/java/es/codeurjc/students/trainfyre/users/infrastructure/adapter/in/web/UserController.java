@@ -52,6 +52,15 @@ public class UserController {
         return updateUserUseCase.execute(request.toCommand(requester, id));
     }
 
+    @PutMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Void updateUser(
+            @Valid @RequestBody UpdateUserRequest request,
+            @AuthenticationPrincipal AuthenticatedUser requester
+    ) {
+        return null;
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void deleteUser(@PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser requester) {

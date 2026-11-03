@@ -409,4 +409,106 @@ class UserControllerIntegrationTest {
         verifyNoInteractions(userPort);
     }
 
+    @ParameterizedTest(name = "[{index}] authenticatedUserId={0}")
+    @ValueSource(strings = {
+            "123e4567-e89b-12d3-a456-426614174000",
+            "123e4567-e89b-12d3-a456-426614174001"
+    })
+    void updateMeShouldUpdateAuthenticatedUserUsingRealService(
+            String authenticatedUserId
+    ) throws Exception {
+        UUID id = UUID.fromString(authenticatedUserId);
+
+        var subscription = updateSubscription(1L);
+
+        var user = User.reconstitute(
+                id,
+                3L,
+                "original-username",
+                "original-password",
+                Set.of(Role.USER),
+                List.of(subscription)
+        );
+
+        var request = new UpdateUserRequest(
+                "updated-username",
+                null,
+                null,
+                null
+        );
+
+        when(userPort.findById(id, User.class)).thenReturn(user);
+
+        mockMvc.perform(put("/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        var userCaptor = ArgumentCaptor.forClass(User.class);
+
+        verify(userPort).findById(id, User.class);
+        verify(userPort).save(userCaptor.capture());
+
+        var savedUser = userCaptor.getValue();
+
+        assertThat(savedUser.getId()).isEqualTo(id);
+        assertThat(savedUser.getVersion()).isEqualTo(3L);
+        assertThat(savedUser.getUsername()).isEqualTo("updated-username");
+        assertThat(savedUser.getPassword()).isEqualTo("original-password");
+        assertThat(savedUser.getRoles()).containsExactly(Role.USER);
+        assertThat(savedUser.getAlertSubscriptions())
+                .containsExactly(subscription);
+    }
+
+    @Test
+    void updateMeWithoutTokenIsUnauthorized() throws Exception {
+        var request = new UpdateUserRequest(
+                "updated-username",
+                null,
+                null,
+                null
+        );
+
+        mockMvc.perform(put("/users/me")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void updateMeWithMalformedTokenIsUnauthorized() throws Exception {
+        var request = new UpdateUserRequest(
+                "updated-username",
+                null,
+                null,
+                null
+        );
+
+        mockMvc.perform(put("/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void updateMeWithoutModificationsIsABadRequest() throws Exception {
+        UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+
+        mockMvc.perform(put("/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(userPort);
+    }
+
+
 }

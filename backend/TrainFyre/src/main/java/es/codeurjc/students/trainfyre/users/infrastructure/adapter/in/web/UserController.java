@@ -44,7 +44,8 @@ public class UserController {
 
     @GetMapping("/me")
     public UserDetails getUserById(@AuthenticationPrincipal AuthenticatedUser requester) {
-        return null;
+        GetUserByIdQuery getUserByIdQuery = new GetUserByIdQuery(requester, requester.id());
+        return getUserByIdUseCase.execute(getUserByIdQuery);
     }
 
     @PutMapping("/{id}")

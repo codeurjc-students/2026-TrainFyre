@@ -65,7 +65,7 @@ public class SecurityConfiguration {
         @Order(1)
         public SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) {
             http
-                    .securityMatcher("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                    .securityMatcher("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs.yaml", "/v3/api-docs/**")
                     .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
                     .csrf(AbstractHttpConfigurer::disable)
                     .sessionManagement(session -> session

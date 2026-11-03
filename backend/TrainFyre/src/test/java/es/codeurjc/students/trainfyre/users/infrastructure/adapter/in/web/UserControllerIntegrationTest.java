@@ -511,4 +511,75 @@ class UserControllerIntegrationTest {
     }
 
 
+    @ParameterizedTest(name = "[{index}] authenticatedUserId={0}")
+    @ValueSource(strings = {
+            "123e4567-e89b-12d3-a456-426614174000",
+            "123e4567-e89b-12d3-a456-426614174001"
+    })
+    void getMeShouldReturnAuthenticatedUserDetailsUsingRealService(
+            String authenticatedUserId
+    ) throws Exception {
+        UUID id = UUID.fromString(authenticatedUserId);
+
+        var subscriptions = List.of(updateSubscription(1L));
+
+        var user = User.reconstitute(
+                id,
+                3L,
+                "pablo",
+                "encoded-password",
+                Set.of(Role.USER),
+                subscriptions
+        );
+
+        when(userPort.findById(id, User.class)).thenReturn(user);
+
+        String response = mockMvc.perform(get("/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(
+                        MediaType.APPLICATION_JSON
+                ))
+                .andExpect(jsonPath("$.username").value("pablo"))
+                .andExpect(jsonPath("$.alertSubscriptions").isArray())
+                .andExpect(jsonPath("$.alertSubscriptions.length()").value(1))
+                .andExpect(jsonPath("$.password").doesNotExist())
+                .andExpect(jsonPath("$.roles").doesNotExist())
+                .andExpect(jsonPath("$.id").doesNotExist())
+                .andExpect(jsonPath("$.version").doesNotExist())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        var expectedDetails = new UserDetails("pablo", subscriptions);
+
+        assertThat(objectMapper.readTree(response))
+                .isEqualTo(objectMapper.readTree(
+                        objectMapper.writeValueAsString(expectedDetails)
+                ));
+
+        verify(userPort).findById(id, User.class);
+    }
+
+    @Test
+    void getMeWithoutTokenIsUnauthorized() throws Exception {
+        mockMvc.perform(get("/users/me")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void getMeWithMalformedTokenIsUnauthorized() throws Exception {
+        mockMvc.perform(get("/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+
 }

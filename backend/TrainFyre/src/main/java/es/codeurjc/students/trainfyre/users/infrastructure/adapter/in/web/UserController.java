@@ -42,6 +42,11 @@ public class UserController {
         return getUserByIdUseCase.execute(getUserByIdQuery);
     }
 
+    @GetMapping("/me")
+    public UserDetails getUserById(@AuthenticationPrincipal AuthenticatedUser requester) {
+        return null;
+    }
+
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void updateUser(

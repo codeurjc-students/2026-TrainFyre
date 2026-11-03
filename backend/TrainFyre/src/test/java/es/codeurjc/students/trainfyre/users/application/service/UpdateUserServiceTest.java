@@ -1,5 +1,7 @@
 package es.codeurjc.students.trainfyre.users.application.service;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
+import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
 import es.codeurjc.students.trainfyre.users.application.port.in.command.UpdateUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.AlertSubscription;
@@ -28,6 +30,9 @@ class UpdateUserServiceTest {
 
     private static final UUID USER_ID =
             UUID.fromString("00000000-0000-0000-0000-000000000001");
+
+    private static final AuthenticatedUser REQUESTER =
+            new AuthenticatedUser(USER_ID, Set.of(Role.USER));
 
     private static final String ORIGINAL_USERNAME = "pablo";
 
@@ -61,7 +66,7 @@ class UpdateUserServiceTest {
         }
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID, username, password, null, null
+                REQUESTER, USER_ID, username, password, null, null
         );
 
         // When
@@ -89,7 +94,7 @@ class UpdateUserServiceTest {
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID, "new-username", null, List.of(), List.of()
+                REQUESTER, USER_ID, "new-username", null, List.of(), List.of()
         );
 
         // When
@@ -114,7 +119,7 @@ class UpdateUserServiceTest {
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID,
+                REQUESTER, USER_ID,
                 null,
                 null,
                 List.of(firstToAdd, secondToAdd),
@@ -147,7 +152,7 @@ class UpdateUserServiceTest {
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID,
+                REQUESTER, USER_ID,
                 null,
                 null,
                 null,
@@ -178,7 +183,7 @@ class UpdateUserServiceTest {
                 .thenReturn(NEW_PASSWORD_HASH);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID,
+                REQUESTER, USER_ID,
                 "new-username",
                 NEW_RAW_PASSWORD,
                 List.of(toAdd),
@@ -204,7 +209,7 @@ class UpdateUserServiceTest {
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID,
+                REQUESTER, USER_ID,
                 null,
                 null,
                 List.of(subscription(1L)),
@@ -229,7 +234,7 @@ class UpdateUserServiceTest {
         when(userPort.findById(USER_ID, User.class)).thenReturn(user);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID,
+                REQUESTER, USER_ID,
                 null,
                 null,
                 null,
@@ -256,7 +261,7 @@ class UpdateUserServiceTest {
                 .thenThrow(retrievalFailure);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID, "new-username", null, null, null
+                REQUESTER, USER_ID, "new-username", null, null, null
         );
 
         // When
@@ -285,7 +290,7 @@ class UpdateUserServiceTest {
                 .save(any(User.class));
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID, "new-username", null, null, null
+                REQUESTER, USER_ID, "new-username", null, null, null
         );
 
         // When
@@ -312,7 +317,7 @@ class UpdateUserServiceTest {
                 .thenThrow(encodingFailure);
 
         UpdateUserCommand command = new UpdateUserCommand(
-                USER_ID, null, NEW_RAW_PASSWORD, null, null
+                REQUESTER, USER_ID, null, NEW_RAW_PASSWORD, null, null
         );
 
         // When
@@ -367,6 +372,7 @@ class UpdateUserServiceTest {
                 0L,
                 ORIGINAL_USERNAME,
                 ORIGINAL_PASSWORD_HASH,
+                Set.of(Role.USER),
                 new ArrayList<>(List.of(subscriptions))
         );
     }

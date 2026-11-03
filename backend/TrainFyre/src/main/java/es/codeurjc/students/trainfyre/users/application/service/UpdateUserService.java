@@ -4,7 +4,9 @@ import es.codeurjc.students.trainfyre.users.application.port.in.UpdateUserUseCas
 import es.codeurjc.students.trainfyre.users.application.port.in.command.UpdateUserCommand;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.domain.User;
+import es.codeurjc.students.trainfyre.users.domain.UserAccessPolicy;
 import lombok.AllArgsConstructor;
+import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +18,11 @@ public class UpdateUserService implements UpdateUserUseCase {
 
     private final PasswordEncoder passwordEncoder;
 
+    @CommandHandler
     @Override
     public Void execute(UpdateUserCommand input) {
+        UserAccessPolicy.assertCanManage(input.requester(), input.id());
+
         User user = userPort.findById(input.id(), User.class);
 
         if (input.username() != null) {

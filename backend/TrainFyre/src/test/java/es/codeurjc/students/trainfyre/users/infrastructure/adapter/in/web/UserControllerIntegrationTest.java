@@ -1,6 +1,13 @@
 package es.codeurjc.students.trainfyre.users.infrastructure.adapter.in.web;
 
-import es.codeurjc.students.trainfyre.users.application.port.in.command.UpdateUserCommand;
+import es.codeurjc.students.trainfyre.security.domain.AccessTokenIssuer;
+import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
+import es.codeurjc.students.trainfyre.security.domain.Role;
+import es.codeurjc.students.trainfyre.security.infrastructure.adapter.in.jwt.AuthenticatedUserJwtConverter;
+import es.codeurjc.students.trainfyre.security.infrastructure.adapter.out.jwt.NimbusAccessTokenIssuer;
+import es.codeurjc.students.trainfyre.security.infrastructure.config.JwtConfiguration;
+import es.codeurjc.students.trainfyre.security.infrastructure.config.SecurityConfiguration;
+import es.codeurjc.students.trainfyre.users.infrastructure.adapter.in.web.request.UpdateUserRequest;
 import es.codeurjc.students.trainfyre.users.application.port.out.UserPort;
 import es.codeurjc.students.trainfyre.users.application.service.CreateUserService;
 import es.codeurjc.students.trainfyre.users.application.service.GetUserByIdService;
@@ -16,7 +23,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.json.JsonMapper;
@@ -27,6 +36,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,7 +47,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         CreateUserService.class,
         GetUserByIdService.class,
         UpdateUserService.class,
-        DeleteUserService.class
+        DeleteUserService.class,
+        UserExceptionHandler.class,
+        SecurityConfiguration.class,
+        JwtConfiguration.class,
+        NimbusAccessTokenIssuer.class,
+        AuthenticatedUserJwtConverter.class
 })
 
 
@@ -49,8 +64,19 @@ class UserControllerIntegrationTest {
     @Autowired
     private JsonMapper objectMapper;
 
+    @Autowired
+    private AccessTokenIssuer accessTokenIssuer;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @MockitoBean
     private UserPort userPort;
+
+    private String bearer(UUID userId) {
+        var user = new AuthenticatedUser(userId, Set.of(Role.USER));
+        return "Bearer " + accessTokenIssuer.issue(user).value();
+    }
 
     @Test
     void createShouldSaveUserAndReturnItsIdUsingRealService() throws Exception {
@@ -60,7 +86,7 @@ class UserControllerIntegrationTest {
                         .content("""
                                 {
                                   "username": "pablo",
-                                  "password": "test-password"
+                                  "password": "test-password-123"
                                 }
                                 """))
                 .andExpect(status().isCreated())
@@ -82,7 +108,8 @@ class UserControllerIntegrationTest {
         assertThat(returnedId).isNotNull();
         assertThat(savedUser.getId()).isEqualTo(returnedId);
         assertThat(savedUser.getUsername()).isEqualTo("pablo");
-        assertThat(savedUser.getPassword()).isEqualTo("test-password");
+        assertThat(passwordEncoder.matches("test-password-123", savedUser.getPassword())).isTrue();
+        assertThat(savedUser.getRoles()).containsExactly(Role.USER);
         assertThat(savedUser.getVersion()).isNull();
         assertThat(savedUser.getAlertSubscriptions()).isEmpty();
     }
@@ -113,12 +140,14 @@ class UserControllerIntegrationTest {
                 3L,
                 "pablo",
                 "encoded-password",
+                Set.of(Role.USER),
                 subscriptions
         );
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
         String response = mockMvc.perform(get("/users/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(
@@ -170,6 +199,7 @@ class UserControllerIntegrationTest {
                 3L,
                 "original-username",
                 "original-password",
+                Set.of(Role.USER),
                 List.of(first, second)
         );
 
@@ -188,7 +218,7 @@ class UserControllerIntegrationTest {
                 expectedUsername = username;
             }
             case "updated password" -> {
-                password = "updated-password";
+                password = "updated-password-123";
                 expectedPassword = password;
             }
             case "added subscriptions" -> {
@@ -205,7 +235,7 @@ class UserControllerIntegrationTest {
             }
             case "combined changes" -> {
                 username = "updated-username";
-                password = "updated-password";
+                password = "updated-password-123";
                 subscriptionsToAdd = List.of(third, fourth);
                 subscriptionsToDelete = List.of(first);
 
@@ -225,8 +255,7 @@ class UserControllerIntegrationTest {
             );
         }
 
-        var command = new UpdateUserCommand(
-                id,
+        var request = new UpdateUserRequest(
                 username,
                 password,
                 subscriptionsToAdd,
@@ -235,9 +264,10 @@ class UserControllerIntegrationTest {
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
-        mockMvc.perform(put("/users")
+        mockMvc.perform(put("/users/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(command)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
@@ -251,7 +281,11 @@ class UserControllerIntegrationTest {
         assertThat(savedUser.getId()).isEqualTo(id);
         assertThat(savedUser.getVersion()).isEqualTo(3L);
         assertThat(savedUser.getUsername()).isEqualTo(expectedUsername);
-        assertThat(savedUser.getPassword()).isEqualTo(expectedPassword);
+        if (password == null) {
+            assertThat(savedUser.getPassword()).isEqualTo(expectedPassword);
+        } else {
+            assertThat(passwordEncoder.matches(password, savedUser.getPassword())).isTrue();
+        }
         assertThat(savedUser.getAlertSubscriptions())
                 .containsExactlyElementsOf(expectedSubscriptions);
     }
@@ -275,19 +309,104 @@ class UserControllerIntegrationTest {
                 "123e4567-e89b-12d3-a456-426614174000"
         );
 
-        mockMvc.perform(delete("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                            {
-                              "id": "%s"
-                            }
-                            """.formatted(id)))
+        mockMvc.perform(delete("/users/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id)))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
         verify(userPort).delete(id);
     }
 
+    @Test
+    void requestsWithoutTokenAreUnauthorized() throws Exception {
+        UUID id = UUID.randomUUID();
 
+        mockMvc.perform(get("/users/{id}", id))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(delete("/users/{id}", id))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void requestsWithMalformedTokenAreUnauthorized() throws Exception {
+        mockMvc.perform(get("/users/{id}", UUID.randomUUID())
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void userCannotReadAnotherUser() throws Exception {
+        UUID owner = UUID.randomUUID();
+        UUID attacker = UUID.randomUUID();
+
+        mockMvc.perform(get("/users/{id}", owner)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(attacker)))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void userCannotUpdateAnotherUser() throws Exception {
+        UUID owner = UUID.randomUUID();
+        UUID attacker = UUID.randomUUID();
+
+        mockMvc.perform(put("/users/{id}", owner)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(attacker))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "hijacked-name"
+                                }
+                                """))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void userCannotDeleteAnotherUser() throws Exception {
+        UUID owner = UUID.randomUUID();
+        UUID attacker = UUID.randomUUID();
+
+        mockMvc.perform(delete("/users/{id}", owner)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(attacker)))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void updateWithoutModificationsIsABadRequest() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(put("/users/{id}", id)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(id))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(userPort);
+    }
+
+    @Test
+    void createRejectsWeakPassword() throws Exception {
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "username": "pablo",
+                                  "password": "short"
+                                }
+                                """))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(userPort);
+    }
 
 }

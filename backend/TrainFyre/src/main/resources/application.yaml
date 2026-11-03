@@ -1,3 +1,15 @@
 spring:
   application:
     name: TrainFyre
+
+trainfyre:
+  security:
+    jwt:
+      issuer: trainfyre
+      audience: trainfyre-api
+      access-token-ttl: 15m
+      key-id: ${TRAINFYRE_JWT_KEY_ID:trainfyre-key-1}
+      private-key: ${TRAINFYRE_JWT_PRIVATE_KEY}
+      public-key: ${TRAINFYRE_JWT_PUBLIC_KEY}
+    cors:
+      allowed-origins: ${TRAINFYRE_CORS_ALLOWED_ORIGINS:http://localhost:5173}

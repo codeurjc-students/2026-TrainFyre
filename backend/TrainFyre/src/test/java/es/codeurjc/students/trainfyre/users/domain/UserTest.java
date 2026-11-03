@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.users.domain;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -189,7 +190,7 @@ class UserTest {
     ) {
         assertThrows(
                 NullPointerException.class,
-                () -> User.reconstitute(id,0L, username, password, alertSubscriptions)
+                () -> User.reconstitute(id,0L, username, password, Set.of(Role.USER), alertSubscriptions)
         );
     }
 
@@ -220,7 +221,7 @@ class UserTest {
         );
         var subscriptions = List.of(subscription);
 
-        var user = User.reconstitute(id,0L, username, password, subscriptions);
+        var user = User.reconstitute(id,0L, username, password, Set.of(Role.USER), subscriptions);
 
         assertNotNull(user);
         assertEquals(id, user.getId());
@@ -254,6 +255,7 @@ class UserTest {
                 0L,
                 "pablo",
                 "valid-password",
+                Set.of(Role.USER),
                 subscriptions
         );
 

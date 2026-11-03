@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -61,5 +62,14 @@ public class UserJPARepository implements UserPort {
                 .map(UserEntity::toDomain)
                 .orElseThrow(() ->
                         new NoSuchElementException("User not found: " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByUsername(String username) {
+        Objects.requireNonNull(username, "username should not be null");
+
+        return repository.findByUsername(username)
+                .map(UserEntity::toDomain);
     }
 }

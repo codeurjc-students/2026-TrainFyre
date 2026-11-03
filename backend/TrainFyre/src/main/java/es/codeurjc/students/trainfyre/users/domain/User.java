@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.users.domain;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
@@ -7,6 +8,7 @@ import org.jmolecules.ddd.annotation.Identity;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @AggregateRoot
@@ -18,15 +20,17 @@ public class User {
     private final Long version;
     private String username;
     private String password;
+    private final Set<Role> roles;
     private final List<AlertSubscription> alertSubscriptions;
 
 
-    private User(UUID id, Long version, String username, String password, List<AlertSubscription> alertSubscriptions){
+    private User(UUID id, Long version, String username, String password, Set<Role> roles, List<AlertSubscription> alertSubscriptions){
 
         this.id = id;
         this.version = version;
         this.username = username;
         this.password = password;
+        this.roles = Set.copyOf(roles);
         this.alertSubscriptions = new ArrayList<>(alertSubscriptions);
 
     }
@@ -38,18 +42,23 @@ public class User {
 
         UUID id = UUID.randomUUID();
 
-        return new User(id,null, username, password, new ArrayList<>());
+        return new User(id, null, username, password, Set.of(Role.USER), new ArrayList<>());
 
     }
 
-    public static User reconstitute(UUID id, Long version, String username, String password, List<AlertSubscription> alertSubscriptions){
+    public static User reconstitute(UUID id, Long version, String username, String password, Set<Role> roles, List<AlertSubscription> alertSubscriptions){
 
         Objects.requireNonNull(id, "id should not be null");
         Objects.requireNonNull(username, "Username should not be null");
         Objects.requireNonNull(password, "Password should not be null");
+        Objects.requireNonNull(roles, "roles should not be null");
         Objects.requireNonNull(alertSubscriptions, "alertSubscriptions should not be null");
 
-        return new User(id, version, username, password, alertSubscriptions);
+        if (roles.isEmpty()) {
+            throw new IllegalArgumentException("A user must have at least one role");
+        }
+
+        return new User(id, version, username, password, roles, alertSubscriptions);
     }
 
 

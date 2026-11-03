@@ -27,7 +27,6 @@ jobs:
   backend:
     name: Backend unit + integration + E2E
     runs-on: ubuntu-latest
-    # No se lanza en PRs en borrador (sí en el push a main).
     if: github.event_name == 'push' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
@@ -46,14 +45,9 @@ jobs:
           cache: maven
           cache-dependency-path: backend/TrainFyre/pom.xml
 
-      # Docker viene instalado en ubuntu-latest, así que Testcontainers
-      # (postgres:16-alpine y MariaDB) funciona sin configuración extra.
-      # "verify" ejecuta todos los tests, empaqueta y genera el informe JaCoCo.
-      # El análisis de Sonar se hace después, en el job "sonar".
       - name: Build and test
         run: mvn -B -ntp verify
 
-      # Lo que Sonar necesita del backend: clases compiladas e informe XML de JaCoCo
       - name: Upload Sonar inputs
         if: always()
         uses: actions/upload-artifact@v4
@@ -84,8 +78,8 @@ jobs:
       run:
         working-directory: frontend
     env:
-      # docker-compose.yaml del backend exige esta variable
       DB_PASSWORD: ci-only-password
+      TRAINFYRE_TLS_PASSWORD: ci-only-password
 
     steps:
       - name: Checkout
@@ -104,11 +98,9 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Pruebas unitarias + cobertura (falla si baja de los umbrales de vitest.config.ts)
       - name: Unit tests with coverage
         run: npm run test:coverage
 
-      # La cobertura se sube ya, para que Sonar la tenga aunque fallen los pasos siguientes
       - name: Upload coverage for Sonar
         if: always()
         uses: actions/upload-artifact@v4
@@ -117,8 +109,35 @@ jobs:
           path: frontend/coverage/lcov.info
           retention-days: 1
 
-      # Backend + PostgreSQL con los datos de ejemplo (perfil "dev"), necesarios para
-      # las pruebas de integración y de sistema.
+      - name: Generate ephemeral credentials for CI
+        working-directory: backend/TrainFyre
+        run: |
+          set -euo pipefail
+          mkdir -p secrets
+
+          openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
+            -keyout secrets/tls.key \
+            -out secrets/tls.crt \
+            -subj "/CN=localhost" \
+            -addext "subjectAltName=DNS:localhost,IP:127.0.0.1" \
+            -addext "basicConstraints=critical,CA:TRUE"
+
+          openssl pkcs12 -export \
+            -in secrets/tls.crt \
+            -inkey secrets/tls.key \
+            -out secrets/trainfyre-local.p12 \
+            -name trainfyre-local \
+            -passout pass:ci-only-password
+
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+            -out secrets/jwt-private.pem
+          openssl pkey -in secrets/jwt-private.pem -pubout \
+            -out secrets/jwt-public.pem
+
+          echo "NODE_EXTRA_CA_CERTS=$GITHUB_WORKSPACE/backend/TrainFyre/secrets/tls.crt" >> "$GITHUB_ENV"
+          echo "VITE_API_BASE_URL=https://localhost:8443" >> "$GITHUB_ENV"
+          rm secrets/tls.key
+
       - name: Start backend and database
         working-directory: backend/TrainFyre
         run: docker compose up -d --build
@@ -126,7 +145,7 @@ jobs:
       - name: Wait for the REST API
         run: |
           for i in $(seq 1 60); do
-            if curl -fsS "http://localhost:8080/incidence?page=0&size=1" > /dev/null; then
+            if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:8443/incidence?page=0&size=1" > /dev/null; then
               echo "API ready"; exit 0
             fi
             echo "Waiting for the API ($i/60)..."; sleep 3
@@ -172,7 +191,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0   # Sonar necesita el historial completo para atribuir "new code"
+          fetch-depth: 0
 
       - name: Download backend classes and JaCoCo report
         uses: actions/download-artifact@v5
@@ -186,8 +205,6 @@ jobs:
           name: frontend-coverage
           path: frontend/coverage
 
-      # Vitest escribe las rutas del lcov relativas a frontend/ (SF:src/App.tsx), pero
-      # Sonar las resuelve desde la raíz del repo: se les añade el prefijo "frontend/".
       - name: Make lcov paths relative to the repository root
         run: sed -i 's#^SF:#SF:frontend/#' frontend/coverage/lcov.info
 
@@ -198,9 +215,8 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # La configuración (clave de proyecto, fuentes, informes...) está en sonar-project.properties
       - name: SonarQube Cloud scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # decoración del PR
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

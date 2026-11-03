@@ -137,6 +137,15 @@ jobs:
           echo "NODE_EXTRA_CA_CERTS=$GITHUB_WORKSPACE/backend/TrainFyre/secrets/tls.crt" >> "$GITHUB_ENV"
           echo "VITE_API_BASE_URL=https://localhost:8443" >> "$GITHUB_ENV"
           rm secrets/tls.key
+          
+          sudo chown 10001:10001 \
+            secrets/trainfyre-local.p12 \
+            secrets/jwt-private.pem \
+            secrets/jwt-public.pem
+          sudo chmod 0400 \
+            secrets/trainfyre-local.p12 \
+            secrets/jwt-private.pem \
+            secrets/jwt-public.pem
 
       - name: Start backend and database
         working-directory: backend/TrainFyre

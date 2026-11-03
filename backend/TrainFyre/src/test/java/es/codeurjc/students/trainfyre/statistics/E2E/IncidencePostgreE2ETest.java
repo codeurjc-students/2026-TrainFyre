@@ -86,7 +86,7 @@ class IncidencePostgreE2ETest {
         // El GET por ID devuelve IncidenceDetails, sin campo "id".
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -101,7 +101,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -121,7 +121,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -164,7 +164,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -177,7 +177,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -193,7 +193,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -204,7 +204,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
                 .get("/incidence/{id}", id)
                 .then()
@@ -214,7 +214,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -227,7 +227,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
@@ -250,7 +250,7 @@ class IncidencePostgreE2ETest {
 
         String response = given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
@@ -276,7 +276,7 @@ class IncidencePostgreE2ETest {
 
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
@@ -288,7 +288,7 @@ class IncidencePostgreE2ETest {
     private void deleteIncidence(UUID id) throws Exception {
         given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(
                         new DeleteIncidenceCommand(id)
@@ -302,7 +302,7 @@ class IncidencePostgreE2ETest {
     private JsonNode listPage(int page, int size) {
         String response = given()
                 .port(port)
-                .header("Authorization", TestAccessTokens.bearerForRandomUser(accessTokenIssuer))
+                .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .when()

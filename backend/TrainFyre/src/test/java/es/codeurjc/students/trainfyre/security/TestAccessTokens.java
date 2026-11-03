@@ -20,4 +20,8 @@ public final class TestAccessTokens {
     public static String bearerForRandomUser(AccessTokenIssuer issuer) {
         return bearerFor(issuer, UUID.randomUUID(), Role.USER);
     }
+
+    public static String bearerForRandomAdmin(AccessTokenIssuer issuer) {
+        return bearerFor(issuer, UUID.randomUUID(), Role.ADMIN);
+    }
 }

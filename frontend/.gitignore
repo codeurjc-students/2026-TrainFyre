@@ -1,0 +1,22 @@
+# Dependencias y artefactos de compilación
+node_modules/
+dist/
+
+# Resultados de pruebas e informes de cobertura
+coverage/
+test-results/
+playwright-report/
+.vitest-cache/
+
+# Configuración local y secretos (usa .env.example como plantilla)
+.env
+.env.*
+!.env.example
+
+# IDE y sistema operativo
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo

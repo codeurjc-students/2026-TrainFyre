@@ -67,7 +67,7 @@ describe('Duraciones', () => {
     it('interpreta el formato java.time.Duration', () => {
         expect(durationSeconds('PT0S')).toBe(0)
         expect(durationSeconds('PT1H30M')).toBe(5400)
-        expect(durationSeconds('P1D')).toBe(86400)
+        expect(durationSeconds('P1D')).toBe(86_400)
         expect(durationSeconds('PT0.5S')).toBe(0.5)
     })
 

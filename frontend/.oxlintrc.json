@@ -1,8 +1,25 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
+  "plugins": ["react", "typescript", "oxc", "unicorn"],
+  "ignorePatterns": ["node_modules", "dist", "coverage", "test-results", "playwright-report"],
+  "categories": {
+    "correctness": "error"
+  },
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
+    "react/only-export-components": ["warn", { "allowConstantExport": true }],
+    "react/no-array-index-key": "warn",
+    "react/no-danger": "error",
+    "eqeqeq": "error",
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-console": "warn",
+    "no-nested-ternary": "warn",
+    "complexity": ["warn", { "max": 15 }],
+    "max-depth": ["warn", 4],
+    "max-params": ["warn", 5],
+    "unicorn/prefer-global-this": "warn",
+    "unicorn/no-array-callback-reference": "warn"
   }
 }

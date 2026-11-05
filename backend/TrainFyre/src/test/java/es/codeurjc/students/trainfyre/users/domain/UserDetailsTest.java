@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.users.domain;
 
+import es.codeurjc.students.trainfyre.security.domain.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,20 +23,21 @@ class UserDetailsTest {
     @MethodSource("nullArguments")
     void shouldThrowNullPointerExceptionWhenAnyArgumentIsNull(
             String username,
-            List<AlertSubscription> alertSubscriptions
+            List<AlertSubscription> alertSubscriptions,
+            Set<Role> roles
     ) {
         // When / Then
         assertThrows(
                 NullPointerException.class,
-                () -> new UserDetails(username, alertSubscriptions)
+                () -> new UserDetails(username, alertSubscriptions, roles)
         );
     }
 
     private static Stream<Arguments> nullArguments() {
         return Stream.of(
-                Arguments.of(null, List.<AlertSubscription>of()),
-                Arguments.of("pablo", null),
-                Arguments.of(null, null)
+                Arguments.of(null, List.<AlertSubscription>of(),Set.<Role>of()),
+                Arguments.of("pablo", null, Set.<Role>of()),
+                Arguments.of("pablo", List.<AlertSubscription>of(), null)
         );
     }
 
@@ -50,7 +52,7 @@ class UserDetailsTest {
                 start.plusWeeks(1)
         );
         var originalSubscriptions = new ArrayList<>(List.of(subscription));
-        var details = new UserDetails("pablo", originalSubscriptions);
+        var details = new UserDetails("pablo", originalSubscriptions, Set.of(Role.USER));
 
         originalSubscriptions.clear();
 

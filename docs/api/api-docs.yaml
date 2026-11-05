@@ -3,9 +3,89 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: http://localhost:8080
+- url: https://localhost:8443
   description: Generated server url
+security:
+- bearer-jwt: []
 paths:
+  /users/{id}:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserById
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDetails"
+    put:
+      tags:
+      - user-controller
+      operationId: updateUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - user-controller
+      operationId: deleteUser
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+  /users/me:
+    get:
+      tags:
+      - user-controller
+      operationId: getUserById_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserDetails"
+    put:
+      tags:
+      - user-controller
+      operationId: updateUser_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
   /incidence:
     get:
       tags:
@@ -75,6 +155,43 @@ paths:
       responses:
         "204":
           description: No Content
+  /users:
+    post:
+      tags:
+      - user-controller
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: uuid
+  /auth/login:
+    post:
+      tags:
+      - auth-controller
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TokenResponse"
   /incidence/{id}:
     get:
       tags:
@@ -96,6 +213,57 @@ paths:
                 $ref: "#/components/schemas/IncidenceDetails"
 components:
   schemas:
+    AlertSubscription:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            type: integer
+            format: int64
+          uniqueItems: true
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        daysOfTheWeek:
+          type: array
+          items:
+            type: string
+            enum:
+            - MONDAY
+            - TUESDAY
+            - WEDNESDAY
+            - THURSDAY
+            - FRIDAY
+            - SATURDAY
+            - SUNDAY
+          uniqueItems: true
+        expiration:
+          type: string
+          format: date-time
+    UpdateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 32
+          minLength: 3
+          pattern: "^[A-Za-z0-9._-]+$"
+        password:
+          type: string
+          maxLength: 128
+          minLength: 12
+        alertSubscriptionListToAdd:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlertSubscription"
+        alertSubscriptionListToDelete:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlertSubscription"
     AffectedNetwork:
       type: object
       properties:
@@ -161,6 +329,21 @@ components:
           $ref: "#/components/schemas/Description"
         changeClassification:
           $ref: "#/components/schemas/Classification"
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 32
+          minLength: 3
+          pattern: "^[A-Za-z0-9._-]+$"
+        password:
+          type: string
+          maxLength: 128
+          minLength: 12
+      required:
+      - password
+      - username
     CreateIncidenceCommand:
       type: object
       properties:
@@ -172,6 +355,47 @@ components:
           $ref: "#/components/schemas/Description"
         classification:
           $ref: "#/components/schemas/Classification"
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 32
+          minLength: 0
+        password:
+          type: string
+          maxLength: 128
+          minLength: 0
+      required:
+      - password
+      - username
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+    UserDetails:
+      type: object
+      properties:
+        username:
+          type: string
+        alertSubscriptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlertSubscription"
+        roles:
+          type: array
+          items:
+            type: string
+            enum:
+            - USER
+            - ADMIN
+          uniqueItems: true
     Incidence:
       type: object
       properties:
@@ -221,3 +445,8 @@ components:
         id:
           type: string
           format: uuid
+  securitySchemes:
+    bearer-jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

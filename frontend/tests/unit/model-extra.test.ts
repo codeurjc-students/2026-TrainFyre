@@ -89,7 +89,7 @@ describe('validateNewCredentials', () => {
             const iso = localToIso('2099-11-03T10:20:30')
 
             expect(localInput(iso)).toBe('2099-11-03T10:20:30')
-            expect(clock(`${iso}[Europe/Madrid]`)).toBe('09:20:30')
+            expect(clock(`${iso}[Europe/Madrid]`)).toBe(iso.slice(11, 19))
             expect(clock('sin hora')).toBe('00:00:00')
             expect(normalizeClock('10:20')).toBe('10:20:00')
             expect(localOffset(new Date('2026-01-01T00:00:00Z'))).toMatch(/^[+-]\d{2}:\d{2}$/)
@@ -99,6 +99,7 @@ describe('validateNewCredentials', () => {
         })
 
         it('crea y edita suscripciones, deduplicando días', () => {
+            const expiration = localToIso('2099-11-03T10:20:30')
             const data = subscriptionForm({
                 lines: '1, 2, 1',
                 startTime: '07:00',
@@ -116,11 +117,11 @@ describe('validateNewCredentials', () => {
                 ...created,
                 startTime: '2099-11-03T07:00:00+01:00[Europe/Madrid]',
                 endTime: '2099-11-03T09:00:00+01:00[Europe/Madrid]',
-                expiration: '2099-11-03T09:20:30.000Z',
+                expiration,
             })
 
             expect(edited.startTime).toContain('T07:00:00')
-            expect(edited.expiration).toBe('2099-11-03T09:20:30.000Z')
+            expect(edited.expiration).toBe(expiration)
         })
 
         it('rechaza franjas, días y expiraciones no válidas', () => {

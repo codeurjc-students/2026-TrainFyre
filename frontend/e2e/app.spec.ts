@@ -200,3 +200,114 @@ test('las rutas administrativas no son accesibles sin sesión', async ({ page })
         }),
     ).toHaveCount(0)
 })
+
+test('un administrador consulta su cuenta y publica una incidencia', async ({ page }) => {
+    const calls: string[] = []
+    const payload = Buffer.from(JSON.stringify({
+        sub: USER_ID,
+        roles: ['ADMIN'],
+        exp: Math.floor(Date.now() / 1000) + 900,
+    })).toString('base64url')
+    const jwt = `header.${payload}.signature`
+
+    await page.route(`${API_ORIGIN}/**`, async route => {
+        const request = route.request()
+        const url = new URL(request.url())
+        const path = url.pathname
+
+        calls.push(`${request.method()} ${path}`)
+
+        let body: unknown = {}
+        let status = 200
+
+        if (path === '/auth/login') {
+            body = { accessToken: jwt, tokenType: 'Bearer', expiresIn: 900 }
+        } else if (path === '/users/me') {
+            body = { username: 'admin', roles: ['ADMIN'], alertSubscriptions: [] }
+        } else if (path === '/incidence' && request.method() === 'POST') {
+            body = INCIDENCE_ID
+            status = 201
+        } else if (path === `/incidence/${INCIDENCE_ID}`) {
+            body = {
+                id: INCIDENCE_ID,
+                affectedNetwork: { mapId: 1, lineIds: [4] },
+                occurrence: { timestamp: '2026-11-03T12:00:00Z', duration: 'PT15M' },
+                description: { name: INCIDENCE_NAME, summary: 'Mantenimiento programado.' },
+                classification: { severity: 'LOW', cause: 'MAINTENANCE' },
+            }
+        } else {
+            status = 404
+        }
+
+        await route.fulfill({
+            status,
+            contentType: 'application/json',
+            headers: CORS_HEADERS,
+            body: JSON.stringify(body),
+        })
+    })
+
+    await page.goto('/#/acceso')
+    await page.locator('input[name="username"]').fill('admin')
+    await page.locator('input[name="password"]').fill('contraseña-segura')
+    await page.getByRole('button', { name: 'Iniciar sesión' }).click()
+
+    await expect(page.getByRole('heading', { name: 'Mi cuenta', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Administración' })).toBeVisible()
+
+    await page.goto('/#/incidencias/nueva')
+    await page.locator('input[name="name"]').fill(INCIDENCE_NAME)
+    await page.locator('textarea[name="summary"]').fill('Mantenimiento programado.')
+    await page.locator('input[name="mapId"]').fill('1')
+    await page.locator('input[name="lineIds"]').fill('4')
+    await page.locator('select[name="cause"]').selectOption('MAINTENANCE')
+    await page.getByRole('button', { name: 'Crear incidencia' }).click()
+
+    await expect(page.getByRole('heading', { name: 'Qué está ocurriendo' })).toBeVisible()
+    expect(calls).toContain('POST /incidence')
+})
+
+test('muestra y recupera un error de carga de incidencias', async ({ page }) => {
+    let attempts = 0
+
+    await page.route(`${API_ORIGIN}/**`, async route => {
+        const path = new URL(route.request().url()).pathname
+
+        if (path !== '/incidence') {
+            await route.fulfill({
+                status: 404,
+                headers: CORS_HEADERS,
+                body: '{}',
+            })
+            return
+        }
+
+        attempts++
+        if (attempts <= 2) {
+            await route.fulfill({
+                status: 503,
+                contentType: 'application/json',
+                headers: CORS_HEADERS,
+                body: '{}',
+            })
+            return
+        }
+
+        await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            headers: CORS_HEADERS,
+            body: JSON.stringify({
+                content: [],
+                page: 0,
+                size: 100,
+                totalElements: 0,
+            }),
+        })
+    })
+
+    await page.goto('/#/incidencias')
+    await expect(page.getByRole('button', { name: 'Volver a cargar' })).toBeVisible()
+    await page.getByRole('button', { name: 'Volver a cargar' }).click()
+    await expect(page.getByText('No hay incidencias para esta consulta')).toBeVisible()
+})

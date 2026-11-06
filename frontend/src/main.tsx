@@ -20,8 +20,6 @@ import('./App')
         )
     })
     .catch((error: unknown) => {
-        console.error(error)
-
         const message = document.createElement('pre')
 
         message.setAttribute('role', 'alert')

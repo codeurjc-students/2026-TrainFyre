@@ -20,7 +20,7 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 public class IncidenceListSimulation extends Simulation {
 
     private final String baseUrl =
-            System.getProperty("baseUrl", "https://localhost:8443");
+            System.getProperty("baseUrl", "https://localhost:443");
 
     private final int seedCount =
             Integer.getInteger("seedCount", 200);

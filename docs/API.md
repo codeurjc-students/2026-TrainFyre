@@ -6,8 +6,8 @@ TrainFyre exposes a REST API from the backend layer. The project uses Springdoc 
 
 Once the backend is running locally:
 
-- Swagger UI: https://localhost:8443/swagger-ui.html
-- OpenAPI JSON: https://localhost:8443/v3/api-docs
+- Swagger UI: https://localhost:443/swagger-ui.html
+- OpenAPI JSON: https://localhost:443/v3/api-docs
 
 ## API base path
 

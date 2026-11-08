@@ -8,7 +8,7 @@ describe('Configuración de la API', () => {
     })
 
     it('usa el valor por defecto cuando no hay configuración', () => {
-        expect(resolveApiBaseUrl(undefined)).toBe('https://localhost:8443/api/v1')
+        expect(resolveApiBaseUrl(undefined)).toBe('https://localhost:443/api/v1')
     })
 
     it('admite HTTP solo en la propia máquina', () => {

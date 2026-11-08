@@ -6,7 +6,7 @@ import {
 const USER_ID = '00000000-0000-4000-8000-000000000001'
 const INCIDENCE_ID = '00000000-0000-4000-8000-000000000002'
 
-const API_ORIGIN = 'https://localhost:8443'
+const API_ORIGIN = 'https://localhost:443'
 const API_PATH = '/api/v1'
 const APP_ORIGIN = 'http://localhost:5173'
 const INCIDENCE_NAME = 'Trabajos en la vía'

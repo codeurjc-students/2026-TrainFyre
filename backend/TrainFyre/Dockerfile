@@ -37,6 +37,6 @@ COPY --from=build --chown=0:0 /layers/application/ ./
 
 USER 10001:10001
 
-EXPOSE 8443
+EXPOSE 443
 
 ENTRYPOINT ["java", "-Dspring.aot.enabled=true", "-jar", "/app/application.jar"]

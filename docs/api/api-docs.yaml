@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://localhost:8443/api/v1
+- url: https://localhost:443/api/v1
   description: Generated server url
 security:
 - bearer-jwt: []

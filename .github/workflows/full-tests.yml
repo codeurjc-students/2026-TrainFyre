@@ -135,7 +135,7 @@ jobs:
             -out secrets/jwt-public.pem
 
           echo "NODE_EXTRA_CA_CERTS=$GITHUB_WORKSPACE/backend/TrainFyre/secrets/tls.crt" >> "$GITHUB_ENV"
-          echo "VITE_API_BASE_URL=https://localhost:8443/api/v1" >> "$GITHUB_ENV"
+          echo "VITE_API_BASE_URL=https://localhost:443/api/v1" >> "$GITHUB_ENV"
           rm secrets/tls.key
           
           sudo chown 10001:10001 \
@@ -154,7 +154,7 @@ jobs:
       - name: Wait for the REST API
         run: |
           for i in $(seq 1 60); do
-            if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:8443/api/v1/incidence?page=0&size=1" > /dev/null; then
+            if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:443/api/v1/incidence?page=0&size=1" > /dev/null; then
               echo "API ready"; exit 0
             fi
             echo "Waiting for the API ($i/60)..."; sleep 3

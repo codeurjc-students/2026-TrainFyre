@@ -3,7 +3,7 @@ import { defineConfig, loadEnv } from 'vite'
 
 import type { Plugin } from 'vite'
 
-const DEFAULT_API_BASE_URL = 'https://localhost:8443/api/v1'
+const DEFAULT_API_BASE_URL = 'https://localhost:443/api/v1'
 
 // Cabeceras seguras también en desarrollo (no bloquean vistas previas del IDE).
 const DEV_SECURITY_HEADERS = {

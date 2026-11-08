@@ -11,7 +11,7 @@ spring:
         - classpath:/seed/users-postgresql.sql
 
 server:
-  port: 8443
+  port: 443
   ssl:
     enabled: true
     key-store: ${TRAINFYRE_TLS_KEYSTORE}

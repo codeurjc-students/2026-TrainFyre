@@ -6,7 +6,7 @@ export default defineConfig({
         setupFiles: ['tests/components/setup.ts'],
         include: ['tests/components/**/*.test.tsx'],
         env: {
-            VITE_API_BASE_URL: 'https://api.test',
+            VITE_API_BASE_URL: 'https://api.test/api/v1',
             VITE_PAGE_SIZE: '2',
         },
     },

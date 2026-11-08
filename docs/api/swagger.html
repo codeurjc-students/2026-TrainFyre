@@ -23,12 +23,12 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8080",
+      "url": "http://localhost:8443",
       "description": "Generated server url"
     }
   ],
   "paths": {
-    "/incidence": {
+    "/api/v1/incidence": {
       "get": {
         "tags": [
           "incidence-controller"
@@ -139,7 +139,7 @@
         }
       }
     },
-    "/incidence/{id}": {
+    "/api/v1/incidence/{id}": {
       "get": {
         "tags": [
           "incidence-controller"

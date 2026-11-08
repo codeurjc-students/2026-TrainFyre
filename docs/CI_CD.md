@@ -56,7 +56,7 @@ The CI workflow includes an automatic check to wait for the backend API to be re
 
 ```bash
 for i in $(seq 1 60); do
-  if curl -fsS "http://localhost:8080/incidence?page=0&size=1" > /dev/null; then
+  if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:8443/api/v1/incidence?page=0&size=1" > /dev/null; then
     echo "API ready"; exit 0
   fi
   echo "Waiting for the API ($i/60)..."; sleep 3

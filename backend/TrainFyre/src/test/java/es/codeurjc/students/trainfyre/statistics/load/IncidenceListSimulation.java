@@ -1,7 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.load;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.gatling.javaapi.core.Simulation;
-import tools.jackson.databind.json.JsonMapper;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -20,7 +20,7 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 public class IncidenceListSimulation extends Simulation {
 
     private final String baseUrl =
-            System.getProperty("baseUrl", "http://localhost:8080");
+            System.getProperty("baseUrl", "https://localhost:8443");
 
     private final int seedCount =
             Integer.getInteger("seedCount", 200);
@@ -35,8 +35,8 @@ public class IncidenceListSimulation extends Simulation {
 
         var browse = scenario("Consultar listado paginado")
                 .repeat(3).on(
-                        exec(http("GET /incidence paginado")
-                                .get("/incidence")
+                        exec(http("GET /api/v1/incidence paginado")
+                                .get("/api/v1/incidence")
                                 .queryParam("page", session ->
                                         Integer.toString(
                                                 ThreadLocalRandom.current()
@@ -62,8 +62,8 @@ public class IncidenceListSimulation extends Simulation {
                             );
                             return session.set("seededId", id);
                         })
-                                .exec(http("GET /incidence/{id} existente")
-                                        .get("/incidence/#{seededId}")
+                                .exec(http("GET /api/v1/incidence/{id} existente")
+                                        .get("/api/v1/incidence/#{seededId}")
                                         .check(status().is(200))
                                         // IncidenceDetails no tiene campo id.
                                         .check(jsonPath("$.description.name").exists()))
@@ -71,38 +71,36 @@ public class IncidenceListSimulation extends Simulation {
                 );
 
         var lifecycle = scenario("Crear, consultar, actualizar y borrar")
-                .exec(http("POST /incidence")
-                        .post("/incidence")
+                .exec(http("POST /api/v1/incidence")
+                        .post("/api/v1/incidence")
                         .asJson()
                         .body(StringBody(session ->
                                 createBody("Carga-" + UUID.randomUUID())
                         ))
                         .check(status().is(201))
-                        // POST devuelve un UUID como cadena JSON, no {"id": ...}.
                         .check(jsonPath("$").saveAs("createdId")))
                 .exitHereIfFailed()
                 .pause(1)
-                .exec(http("GET incidencia creada")
-                        .get("/incidence/#{createdId}")
+                .exec(http("GET /api/v1/incidence/#{createdId}")
+                        .get("/api/v1/incidence/#{createdId}")
                         .check(status().is(200))
                         .check(jsonPath("$.description.name").exists()))
-                .exitHereIfFailed()
                 .pause(1)
-                .exec(http("PUT /incidence")
-                        .put("/incidence")
+                .exec(http("PUT /api/v1/incidence")
+                        .put("/api/v1/incidence")
                         .asJson()
                         .body(StringBody(session ->
                                 updateBody(session.getString("createdId"))
                         ))
                         .check(status().is(204)))
                 .exitHereIfFailed()
-                .exec(http("GET incidencia actualizada")
-                        .get("/incidence/#{createdId}")
+                .pause(1)
+                .exec(http("GET /api/v1/incidence/#{createdId}")
+                        .get("/api/v1/incidence/#{createdId}")
                         .check(status().is(200))
-                        .check(jsonPath("$.description.name").is("Carga actualizada")))
-                .exitHereIfFailed()
-                .exec(http("DELETE /incidence")
-                        .delete("/incidence")
+                        .check(jsonPath("$.description.name").is("Carga actualizado")))
+                .exec(http("DELETE /api/v1/incidence")
+                        .delete("/api/v1/incidence")
                         .asJson()
                         .body(StringBody(session ->
                                 deleteBody(session.getString("createdId"))
@@ -139,10 +137,13 @@ public class IncidenceListSimulation extends Simulation {
         var ids = new ArrayList<String>(seedCount);
         var mapper = JsonMapper.builder().build();
 
-        try (var client = HttpClient.newHttpClient()) {
+        try {
+            // Usamos HttpClient nativo de Java para crear las incidencias
+            var client = HttpClient.newHttpClient();
+
             for (int i = 0; i < seedCount; i++) {
                 var request = HttpRequest.newBuilder()
-                        .uri(URI.create(baseUrl + "/incidence"))
+                        .uri(URI.create(baseUrl + "/api/v1/incidence"))
                         .header("Content-Type", "application/json")
                         .POST(HttpRequest.BodyPublishers.ofString(
                                 createBody("Semilla-" + i)

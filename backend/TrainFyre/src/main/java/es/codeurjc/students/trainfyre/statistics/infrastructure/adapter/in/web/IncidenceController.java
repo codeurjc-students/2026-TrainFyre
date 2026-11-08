@@ -20,7 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @PrimaryAdapter
 @RestController
-@RequestMapping("/incidence")
+@RequestMapping("/api/v1/incidence")
 @CrossOrigin(origins = "http://localhost:5173")
 public class IncidenceController {
 

@@ -6,14 +6,16 @@ TrainFyre exposes a REST API from the backend layer. The project uses Springdoc 
 
 Once the backend is running locally:
 
-- Swagger UI: http://localhost:8080/swagger-ui.html
-- OpenAPI JSON: http://localhost:8080/v3/api-docs
+- Swagger UI: https://localhost:8443/swagger-ui.html
+- OpenAPI JSON: https://localhost:8443/v3/api-docs
 
 ## API base path
 
-The REST API is currently exposed at the root with the following base path:
+The REST API is exposed with the `/api/v1` prefix:
 
-- `/incidence`
+- `/api/v1/incidence`
+- `/api/v1/users`
+- `/api/v1/auth`
 
 ## Implemented endpoints
 
@@ -23,7 +25,7 @@ The `IncidenceController` exposes the following endpoints for managing incidence
 
 **Create incidence (POST)**
 ```http
-POST /incidence
+POST /api/v1/incidence
 Content-Type: application/json
 
 {
@@ -37,19 +39,19 @@ Response: HTTP 201 Created with incidence UUID
 
 **Get all incidences (GET)**
 ```http
-GET /incidence?page=0&size=20
+GET /api/v1/incidence?page=0&size=20
 ```
 Response: HTTP 200 OK with paginated list of incidences
 
 **Get incidence by ID (GET)**
 ```http
-GET /incidence/{id}
+GET /api/v1/incidence/{id}
 ```
 Response: HTTP 200 OK with incidence details or 404 if not found
 
 **Update incidence (PUT)**
 ```http
-PUT /incidence
+PUT /api/v1/incidence
 Content-Type: application/json
 
 {
@@ -64,7 +66,7 @@ Response: HTTP 204 No Content
 
 **Delete incidence (DELETE)**
 ```http
-DELETE /incidence
+DELETE /api/v1/incidence
 Content-Type: application/json
 
 {

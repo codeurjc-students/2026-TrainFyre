@@ -3,12 +3,12 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://localhost:8443
+- url: https://localhost:8443/api/v1
   description: Generated server url
 security:
 - bearer-jwt: []
 paths:
-  /users/{id}:
+  /api/v1/users/{id}:
     get:
       tags:
       - user-controller
@@ -61,7 +61,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /users/me:
+  /api/v1/users/me:
     get:
       tags:
       - user-controller
@@ -86,7 +86,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /incidence:
+  /api/v1/incidence:
     get:
       tags:
       - incidence-controller
@@ -155,7 +155,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /users:
+  /api/v1/users:
     post:
       tags:
       - user-controller
@@ -174,7 +174,7 @@ paths:
               schema:
                 type: string
                 format: uuid
-  /auth/login:
+  /api/v1/auth/login:
     post:
       tags:
       - auth-controller
@@ -192,7 +192,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/TokenResponse"
-  /incidence/{id}:
+  /api/v1/incidence/{id}:
     get:
       tags:
       - incidence-controller

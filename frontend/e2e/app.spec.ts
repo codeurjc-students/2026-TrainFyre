@@ -7,6 +7,7 @@ const USER_ID = '00000000-0000-4000-8000-000000000001'
 const INCIDENCE_ID = '00000000-0000-4000-8000-000000000002'
 
 const API_ORIGIN = 'https://localhost:8443'
+const API_PATH = '/api/v1'
 const APP_ORIGIN = 'http://localhost:5173'
 const INCIDENCE_NAME = 'Trabajos en la vía'
 const HEADING_LOGIN = 'Inicia sesión'
@@ -16,7 +17,7 @@ const CORS_HEADERS = {
 }
 
 test('un visitante consulta incidencias y no ve administración', async ({ page }) => {
-    await page.route(`${API_ORIGIN}/**`, route => route.fulfill({
+    await page.route(`${API_ORIGIN}${API_PATH}/**`, route => route.fulfill({
         status: 200,
         contentType: 'application/json',
         headers: CORS_HEADERS,
@@ -76,7 +77,7 @@ test('el registro inicia sesión y no persiste credenciales', async ({ page }) =
 
     const jwt = `header.${payload}.signature`
 
-    await page.route(`${API_ORIGIN}/**`, async route => {
+    await page.route(`${API_ORIGIN}${API_PATH}/**`, async route => {
         const request = route.request()
         const path = new URL(request.url()).pathname
 
@@ -99,18 +100,18 @@ test('el registro inicia sesión y no persiste credenciales', async ({ page }) =
         let status = 200
 
         if (
-            path === '/users' &&
+            path === `${API_PATH}/users` &&
             request.method() === 'POST'
         ) {
             body = USER_ID
             status = 201
-        } else if (path === '/auth/login') {
+        } else if (path === `${API_PATH}/auth/login`) {
             body = {
                 accessToken: jwt,
                 tokenType: 'Bearer',
                 expiresIn: 900,
             }
-        } else if (path === '/users/me') {
+        } else if (path === `${API_PATH}/users/me`) {
             body = {
                 username: 'pablo',
                 roles: ['USER'],
@@ -154,13 +155,13 @@ test('el registro inicia sesión y no persiste credenciales', async ({ page }) =
         }),
     ).toBeVisible()
 
-    expect(calls).toContain('POST /users')
-    expect(calls).toContain('POST /auth/login')
+    expect(calls).toContain(`POST ${API_PATH}/users`)
+    expect(calls).toContain(`POST ${API_PATH}/auth/login`)
 
     expect(
-        calls.indexOf('POST /users'),
+        calls.indexOf(`POST ${API_PATH}/users`),
     ).toBeLessThan(
-        calls.indexOf('POST /auth/login'),
+        calls.indexOf(`POST ${API_PATH}/auth/login`),
     )
 
     const stored = await page.evaluate(() => ({
@@ -210,7 +211,7 @@ test('un administrador consulta su cuenta y publica una incidencia', async ({ pa
     })).toString('base64url')
     const jwt = `header.${payload}.signature`
 
-    await page.route(`${API_ORIGIN}/**`, async route => {
+    await page.route(`${API_ORIGIN}${API_PATH}/**`, async route => {
         const request = route.request()
         const url = new URL(request.url())
         const path = url.pathname
@@ -220,14 +221,14 @@ test('un administrador consulta su cuenta y publica una incidencia', async ({ pa
         let body: unknown = {}
         let status = 200
 
-        if (path === '/auth/login') {
+        if (path === `${API_PATH}/auth/login`) {
             body = { accessToken: jwt, tokenType: 'Bearer', expiresIn: 900 }
-        } else if (path === '/users/me') {
+        } else if (path === `${API_PATH}/users/me`) {
             body = { username: 'admin', roles: ['ADMIN'], alertSubscriptions: [] }
-        } else if (path === '/incidence' && request.method() === 'POST') {
+        } else if (path === `${API_PATH}/incidence` && request.method() === 'POST') {
             body = INCIDENCE_ID
             status = 201
-        } else if (path === `/incidence/${INCIDENCE_ID}`) {
+        } else if (path === `${API_PATH}/incidence/${INCIDENCE_ID}`) {
             body = {
                 id: INCIDENCE_ID,
                 affectedNetwork: { mapId: 1, lineIds: [4] },
@@ -264,16 +265,16 @@ test('un administrador consulta su cuenta y publica una incidencia', async ({ pa
     await page.getByRole('button', { name: 'Crear incidencia' }).click()
 
     await expect(page.getByRole('heading', { name: 'Qué está ocurriendo' })).toBeVisible()
-    expect(calls).toContain('POST /incidence')
+    expect(calls).toContain(`POST ${API_PATH}/incidence`)
 })
 
 test('muestra y recupera un error de carga de incidencias', async ({ page }) => {
     let attempts = 0
 
-    await page.route(`${API_ORIGIN}/**`, async route => {
+    await page.route(`${API_ORIGIN}${API_PATH}/**`, async route => {
         const path = new URL(route.request().url()).pathname
 
-        if (path !== '/incidence') {
+        if (path !== `${API_PATH}/incidence`) {
             await route.fulfill({
                 status: 404,
                 headers: CORS_HEADERS,

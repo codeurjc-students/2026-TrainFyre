@@ -17,7 +17,6 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reporter: ['text', 'html', 'lcov'],
-            setupFiles: ['tests/components/setup.ts'],
             include: ['src/**/*.{ts,tsx}'],
             exclude: [
                 'src/main.tsx',

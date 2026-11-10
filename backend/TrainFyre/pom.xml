@@ -14,7 +14,7 @@
 
     <groupId>es.codeurjc.students</groupId>
     <artifactId>TrainFyre</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>TrainFyre</name>
     <description>TrainFyre</description>
     <url>https://github.com/codeurjc-students/2026-TrainFyre</url>

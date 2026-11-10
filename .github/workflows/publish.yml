@@ -126,9 +126,9 @@ jobs:
           trap 'rm -f "$compose_file"' EXIT
           sed "s/\${IMAGE_TAG:-0.1.0}/${{ steps.metadata.outputs.image_tag }}/g" \
             docker/docker-compose.yml > "$compose_file"
-          oras push "${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \
+          oras push "docker.io/${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \
             "$compose_file:application/vnd.docker.compose.v1+yaml"
-          oras push "${COMPOSE_REPOSITORY}:latest" \
+          oras push "docker.io/${COMPOSE_REPOSITORY}:latest" \
             "$compose_file:application/vnd.docker.compose.v1+yaml"
 
       - name: Publish development Compose OCI artifact
@@ -136,5 +136,5 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          oras push "${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \
+          oras push "docker.io/${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \
             docker/docker-compose-dev.yml:application/vnd.docker.compose.v1+yaml

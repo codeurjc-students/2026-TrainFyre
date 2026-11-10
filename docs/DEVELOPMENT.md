@@ -116,12 +116,13 @@ mvn test
 mvn verify
 ```
 
-The Docker configuration is stored in `docker/` while the backend remains
-the Docker build context:
+The Docker configuration is stored in `docker/`. Run Compose from the
+repository root and explicitly point it to the backend environment file;
+Compose resolves `${...}` variables from the shell or the file passed with
+`--env-file`, not from the directory containing the Compose file:
 
 ```bash
-cd backend/TrainFyre
-docker compose --env-file .env -f ../../docker/docker-compose.yaml up -d --build
+docker compose --env-file backend/TrainFyre/.env -f docker/docker-compose.yaml up -d --build
 ```
 
 ### Frontend

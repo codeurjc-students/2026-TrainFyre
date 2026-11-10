@@ -1,17 +1,29 @@
-ARG BUILD_IMAGE=maven:3.10-eclipse-temurin-27
+ARG BUILD_IMAGE_FRONTEND=node:26.12.1-alpine
+ARG BUILD_IMAGE_BACKEND=maven:3.10-eclipse-temurin-27
 ARG RUNTIME_IMAGE=eclipse-temurin:27-jre
 
-FROM ${BUILD_IMAGE} AS build
+FROM ${BUILD_IMAGE_FRONTEND} AS frontend-build
+
+WORKDIR /frontend
+
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+FROM ${BUILD_IMAGE_BACKEND} AS build
 
 WORKDIR /build
 
 ARG AOT_PROFILES=dev
 
-COPY pom.xml .
-COPY .mvn/ .mvn/
+COPY backend/TrainFyre/pom.xml .
+COPY backend/TrainFyre/.mvn/ .mvn/
+COPY backend/TrainFyre/src/main/ src/main/
+COPY --from=frontend-build /frontend/dist/ src/main/resources/static/
 
-RUN --mount=type=bind,source=src/main,target=/build/src/main,readonly \
-    --mount=type=cache,id=trainfyre-maven,target=/root/.m2,sharing=locked \
+RUN --mount=type=cache,id=trainfyre-maven,target=/root/.m2,sharing=locked \
     SPRING_PROFILES_ACTIVE="${AOT_PROFILES}" \
     mvn -B -ntp \
         -Pnative \

@@ -16,8 +16,8 @@ services:
 
   app:
     build:
-      context: ../backend/TrainFyre
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: docker/Dockerfile
     ports:
       - "127.0.0.1:443:443"
 
@@ -59,4 +59,3 @@ services:
     depends_on:
       db:
         condition: service_healthy
-

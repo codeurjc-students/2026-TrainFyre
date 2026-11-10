@@ -68,6 +68,11 @@ This ensures the API is fully operational before proceeding with client-server i
 ## Deployment logic
 
 The application is currently prepared for Docker-based local execution. The
-Dockerfile and Compose file are kept in `docker/`; Compose uses
-`backend/TrainFyre` as the build context so the backend build remains
-unchanged.
+Dockerfile and Compose file are kept in `docker/`. Compose uses the
+repository root as its build context and mounts runtime secrets from
+`backend/TrainFyre/secrets`. When running locally, provide
+`../docker/.env` explicitly:
+
+```bash
+docker compose --env-file backend/TrainFyre/.env -f docker/docker-compose.yaml up -d --build
+```

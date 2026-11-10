@@ -31,7 +31,7 @@ RUN --mount=type=cache,id=trainfyre-maven,target=/root/.m2,sharing=locked \
         -Djacoco.skip=true \
         package \
     && test -d target/spring-aot/main/classes \
-    && cp target/TrainFyre-0.0.1-SNAPSHOT.jar application.jar \
+    && cp target/*.jar application.jar \
     && java -Djarmode=tools \
         -jar application.jar \
         extract --layers --destination /layers \

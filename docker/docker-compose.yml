@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: trainfyre
+      POSTGRES_USER: trainfyre
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+    volumes:
+      - trainfyre-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trainfyre -d trainfyre"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+
+  app:
+    image: ${DOCKERHUB_USERNAME:?Define DOCKERHUB_USERNAME}/trainfyre:${IMAGE_TAG:-0.1.0}
+    ports:
+      - "127.0.0.1:443:443"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
+      SPRING_DATASOURCE_USERNAME: trainfyre
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      TRAINFYRE_TLS_KEYSTORE: file:/run/trainfyre/trainfyre-local.p12
+      TRAINFYRE_TLS_PASSWORD: ${TRAINFYRE_TLS_PASSWORD:?Define TRAINFYRE_TLS_PASSWORD}
+      TRAINFYRE_JWT_PRIVATE_KEY: file:/run/trainfyre/jwt-private.pem
+      TRAINFYRE_JWT_PUBLIC_KEY: file:/run/trainfyre/jwt-public.pem
+    volumes:
+      - type: bind
+        source: ../backend/TrainFyre/secrets/trainfyre-local.p12
+        target: /run/trainfyre/trainfyre-local.p12
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../backend/TrainFyre/secrets/jwt-private.pem
+        target: /run/trainfyre/jwt-private.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ../backend/TrainFyre/secrets/jwt-public.pem
+        target: /run/trainfyre/jwt-public.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  trainfyre-db-data:

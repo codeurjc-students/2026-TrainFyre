@@ -29,6 +29,23 @@ It executes:
 
 This workflow acts as the complete quality gate before merging into the main branch.
 
+### 3. `publish.yml`
+
+This workflow publishes the Docker artifacts required by Phase 3:
+
+- pushes to `main` publish the application image and development Compose as `dev`;
+- published GitHub Releases publish the versioned image, `latest`, and the stable
+  Compose OCI artifact;
+- `workflow_dispatch` accepts a branch or tag and an optional commit SHA, and
+  publishes an identifiable branch/date/commit build.
+
+The workflow uses `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`. With the current
+configuration, the image repository is `escipion48/trainfyre` and the Compose
+OCI artifacts use the separate `escipion48/trainfyre-compose` repository because
+one registry tag cannot refer to both an image manifest and a Compose artifact.
+The latter repository must exist in the DockerHub account before the first
+publication.
+
 ## Resulting quality requirements
 
 The project requires:
@@ -70,9 +87,23 @@ This ensures the API is fully operational before proceeding with client-server i
 The application is currently prepared for Docker-based local execution. The
 Dockerfile and Compose file are kept in `docker/`. Compose uses the
 repository root as its build context and mounts runtime secrets from
-`backend/TrainFyre/secrets`. When running locally, provide
-`../docker/.env` explicitly:
+`backend/TrainFyre/secrets`. When running locally, provide `docker/.env`
+explicitly:
+
+Development execution uses `docker/docker-compose-dev.yml`; the published
+version uses `docker/docker-compose.yml` and pulls the image from DockerHub:
 
 ```bash
-docker compose --env-file backend/TrainFyre/.env -f docker/docker-compose.yaml up -d --build
+docker compose --env-file docker/.env \
+  -f docker/docker-compose-dev.yml up -d --build
+
+DOCKERHUB_USERNAME=escipion48 docker compose \
+  --env-file docker/.env \
+  -f docker/docker-compose.yml up -d
 ```
+
+Copy `docker/.env.example` to `docker/.env` and replace every placeholder
+before starting the application. The `.env` file and
+`backend/TrainFyre/secrets/` must never be committed: they contain passwords,
+private keys and certificates. A deployment machine must provision those files
+through its secret-management mechanism.

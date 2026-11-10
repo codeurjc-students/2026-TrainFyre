@@ -20,7 +20,8 @@ This architecture allows the application to be modularized and scaled progressiv
 │       └── full-tests.yml
 ├── docker/
 │   ├── Dockerfile
-│   └── docker-compose.yaml
+│   ├── docker-compose.yml
+│   └── docker-compose-dev.yml
 ├── backend/
 │   └── TrainFyre/
 │       ├── pom.xml
@@ -72,11 +73,17 @@ This architecture allows the application to be modularized and scaled progressiv
 ### Backend execution
 
 ```bash
-cd backend/TrainFyre
-DB_PASSWORD=localdevpassword docker-compose up -d
+cp docker/.env.example docker/.env
+# Edit docker/.env with local credentials.
+docker compose --env-file docker/.env \
+  -f docker/docker-compose-dev.yml up -d --build
 ```
 
-This starts the PostgreSQL database and the backend service. The application is then exposed on port 8080.
+This starts the PostgreSQL database and the backend service. The application is then exposed on HTTPS port 443.
+
+Copy `docker/.env.example` to `docker/.env` and provide local values before
+starting Compose. Do not commit `docker/.env` or any file in
+`backend/TrainFyre/secrets/`; they contain runtime credentials and private keys.
 
 ### Frontend execution
 
@@ -122,7 +129,8 @@ Compose resolves `${...}` variables from the shell or the file passed with
 `--env-file`, not from the directory containing the Compose file:
 
 ```bash
-docker compose --env-file backend/TrainFyre/.env -f docker/docker-compose.yaml up -d --build
+docker compose --env-file docker/.env \
+  -f docker/docker-compose-dev.yml up -d --build
 ```
 
 ### Frontend

@@ -122,12 +122,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          compose_file="docker-compose-release.yml"
+          trap 'rm -f "$compose_file"' EXIT
           sed "s/\${IMAGE_TAG:-0.1.0}/${{ steps.metadata.outputs.image_tag }}/g" \
-            docker/docker-compose.yml > "$RUNNER_TEMP/docker-compose.yml"
+            docker/docker-compose.yml > "$compose_file"
           oras push "${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \
-            "$RUNNER_TEMP/docker-compose.yml:application/vnd.docker.compose.v1+yaml"
+            "$compose_file:application/vnd.docker.compose.v1+yaml"
           oras push "${COMPOSE_REPOSITORY}:latest" \
-            "$RUNNER_TEMP/docker-compose.yml:application/vnd.docker.compose.v1+yaml"
+            "$compose_file:application/vnd.docker.compose.v1+yaml"
 
       - name: Publish development Compose OCI artifact
         if: github.event_name != 'release'

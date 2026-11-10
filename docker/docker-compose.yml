@@ -15,7 +15,7 @@ services:
       start_period: 20s
 
   app:
-    image: ${DOCKERHUB_USERNAME:?Define DOCKERHUB_USERNAME}/trainfyre:${IMAGE_TAG:-0.1.0}
+    image: ${DOCKERHUB_USERNAME:-escipion48}/trainfyre:${IMAGE_TAG:-0.1.0}
     ports:
       - "127.0.0.1:443:443"
     environment:

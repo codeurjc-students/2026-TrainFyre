@@ -67,4 +67,7 @@ This ensures the API is fully operational before proceeding with client-server i
 
 ## Deployment logic
 
-The application is currently prepared for Docker-based local execution and will evolve to more complete deployment configurations as the project advances.
+The application is currently prepared for Docker-based local execution. The
+Dockerfile and Compose file are kept in `docker/`; Compose uses
+`backend/TrainFyre` as the build context so the backend build remains
+unchanged.

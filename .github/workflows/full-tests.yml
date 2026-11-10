@@ -149,7 +149,7 @@ jobs:
 
       - name: Start backend and database
         working-directory: backend/TrainFyre
-        run: docker compose up -d --build
+        run: docker compose -f ../../docker/docker-compose.yaml up -d --build
 
       - name: Wait for the REST API
         run: |
@@ -173,12 +173,12 @@ jobs:
       - name: Show backend logs
         if: failure()
         working-directory: backend/TrainFyre
-        run: docker compose logs --no-color
+        run: docker compose -f ../../docker/docker-compose.yaml logs --no-color
 
       - name: Stop backend and database
         if: always()
         working-directory: backend/TrainFyre
-        run: docker compose down -v
+        run: docker compose -f ../../docker/docker-compose.yaml down -v
 
       - name: Upload reports
         if: always()

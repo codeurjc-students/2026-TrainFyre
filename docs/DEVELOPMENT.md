@@ -18,10 +18,11 @@ This architecture allows the application to be modularized and scaled progressiv
 │   └── workflows/
 │       ├── unit-tests.yml
 │       └── full-tests.yml
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yaml
 ├── backend/
 │   └── TrainFyre/
-│       ├── Dockerfile
-│       ├── docker-compose.yaml
 │       ├── pom.xml
 │       └── src/
 ├── frontend/
@@ -113,6 +114,14 @@ The project follows GitHub Flow:
 cd backend/TrainFyre
 mvn test
 mvn verify
+```
+
+The Docker configuration is stored in `docker/` while the backend remains
+the Docker build context:
+
+```bash
+cd backend/TrainFyre
+docker compose --env-file .env -f ../../docker/docker-compose.yaml up -d --build
 ```
 
 ### Frontend

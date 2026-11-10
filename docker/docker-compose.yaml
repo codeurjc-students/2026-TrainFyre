@@ -15,7 +15,9 @@ services:
       start_period: 20s
 
   app:
-    build: .
+    build:
+      context: ../backend/TrainFyre
+      dockerfile: Dockerfile
     ports:
       - "127.0.0.1:443:443"
 
@@ -36,19 +38,19 @@ services:
 
     volumes:
       - type: bind
-        source: ./secrets/trainfyre-local.p12
+        source: ../backend/TrainFyre/secrets/trainfyre-local.p12
         target: /run/trainfyre/trainfyre-local.p12
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ./secrets/jwt-private.pem
+        source: ../backend/TrainFyre/secrets/jwt-private.pem
         target: /run/trainfyre/jwt-private.pem
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ./secrets/jwt-public.pem
+        source: ../backend/TrainFyre/secrets/jwt-public.pem
         target: /run/trainfyre/jwt-public.pem
         read_only: true
         bind:
@@ -57,5 +59,4 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
 

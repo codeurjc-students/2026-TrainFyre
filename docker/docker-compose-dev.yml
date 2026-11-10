@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: trainfyre
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
     volumes:
-      - trainfyre-db-data:/var/lib/postgresql/data
+      - trainfyre-db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trainfyre -d trainfyre"]
       interval: 5s

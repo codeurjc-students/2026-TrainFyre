@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: trainfyre
       POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
     volumes:
-      - trainfyre-db-data:/var/lib/postgresql/data
+      - trainfyre-db-data:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trainfyre -d trainfyre"]
       interval: 5s
@@ -20,6 +20,12 @@ services:
       - "127.0.0.1:443:443"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 443
+      SERVER_SSL_ENABLED: "true"
+      SERVER_SSL_KEY_STORE: file:/run/trainfyre/trainfyre-local.p12
+      SERVER_SSL_KEY_STORE_PASSWORD: ${TRAINFYRE_TLS_PASSWORD:?Define TRAINFYRE_TLS_PASSWORD}
+      SERVER_SSL_KEY_STORE_TYPE: PKCS12
+      SERVER_SSL_KEY_ALIAS: trainfyre-local
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
       SPRING_DATASOURCE_USERNAME: trainfyre
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}

@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class uploadTest {
+class UploadTest {
 
     private static final UUID IMAGE_ID =
             UUID.fromString("00000000-0000-0000-0000-000000000001");
@@ -28,7 +28,7 @@ class uploadTest {
     ) {
         assertThrows(
                 NullPointerException.class,
-                () -> new upload(uuid, content, contentLength, contentType)
+                () -> new Upload(uuid, content, contentLength, contentType)
         );
     }
 
@@ -37,7 +37,7 @@ class uploadTest {
     void shouldThrowIllegalArgumentExceptionWhenContentLengthIsNegative(long contentLength) {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new upload(IMAGE_ID, CONTENT, contentLength, "image/png")
+                () -> new Upload(IMAGE_ID, CONTENT, contentLength, "image/png")
         );
     }
 

@@ -9,14 +9,14 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class deleteTest {
+class DeleteTest {
 
     @ParameterizedTest(name = "[{index}] uuid={0}")
     @MethodSource("nullAttributes")
     void shouldThrowNullPointerExceptionWhenUuidIsNull(UUID uuid) {
         assertThrows(
                 NullPointerException.class,
-                () -> new delete(uuid)
+                () -> new Delete(uuid)
         );
     }
 

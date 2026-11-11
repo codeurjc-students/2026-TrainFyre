@@ -6,9 +6,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Command
-public record delete(UUID uuid) {
+public record Delete(UUID uuid) {
 
-    public delete {
+    public Delete {
         Objects.requireNonNull(uuid, "uuid should not be null");
     }
 }

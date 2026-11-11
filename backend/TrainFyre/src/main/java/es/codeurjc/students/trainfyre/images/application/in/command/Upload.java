@@ -7,9 +7,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Command
-public record upload(UUID uuid, InputStream content, long contentLength, String contentType) {
+public record Upload(UUID uuid, InputStream content, long contentLength, String contentType) {
 
-    public upload {
+    public Upload {
         Objects.requireNonNull(uuid, "uuid should not be null");
         Objects.requireNonNull(content, "content should not be null");
         Objects.requireNonNull(contentType, "contentType should not be null");

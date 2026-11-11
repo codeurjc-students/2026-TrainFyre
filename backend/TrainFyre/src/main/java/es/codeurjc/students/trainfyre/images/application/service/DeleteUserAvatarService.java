@@ -16,6 +16,11 @@ public class DeleteUserAvatarService implements DeleteUserAvatarUseCase {
     @CommandHandler
     @Override
     public Void execute(Delete input) {
+
+        input.assertCanChangeAvatar();
+
+        imagePort.delete(input.uuid());
+
         return null;
     }
 }

@@ -1,4 +1,4 @@
-package es.codeurjc.students.trainfyre.images.application.in.command;
+package es.codeurjc.students.trainfyre.images.application.port.in.command;
 
 import org.jmolecules.architecture.cqrs.Command;
 

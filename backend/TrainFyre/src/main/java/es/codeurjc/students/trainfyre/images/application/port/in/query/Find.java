@@ -1,4 +1,4 @@
-package es.codeurjc.students.trainfyre.images.application.in.query;
+package es.codeurjc.students.trainfyre.images.application.port.in.query;
 
 import org.jmolecules.architecture.cqrs.QueryModel;
 

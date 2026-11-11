@@ -2,6 +2,7 @@ package es.codeurjc.students.trainfyre.images.application.port.in.command;
 
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
+import es.codeurjc.students.trainfyre.security.domain.Role;
 import org.jmolecules.architecture.cqrs.Command;
 
 import java.util.Objects;
@@ -15,6 +16,8 @@ public record Upload(AuthenticatedUser authenticatedUser, Image image) {
     }
 
     public void assertCanChangeAvatar() {
-        //TODO
+        if(!authenticatedUser.isOwner(image.uuid()) && !authenticatedUser().hasRole(Role.ADMIN)){
+            throw new ChangeAvatarDeniedException(authenticatedUser.id());
+        }
     }
 }

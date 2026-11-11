@@ -11,5 +11,6 @@ public record Upload(AuthenticatedUser authenticatedUser, Image image) {
 
     public Upload {
         Objects.requireNonNull(image, "image should not be null");
+        Objects.requireNonNull(authenticatedUser, "user should not be null");
     }
 }

@@ -7,5 +7,5 @@ export function go(path: string) {
 
 /** Ruta actual del hash, sin la almohadilla. */
 export function currentPath(): string {
-    return globalThis.location.hash.slice(1) || '/'
+    return globalThis.location.hash.slice(1) || globalThis.location.pathname || '/'
 }

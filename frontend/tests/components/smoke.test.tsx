@@ -13,11 +13,14 @@ import { SiteFooter } from '../../src/components/SiteFooter'
 import { SiteHeader } from '../../src/components/SiteHeader'
 import { getAuthState, logout, notify } from '../../src/api'
 import { Require } from '../../src/components/Require'
+import { ErrorBoundary } from '../../src/components/ErrorBoundary'
 import { publishSession } from '../../src/api/session'
 import { Home } from '../../src/pages/Home'
+import { ErrorPage } from '../../src/pages/ErrorPage'
 import { IncidenceFilters } from '../../src/pages/incidences/IncidenceFilters'
 import { IncidenceTable } from '../../src/pages/incidences/IncidenceTable'
 import { emptyFilters } from '../../src/model'
+import { currentPath } from '../../src/lib/browser'
 
 const user = {
     username: 'admin',
@@ -39,6 +42,54 @@ afterEach(() => {
 })
 
 describe('componentes de presentación y rutas públicas', () => {
+    it('resuelve rutas directas sin hash', () => {
+        globalThis.history.replaceState({}, '', '/urlerronea')
+
+        expect(currentPath()).toBe('/urlerronea')
+    })
+
+    it('muestra la página de error cuando falla un componente inesperadamente', () => {
+        const error = new Error('fallo de prueba')
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+        function BrokenComponent(): never {
+            throw error
+        }
+
+        render(
+            <ErrorBoundary>
+                <BrokenComponent />
+            </ErrorBoundary>,
+        )
+
+        expect(screen.getByRole('heading', { name: 'Algo no ha salido bien' })).toBeInTheDocument()
+        expect(errorSpy).toHaveBeenCalledWith(
+            'Error inesperado al renderizar la página.',
+            error,
+            expect.anything(),
+        )
+    })
+
+    it('renderiza los hijos cuando no hay errores y permite recargar desde la página de error', async () => {
+        const user = userEvent.setup()
+        const reload = vi.fn()
+        vi.stubGlobal('location', { reload })
+
+        render(
+            <ErrorBoundary>
+                <p>Contenido correcto</p>
+            </ErrorBoundary>,
+        )
+
+        expect(screen.getByText('Contenido correcto')).toBeInTheDocument()
+
+        render(<ErrorPage />)
+        await user.click(screen.getByRole('button', { name: 'Recargar página' }))
+
+        expect(reload).toHaveBeenCalledOnce()
+        expect(screen.getByRole('link', { name: 'Volver al inicio' })).toHaveAttribute('href', '#/')
+    })
+
     it('monta la aplicación y actualiza el título de la ruta', () => {
         vi.stubGlobal('scrollTo', vi.fn())
         globalThis.location.hash = '#/'
@@ -70,6 +121,21 @@ describe('componentes de presentación y rutas públicas', () => {
 
         await user.click(screen.getByRole('link', { name: 'Saltar al contenido' }))
         expect(main).toHaveFocus()
+    })
+
+    it('conserva la sesión en la pestaña y la elimina al cerrar sesión', () => {
+        publishSession({
+            id: '00000000-0000-4000-8000-000000000001',
+            token: 'token',
+            deadline: Date.now() + 60_000,
+            user: { username: 'user', roles: ['USER'], alertSubscriptions: [] },
+        })
+
+        expect(sessionStorage.getItem('trainfyre.session')).toContain('"token":"token"')
+
+        logout('')
+
+        expect(sessionStorage.getItem('trainfyre.session')).toBeNull()
     })
 
     it('renderiza componentes básicos y sus variantes', () => {

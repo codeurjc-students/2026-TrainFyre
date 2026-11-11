@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import './App.css'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { ErrorPage } from './pages/ErrorPage'
 
 const container = document.querySelector('#root')
 
@@ -15,15 +17,18 @@ import('./App')
     .then(({ default: App }) => {
         root.render(
             <StrictMode>
-                <App />
+                <ErrorBoundary>
+                    <App />
+                </ErrorBoundary>
             </StrictMode>,
         )
     })
     .catch((error: unknown) => {
-        const message = document.createElement('pre')
-
-        message.setAttribute('role', 'alert')
-        message.textContent =
-            `No se pudo iniciar la aplicación: ${error instanceof Error ? error.message : 'error desconocido'}`
-        container.replaceChildren(message)
+        // oxlint-disable-next-line no-console
+        console.error('No se pudo iniciar la aplicación.', error)
+        root.render(
+            <StrictMode>
+                <ErrorPage />
+            </StrictMode>,
+        )
     })

@@ -66,7 +66,7 @@ test('un visitante consulta incidencias y no ve administración', async ({ page 
     ).toBeVisible()
 })
 
-test('el registro inicia sesión y no persiste credenciales', async ({ page }) => {
+test('el registro inicia sesión y conserva la sesión al recargar', async ({ page }) => {
     const calls: string[] = []
 
     const payload = Buffer.from(JSON.stringify({
@@ -171,17 +171,12 @@ test('el registro inicia sesión y no persiste credenciales', async ({ page }) =
 
     expect(stored).toEqual({
         local: 0,
-        session: 0,
+        session: 1,
     })
 
     await page.reload()
 
-    await expect(
-        page.getByRole('heading', {
-            name: HEADING_LOGIN,
-            exact: true,
-        }),
-    ).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Salir' })).toBeVisible()
 })
 
 test('las rutas administrativas no son accesibles sin sesión', async ({ page }) => {

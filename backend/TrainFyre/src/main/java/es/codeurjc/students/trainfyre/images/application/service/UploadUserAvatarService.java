@@ -17,6 +17,9 @@ public class UploadUserAvatarService implements UploadUserAvatarUseCase {
     @Override
     public Void execute(Upload input) {
 
+        input.assertCanChangeAvatar();
+
+        imagePort.save(input.image());
 
         return null;
     }

@@ -13,4 +13,8 @@ public record Upload(AuthenticatedUser authenticatedUser, Image image) {
         Objects.requireNonNull(image, "image should not be null");
         Objects.requireNonNull(authenticatedUser, "user should not be null");
     }
+
+    public void assertCanChangeAvatar() {
+        //TODO
+    }
 }

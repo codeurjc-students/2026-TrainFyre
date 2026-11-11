@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.images.application.in.command;
 
+import es.codeurjc.students.trainfyre.images.application.port.in.command.ChangeAvatarDeniedException;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
@@ -38,5 +39,21 @@ class UploadTest {
                         )
                 )
         );
+    }
+
+    @Test
+    void shouldThrowChangeAvatarDeniedExceptionWhenAuthenticatedUserIsNotOwnerOrAdmin() {
+        UUID requesterId = UUID.randomUUID();
+        Upload upload = new Upload(
+                new AuthenticatedUser(requesterId, Set.of(Role.USER)),
+                new Image(
+                        UUID.randomUUID(),
+                        new ByteArrayInputStream(new byte[0]),
+                        0,
+                        "image/png"
+                )
+        );
+
+        assertThrows(ChangeAvatarDeniedException.class, upload::assertCanChangeAvatar);
     }
 }

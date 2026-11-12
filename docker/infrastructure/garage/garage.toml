@@ -1,0 +1,17 @@
+# Persistent storage
+metadata_dir = "/var/lib/garage/meta"
+data_dir = "/var/lib/garage/data"
+
+# Single-node development deployment
+db_engine = "sqlite"
+replication_factor = 1
+
+# Internal Garage communication
+rpc_bind_addr = "[::]:3901"
+rpc_public_addr = "127.0.0.1:3901"
+rpc_secret = "a08ce824d69adea103f5eddebdd79944f685e7c32cf1a7684fe3f1d493454d1a"
+
+[s3_api]
+api_bind_addr = "[::]:3900"
+s3_region = "garage"
+public_endpoint_path_style = true

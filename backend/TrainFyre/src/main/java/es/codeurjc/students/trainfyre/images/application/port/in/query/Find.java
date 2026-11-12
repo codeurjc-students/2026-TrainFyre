@@ -13,4 +13,8 @@ public record Find(AuthenticatedUser authenticatedUser, UUID uuid) {
         Objects.requireNonNull(authenticatedUser, "authenticatedUser should not be null");
         Objects.requireNonNull(uuid, "uuid should not be null");
     }
+
+    public void assertCanFindAvatar() {
+
+    }
 }

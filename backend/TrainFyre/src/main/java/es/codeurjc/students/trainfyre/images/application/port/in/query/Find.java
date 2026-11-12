@@ -10,6 +10,7 @@ import java.util.UUID;
 public record Find(AuthenticatedUser authenticatedUser, UUID uuid) {
 
     public Find {
+        Objects.requireNonNull(authenticatedUser, "authenticatedUser should not be null");
         Objects.requireNonNull(uuid, "uuid should not be null");
     }
 }

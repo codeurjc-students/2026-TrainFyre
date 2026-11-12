@@ -18,6 +18,10 @@ public class FindUserAvatarService implements FindUserAvatarUseCase {
     @CommandHandler
     @Override
     public Image execute(Find input) {
-        return null;
+
+        input.assertCanFindAvatar();
+
+        return imagePort.find(input.uuid()).orElseThrow();
+
     }
 }

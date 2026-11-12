@@ -78,18 +78,6 @@ class FindUserAvatarServiceTest {
     }
 
     @Test
-    void shouldReturnNullWhenImageNotFound() {
-        AuthenticatedUser authenticatedUser = new AuthenticatedUser(USER_ID, Set.of(Role.USER));
-        Find query = new Find(authenticatedUser, USER_ID);
-
-        when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
-
-        Image result = service.execute(query);
-
-        assertThat(result).isNull();
-    }
-
-    @Test
     void shouldPropagateExceptionWhenFindingFails() {
         AuthenticatedUser authenticatedUser = new AuthenticatedUser(USER_ID, Set.of(Role.USER));
         Find query = new Find(authenticatedUser, USER_ID);

@@ -21,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import java.util.Set;
 import java.util.UUID;
@@ -66,6 +67,15 @@ class ImageControllerIntegrationTest {
         return "Bearer " + accessTokenIssuer.issue(user).value();
     }
 
+    private MockMultipartHttpServletRequestBuilder multipartPut(UUID imageId, MockMultipartFile file) {
+        return multipart("/api/v1/images/{id}/avatar", imageId)
+                .file(file)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                });
+    }
+
     @Test
     void shouldUploadAvatarAndReturnNoContentWhenUserIsOwner() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
@@ -75,8 +85,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -100,8 +109,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", imageOwnerId)
-                        .file(file)
+        mockMvc.perform(multipartPut(imageOwnerId, file)
                         .header(HttpHeaders.AUTHORIZATION, bearerAdmin(USER_ID)))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -124,8 +132,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", imageOwnerId)
-                        .file(file)
+        mockMvc.perform(multipartPut(imageOwnerId, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(attackerId)))
                 .andExpect(status().isForbidden());
 
@@ -141,8 +148,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file))
+        mockMvc.perform(multipartPut(USER_ID, file))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(imagePort);
@@ -157,8 +163,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt"))
                 .andExpect(status().isUnauthorized());
 
@@ -174,8 +179,7 @@ class ImageControllerIntegrationTest {
                 new byte[0]
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(emptyFile)
+        mockMvc.perform(multipartPut(USER_ID, emptyFile)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isBadRequest());
 
@@ -201,8 +205,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isNoContent());
 
@@ -222,8 +225,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isInternalServerError());
     }
@@ -240,8 +242,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", imageOwnerId)
-                        .file(file)
+        mockMvc.perform(multipartPut(imageOwnerId, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(attackerId)))
                 .andExpect(status().isForbidden());
 
@@ -258,8 +259,7 @@ class ImageControllerIntegrationTest {
                 largeContent
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isNoContent());
 
@@ -277,8 +277,7 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipart("/api/v1/images/{id}/avatar", USER_ID)
-                        .file(file)
+        mockMvc.perform(multipartPut(USER_ID, file)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isNoContent());
 

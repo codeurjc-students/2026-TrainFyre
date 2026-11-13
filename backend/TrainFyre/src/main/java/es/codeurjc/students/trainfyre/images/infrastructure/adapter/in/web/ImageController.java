@@ -100,7 +100,7 @@ public class ImageController {
     @GetMapping("/me")
     public Image find(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
-        return null;
+        return findUserAvatarUseCase.execute(new Find(authenticatedUser, authenticatedUser.id()));
 
     }
 

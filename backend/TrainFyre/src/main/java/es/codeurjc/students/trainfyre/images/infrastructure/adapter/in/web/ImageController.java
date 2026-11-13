@@ -28,6 +28,14 @@ public class ImageController {
 
     private final UploadUserAvatarUseCase uploadUserAvatarUseCase;
 
+    @ExceptionHandler({
+            MissingServletRequestPartException.class,
+            MissingServletRequestParameterException.class,
+            MultipartException.class
+    })
+    public ResponseEntity<Void> handleMissingFile() {
+        return ResponseEntity.badRequest().build();
+    }
 
     @PutMapping("/{id}/avatar")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -54,12 +62,5 @@ public class ImageController {
         return null;
     }
 
-    @ExceptionHandler({
-            MissingServletRequestPartException.class,
-            MissingServletRequestParameterException.class,
-            MultipartException.class
-    })
-    public ResponseEntity<Void> handleMissingFile() {
-        return ResponseEntity.badRequest().build();
-    }
+
 }

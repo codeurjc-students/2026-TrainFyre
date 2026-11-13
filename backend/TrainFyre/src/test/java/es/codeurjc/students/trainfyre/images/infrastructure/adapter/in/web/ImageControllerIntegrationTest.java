@@ -1,6 +1,7 @@
 package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 
 import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
+import es.codeurjc.students.trainfyre.images.application.port.in.command.ChangeAvatarDeniedException;
 import es.codeurjc.students.trainfyre.images.application.service.UploadUserAvatarService;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AccessTokenIssuer;
@@ -27,6 +28,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -122,7 +124,7 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    void shouldDenyUploadWhenUserIsNotOwnerAndNotAdmin() throws Exception {
+    void shouldPropagateChangeAvatarDeniedExceptionWhenUserIsNotOwnerAndNotAdmin() {
         UUID imageOwnerId = UUID.randomUUID();
         UUID attackerId = UUID.randomUUID();
         MockMultipartFile file = new MockMultipartFile(
@@ -132,9 +134,9 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipartPut(imageOwnerId, file)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(attackerId)))
-                .andExpect(status().isForbidden());
+        assertThatThrownBy(() -> mockMvc.perform(multipartPut(imageOwnerId, file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(attackerId))))
+                .hasCauseInstanceOf(ChangeAvatarDeniedException.class);
 
         verifyNoInteractions(imagePort);
     }
@@ -171,7 +173,7 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    void shouldRejectEmptyFile() throws Exception {
+    void shouldPropagateEmptyFileValidationError() {
         MockMultipartFile emptyFile = new MockMultipartFile(
                 "file",
                 "empty.png",
@@ -179,9 +181,9 @@ class ImageControllerIntegrationTest {
                 new byte[0]
         );
 
-        mockMvc.perform(multipartPut(USER_ID, emptyFile)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
-                .andExpect(status().isBadRequest());
+        assertThatThrownBy(() -> mockMvc.perform(multipartPut(USER_ID, emptyFile)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                        .hasCause(new IllegalArgumentException("image file cannot be empty"));
 
         verifyNoInteractions(imagePort);
     }
@@ -215,7 +217,7 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    void shouldPropagateExceptionWhenSavingFails() throws Exception {
+    void shouldPropagateExceptionWhenSavingFails() {
         doThrow(new RuntimeException("Storage failure")).when(imagePort).save(any(Image.class));
 
         MockMultipartFile file = new MockMultipartFile(
@@ -225,13 +227,13 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipartPut(USER_ID, file)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
-                .andExpect(status().isInternalServerError());
+        assertThatThrownBy(() -> mockMvc.perform(multipartPut(USER_ID, file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                        .hasCause(new RuntimeException("Storage failure"));
     }
 
     @Test
-    void shouldPropagateChangeAvatarDeniedExceptionWithForbiddenStatus() throws Exception {
+    void shouldPropagateChangeAvatarDeniedException() {
         UUID imageOwnerId = UUID.randomUUID();
         UUID attackerId = UUID.randomUUID();
 
@@ -242,9 +244,9 @@ class ImageControllerIntegrationTest {
                 IMAGE_CONTENT
         );
 
-        mockMvc.perform(multipartPut(imageOwnerId, file)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(attackerId)))
-                .andExpect(status().isForbidden());
+        assertThatThrownBy(() -> mockMvc.perform(multipartPut(imageOwnerId, file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(attackerId))))
+                .hasCauseInstanceOf(ChangeAvatarDeniedException.class);
 
         verifyNoInteractions(imagePort);
     }

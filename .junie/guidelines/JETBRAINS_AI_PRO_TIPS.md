@@ -105,6 +105,7 @@ AI lee automáticamente los archivos en `.junie/guidelines/` para entender:
 **Guías disponibles en este proyecto:**
 - `TDD_PAIR_PROGRAMMING.md` — Flujo TDD y patrones de testing
 - `TESTING_CONVENTIONS.md` — Convenciones específicas de tests
+- `SONARQUBE_QUALITY.md` — Estándares de calidad, seguridad y código limpio de SonarQube
 
 #### Cómo Aprovecharlas
 - Las guías se cargan como contexto en cada sesión

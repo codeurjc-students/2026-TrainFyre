@@ -119,7 +119,7 @@ public class ImageController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void delete(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
-        return null;
+        return deleteUserAvatarUseCase.execute(new Delete(authenticatedUser, authenticatedUser.id()));
 
     }
 

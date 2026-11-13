@@ -608,6 +608,45 @@ class ImageControllerIntegrationTest {
         verify(imagePort).delete(USER_ID);
     }
 
+    @Test
+    void shouldDeleteOwnAvatarAndReturnNoContentWhenUsingMeEndpoint() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(imagePort).delete(USER_ID);
+    }
+
+    @Test
+    void shouldRejectDeleteOwnAvatarRequestWithoutToken() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/me"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectDeleteOwnAvatarRequestWithMalformedToken() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, "******"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenDeletingOwnAvatarFails() {
+        RuntimeException persistenceFailure = new RuntimeException("Could not delete image");
+        doThrow(persistenceFailure).when(imagePort).delete(USER_ID);
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(persistenceFailure);
+
+        verify(imagePort).delete(USER_ID);
+    }
+
     private Image image(UUID uuid) {
         return new Image(
                 uuid,

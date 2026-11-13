@@ -115,6 +115,14 @@ public class ImageController {
 
     }
 
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Void delete(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+
+        return null;
+
+    }
+
 
 
 }

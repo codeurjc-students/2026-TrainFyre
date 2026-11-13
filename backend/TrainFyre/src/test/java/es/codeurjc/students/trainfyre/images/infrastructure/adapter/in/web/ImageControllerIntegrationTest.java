@@ -1,7 +1,9 @@
 package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 
-import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.ChangeAvatarDeniedException;
+import es.codeurjc.students.trainfyre.images.application.port.in.query.FindAvatarDeniedException;
+import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
+import es.codeurjc.students.trainfyre.images.application.service.FindUserAvatarService;
 import es.codeurjc.students.trainfyre.images.application.service.UploadUserAvatarService;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AccessTokenIssuer;
@@ -24,6 +26,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
+import java.io.ByteArrayInputStream;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,13 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest(ImageController.class)
 @Import({
+        FindUserAvatarService.class,
         UploadUserAvatarService.class,
         SecurityConfiguration.class,
         JwtConfiguration.class,
@@ -388,5 +392,101 @@ class ImageControllerIntegrationTest {
                 .andExpect(status().isNoContent());
 
         verify(imagePort).save(any(Image.class));
+    }
+
+    @Test
+    void shouldFindAvatarAndReturnItWhenUserIsOwner() throws Exception {
+        Image image = image(USER_ID);
+        when(imagePort.find(USER_ID)).thenReturn(Optional.of(image));
+
+        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid").value(USER_ID.toString()))
+                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE))
+                .andExpect(jsonPath("$.contentLength").value(IMAGE_CONTENT.length));
+
+        verify(imagePort).find(USER_ID);
+    }
+
+    @Test
+    void shouldFindAvatarAndReturnItWhenUserIsAdmin() throws Exception {
+        UUID imageOwnerId = UUID.randomUUID();
+        when(imagePort.find(imageOwnerId)).thenReturn(Optional.of(image(imageOwnerId)));
+
+        mockMvc.perform(get("/api/v1/images/{id}/avatar", imageOwnerId)
+                        .header(HttpHeaders.AUTHORIZATION, bearerAdmin(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid").value(imageOwnerId.toString()))
+                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE));
+
+        verify(imagePort).find(imageOwnerId);
+    }
+
+    @Test
+    void shouldPropagateFindAvatarDeniedExceptionWhenUserIsNotOwnerAndNotAdmin() {
+        UUID imageOwnerId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", imageOwnerId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCauseInstanceOf(FindAvatarDeniedException.class);
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectFindAvatarRequestWithoutToken() throws Exception {
+        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectFindAvatarRequestWithMalformedToken() throws Exception {
+        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "******"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectFindAvatarRequestWithMalformedImageId() throws Exception {
+        mockMvc.perform(get("/api/v1/images/not-a-uuid/avatar")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenAvatarIsNotFound() {
+        when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCauseInstanceOf(java.util.NoSuchElementException.class);
+
+        verify(imagePort).find(USER_ID);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenFindingAvatarFails() {
+        RuntimeException persistenceFailure = new RuntimeException("Could not find image");
+        when(imagePort.find(USER_ID)).thenThrow(persistenceFailure);
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(persistenceFailure);
+    }
+
+    private Image image(UUID uuid) {
+        return new Image(
+                uuid,
+                new ByteArrayInputStream(IMAGE_CONTENT),
+                IMAGE_CONTENT.length,
+                IMAGE_CONTENT_TYPE
+        );
     }
 }

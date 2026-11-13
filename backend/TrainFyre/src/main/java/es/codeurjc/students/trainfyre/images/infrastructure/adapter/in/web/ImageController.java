@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 
+import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.UploadUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
 import es.codeurjc.students.trainfyre.images.domain.Image;
@@ -27,6 +28,7 @@ import java.util.UUID;
 public class ImageController {
 
     private final UploadUserAvatarUseCase uploadUserAvatarUseCase;
+    private final FindUserAvatarUseCase findUserAvatarUseCase;
 
     @ExceptionHandler({
             MissingServletRequestPartException.class,
@@ -83,6 +85,12 @@ public class ImageController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        return null;
+    }
+
+    @GetMapping("/{id}/avatar")
+    public Image find(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         return null;
     }

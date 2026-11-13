@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.UploadUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
+import es.codeurjc.students.trainfyre.images.application.port.in.query.Find;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
 import lombok.AllArgsConstructor;
@@ -92,7 +93,8 @@ public class ImageController {
     @GetMapping("/{id}/avatar")
     public Image find(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
-        return null;
+        return findUserAvatarUseCase.execute(new Find(authenticatedUser, id));
+
     }
 
 

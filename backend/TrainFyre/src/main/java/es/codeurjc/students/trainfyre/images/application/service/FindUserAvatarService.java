@@ -1,6 +1,7 @@
 package es.codeurjc.students.trainfyre.images.application.service;
 
 import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseCase;
+import es.codeurjc.students.trainfyre.images.application.port.in.query.AvatarNotFoundException;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.Find;
 import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
 import es.codeurjc.students.trainfyre.images.domain.Image;
@@ -21,7 +22,7 @@ public class FindUserAvatarService implements FindUserAvatarUseCase {
 
         input.assertCanFindAvatar();
 
-        return imagePort.find(input.uuid()).orElseThrow();
+        return imagePort.find(input.uuid()).orElseThrow(() -> new AvatarNotFoundException(input.uuid()));
 
     }
 }

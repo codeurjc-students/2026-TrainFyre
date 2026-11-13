@@ -1,9 +1,17 @@
 import { logout } from '../api'
 import { useAuth, useIsAdmin } from '../hooks/useAuth'
+import { useAvatar } from '../hooks/useAvatar'
 import { go } from '../lib/browser'
+import { Avatar } from './Avatar'
 
 interface SiteHeaderProps {
     readonly path: string
+}
+
+function HeaderAvatar() {
+    const { url } = useAvatar('me')
+
+    return <Avatar url={url} />
 }
 
 export function SiteHeader({ path }: SiteHeaderProps) {
@@ -33,6 +41,8 @@ export function SiteHeader({ path }: SiteHeaderProps) {
                 <div className="account-nav">
                     {session ? (
                         <>
+                            {/* La clave reinicia la carga del avatar al cambiar de usuario. */}
+                            <HeaderAvatar key={session.id} />
                             <a className="user-link" href="#/cuenta">{session.user.username}</a>
                             <button className="button secondary compact" onClick={() => {
                                 logout()

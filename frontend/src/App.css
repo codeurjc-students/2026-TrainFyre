@@ -54,6 +54,12 @@ main:focus { outline: none; }
 .site-header nav a { color: var(--muted); padding: 10px 14px; font-size: .88rem; border-radius: 10px; }
 .site-header nav a[aria-current="page"] { color: var(--navy); background: #f0f3f8; font-weight: 650; }
 .account-nav { display: flex; align-items: center; gap: 14px; }
+.avatar { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: var(--navy); color: white; font-size: .85rem; font-weight: 700; }
+.avatar.empty { background: #f0f3f8; border: 1px solid var(--border); }
+.avatar.large { width: 96px; height: 96px; font-size: 2.2rem; }
+.avatar-preview { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+.avatar-preview p { margin: 0; }
+.avatar-section form { margin-bottom: 14px; }
 .user-link { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .87rem; font-weight: 650; }
 
 .button { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; gap: 8px; padding: 12px 18px; border: 1px solid transparent; border-radius: 10px; font-weight: 650; font-size: .86rem; line-height: 1.25; text-align: center; transition: background .15s, transform .15s; }

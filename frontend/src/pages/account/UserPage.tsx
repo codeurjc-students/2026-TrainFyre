@@ -5,6 +5,7 @@ import { Retry } from '../../components/Retry'
 import { useAuth } from '../../hooks/useAuth'
 import { useResource } from '../../hooks/useResource'
 import { AccountForm } from './AccountForm'
+import { AvatarSection } from './AvatarSection'
 import { DeleteAccount } from './DeleteAccount'
 import { SubscriptionsSection } from './SubscriptionsSection'
 
@@ -76,6 +77,8 @@ export function UserPage({ id = 'me' }: UserPageProps) {
                     <p className="muted small">Los roles se muestran únicamente para consulta: la API no permite modificarlos.</p>
                 </aside>
             </div>
+
+            <AvatarSection id={id} />
 
             <SubscriptionsSection id={id} user={user} onChanged={resource.reload} />
 

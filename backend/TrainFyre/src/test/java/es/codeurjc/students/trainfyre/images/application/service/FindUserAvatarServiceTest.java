@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.images.application.service;
 
+import es.codeurjc.students.trainfyre.images.application.port.in.query.AvatarNotFoundException;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.Find;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.FindAvatarDeniedException;
 import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
@@ -64,6 +65,18 @@ class FindUserAvatarServiceTest {
         Image result = service.execute(query);
 
         assertThat(result).isEqualTo(expectedImage);
+    }
+
+    @Test
+    void shouldThrowAvatarNotFoundWhenImageDoesNotExist() {
+        AuthenticatedUser authenticatedUser = new AuthenticatedUser(USER_ID, Set.of(Role.USER));
+        Find query = new Find(authenticatedUser, USER_ID);
+
+        when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.execute(query))
+                .isInstanceOf(AvatarNotFoundException.class)
+                .hasMessageContaining(USER_ID.toString());
     }
 
     @Test

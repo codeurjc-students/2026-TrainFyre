@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -404,9 +405,10 @@ class ImageControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid").value(USER_ID.toString()))
-                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE))
-                .andExpect(jsonPath("$.contentLength").value(IMAGE_CONTENT.length));
+                .andExpect(content().contentType(IMAGE_CONTENT_TYPE))
+                .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, String.valueOf(IMAGE_CONTENT.length)))
+                .andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, private"))
+                .andExpect(content().bytes(IMAGE_CONTENT));
 
         verify(imagePort).find(USER_ID);
     }
@@ -419,8 +421,8 @@ class ImageControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/avatars/{id}", imageOwnerId)
                         .header(HttpHeaders.AUTHORIZATION, bearerAdmin(USER_ID)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid").value(imageOwnerId.toString()))
-                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE));
+                .andExpect(content().contentType(IMAGE_CONTENT_TYPE))
+                .andExpect(content().bytes(IMAGE_CONTENT));
 
         verify(imagePort).find(imageOwnerId);
     }
@@ -432,11 +434,34 @@ class ImageControllerIntegrationTest {
         mockMvc.perform(get("/api/v1/avatars/me")
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.uuid").value(USER_ID.toString()))
-                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE))
-                .andExpect(jsonPath("$.contentLength").value(IMAGE_CONTENT.length));
+                .andExpect(content().contentType(IMAGE_CONTENT_TYPE))
+                .andExpect(header().string(HttpHeaders.CONTENT_LENGTH, String.valueOf(IMAGE_CONTENT.length)))
+                .andExpect(content().bytes(IMAGE_CONTENT));
 
         verify(imagePort).find(USER_ID);
+    }
+
+    @Test
+    void shouldServeAvatarAsOctetStreamWhenStoredContentTypeIsNotValid() throws Exception {
+        when(imagePort.find(USER_ID)).thenReturn(Optional.of(image(USER_ID, "not-a-media-type")));
+
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(content().bytes(IMAGE_CONTENT));
+    }
+
+    @Test
+    void shouldNotSetContentLengthWhenImageLengthIsUnknown() throws Exception {
+        Image unknownLength = new Image(USER_ID, new ByteArrayInputStream(IMAGE_CONTENT), 0, IMAGE_CONTENT_TYPE);
+        when(imagePort.find(USER_ID)).thenReturn(Optional.of(unknownLength));
+
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(header().doesNotExist(HttpHeaders.CONTENT_LENGTH))
+                .andExpect(content().bytes(IMAGE_CONTENT));
     }
 
     @Test
@@ -457,12 +482,13 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    void shouldPropagateExceptionWhenOwnAvatarIsNotFound() {
+    void shouldReturnNotFoundWhenOwnAvatarDoesNotExist() throws Exception {
         when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/me")
-                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
-                .hasCauseInstanceOf(java.util.NoSuchElementException.class);
+        mockMvc.perform(get("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""));
 
         verify(imagePort).find(USER_ID);
     }
@@ -517,12 +543,13 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
-    void shouldPropagateExceptionWhenAvatarIsNotFound() {
+    void shouldReturnNotFoundWhenAvatarDoesNotExist() throws Exception {
         when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
-                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
-                .hasCauseInstanceOf(java.util.NoSuchElementException.class);
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""));
 
         verify(imagePort).find(USER_ID);
     }
@@ -648,11 +675,15 @@ class ImageControllerIntegrationTest {
     }
 
     private Image image(UUID uuid) {
+        return image(uuid, IMAGE_CONTENT_TYPE);
+    }
+
+    private Image image(UUID uuid, String contentType) {
         return new Image(
                 uuid,
                 new ByteArrayInputStream(IMAGE_CONTENT),
                 IMAGE_CONTENT.length,
-                IMAGE_CONTENT_TYPE
+                contentType
         );
     }
 }

@@ -5,13 +5,17 @@ import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseC
 import es.codeurjc.students.trainfyre.images.application.port.UploadUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Delete;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
+import es.codeurjc.students.trainfyre.images.application.port.in.query.AvatarNotFoundException;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.Find;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import es.codeurjc.students.trainfyre.security.domain.AuthenticatedUser;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -41,6 +45,11 @@ public class ImageController {
     })
     public ResponseEntity<Void> handleMissingFile() {
         return ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler(AvatarNotFoundException.class)
+    public ResponseEntity<Void> handleAvatarNotFound() {
+        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
@@ -94,16 +103,16 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    public Image find(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+    public ResponseEntity<InputStreamResource> find(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
-        return findUserAvatarUseCase.execute(new Find(authenticatedUser, id));
+        return toResponse(findUserAvatarUseCase.execute(new Find(authenticatedUser, id)));
 
     }
 
     @GetMapping("/me")
-    public Image find(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+    public ResponseEntity<InputStreamResource> find(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
-        return findUserAvatarUseCase.execute(new Find(authenticatedUser, authenticatedUser.id()));
+        return toResponse(findUserAvatarUseCase.execute(new Find(authenticatedUser, authenticatedUser.id())));
 
     }
 
@@ -123,6 +132,15 @@ public class ImageController {
 
     }
 
+    private static ResponseEntity<InputStreamResource> toResponse(Image image) {
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(image.contentType()))
+                .contentLength(image.contentLength())
+                .cacheControl(CacheControl.noCache().cachePrivate())
+                .body(new InputStreamResource(image.content()));
+
+    }
 
 
 }

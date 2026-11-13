@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { Routes } from '../../src/Routes'
 import App from '../../src/App'
@@ -11,7 +11,7 @@ import { Notice } from '../../src/components/Notice'
 import { Retry } from '../../src/components/Retry'
 import { SiteFooter } from '../../src/components/SiteFooter'
 import { SiteHeader } from '../../src/components/SiteHeader'
-import { getAuthState, logout, notify } from '../../src/api'
+import { api, getAuthState, logout, notify } from '../../src/api'
 import { Require } from '../../src/components/Require'
 import { ErrorBoundary } from '../../src/components/ErrorBoundary'
 import { publishSession } from '../../src/api/session'
@@ -35,6 +35,11 @@ const incidence = {
     description: { name: 'Mantenimiento', summary: 'Trabajos en la vía' },
     classification: { severity: 'LOW' as const, cause: 'MAINTENANCE' as const },
 }
+
+beforeEach(() => {
+    // La cabecera autenticada pide el avatar; se evita tocar la red.
+    vi.spyOn(api, 'avatar').mockResolvedValue(null)
+})
 
 afterEach(() => {
     cleanup()

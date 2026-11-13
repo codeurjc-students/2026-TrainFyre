@@ -74,7 +74,7 @@ class ImageControllerIntegrationTest {
     }
 
     private MockMultipartHttpServletRequestBuilder multipartPut(UUID imageId, MockMultipartFile file) {
-        return multipart("/api/v1/images/{id}/avatar", imageId)
+        return multipart("/api/v1/avatars/{id}", imageId)
                 .file(file)
                 .with(request -> {
                     request.setMethod("PUT");
@@ -83,7 +83,7 @@ class ImageControllerIntegrationTest {
     }
 
     private MockMultipartHttpServletRequestBuilder multipartPutMe(MockMultipartFile file) {
-        return multipart("/api/v1/images/me/avatar")
+        return multipart("/api/v1/avatars/me")
                 .file(file)
                 .with(request -> {
                     request.setMethod("PUT");
@@ -208,7 +208,7 @@ class ImageControllerIntegrationTest {
 
     @Test
     void shouldRejectMissingFileParameterForMeEndpoint() throws Exception {
-        mockMvc.perform(put("/api/v1/images/me/avatar")
+        mockMvc.perform(put("/api/v1/avatars/me")
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isBadRequest());
 
@@ -298,7 +298,7 @@ class ImageControllerIntegrationTest {
 
     @Test
     void shouldRejectMissingFileParameter() throws Exception {
-        mockMvc.perform(put("/api/v1/images/{id}/avatar", USER_ID)
+        mockMvc.perform(put("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isBadRequest());
 
@@ -399,7 +399,7 @@ class ImageControllerIntegrationTest {
         Image image = image(USER_ID);
         when(imagePort.find(USER_ID)).thenReturn(Optional.of(image));
 
-        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid").value(USER_ID.toString()))
@@ -414,7 +414,7 @@ class ImageControllerIntegrationTest {
         UUID imageOwnerId = UUID.randomUUID();
         when(imagePort.find(imageOwnerId)).thenReturn(Optional.of(image(imageOwnerId)));
 
-        mockMvc.perform(get("/api/v1/images/{id}/avatar", imageOwnerId)
+        mockMvc.perform(get("/api/v1/avatars/{id}", imageOwnerId)
                         .header(HttpHeaders.AUTHORIZATION, bearerAdmin(USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.uuid").value(imageOwnerId.toString()))
@@ -427,7 +427,7 @@ class ImageControllerIntegrationTest {
     void shouldPropagateFindAvatarDeniedExceptionWhenUserIsNotOwnerAndNotAdmin() {
         UUID imageOwnerId = UUID.randomUUID();
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", imageOwnerId)
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/{id}", imageOwnerId)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
                 .hasCauseInstanceOf(FindAvatarDeniedException.class);
 
@@ -436,7 +436,7 @@ class ImageControllerIntegrationTest {
 
     @Test
     void shouldRejectFindAvatarRequestWithoutToken() throws Exception {
-        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID))
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(imagePort);
@@ -444,7 +444,7 @@ class ImageControllerIntegrationTest {
 
     @Test
     void shouldRejectFindAvatarRequestWithMalformedToken() throws Exception {
-        mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+        mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, "******"))
                 .andExpect(status().isUnauthorized());
 
@@ -453,7 +453,7 @@ class ImageControllerIntegrationTest {
 
     @Test
     void shouldRejectFindAvatarRequestWithMalformedImageId() throws Exception {
-        mockMvc.perform(get("/api/v1/images/not-a-uuid/avatar")
+        mockMvc.perform(get("/api/v1/avatars/not-a-uuid")
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
                 .andExpect(status().isBadRequest());
 
@@ -464,7 +464,7 @@ class ImageControllerIntegrationTest {
     void shouldPropagateExceptionWhenAvatarIsNotFound() {
         when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
                 .hasCauseInstanceOf(java.util.NoSuchElementException.class);
 
@@ -476,7 +476,7 @@ class ImageControllerIntegrationTest {
         RuntimeException persistenceFailure = new RuntimeException("Could not find image");
         when(imagePort.find(USER_ID)).thenThrow(persistenceFailure);
 
-        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/images/{id}/avatar", USER_ID)
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
                 .hasCause(persistenceFailure);
     }

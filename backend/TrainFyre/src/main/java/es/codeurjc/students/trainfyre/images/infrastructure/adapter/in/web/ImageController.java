@@ -25,7 +25,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @PrimaryAdapter
 @RestController
-@RequestMapping("/api/v1/images")
+@RequestMapping("/api/v1/avatars")
 public class ImageController {
 
     private final UploadUserAvatarUseCase uploadUserAvatarUseCase;
@@ -40,7 +40,7 @@ public class ImageController {
         return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping("/{id}/avatar")
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void upload(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser,@NonNull @RequestParam("file") MultipartFile file) {
 
@@ -65,7 +65,7 @@ public class ImageController {
         return null;
     }
 
-    @PutMapping("/me/avatar")
+    @PutMapping("/me")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void upload(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,@NonNull @RequestParam("file") MultipartFile file) {
 
@@ -90,7 +90,7 @@ public class ImageController {
         return null;
     }
 
-    @GetMapping("/{id}/avatar")
+    @GetMapping("/{id}")
     public Image find(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
 
         return findUserAvatarUseCase.execute(new Find(authenticatedUser, id));

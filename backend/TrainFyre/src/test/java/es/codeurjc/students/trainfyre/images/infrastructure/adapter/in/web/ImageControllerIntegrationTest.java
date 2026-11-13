@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.ChangeAvatarDeniedException;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.FindAvatarDeniedException;
 import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
+import es.codeurjc.students.trainfyre.images.application.service.DeleteUserAvatarService;
 import es.codeurjc.students.trainfyre.images.application.service.FindUserAvatarService;
 import es.codeurjc.students.trainfyre.images.application.service.UploadUserAvatarService;
 import es.codeurjc.students.trainfyre.images.domain.Image;
@@ -41,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ImageController.class)
 @Import({
+        DeleteUserAvatarService.class,
         FindUserAvatarService.class,
         UploadUserAvatarService.class,
         SecurityConfiguration.class,
@@ -533,6 +535,77 @@ class ImageControllerIntegrationTest {
         assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/{id}", USER_ID)
                         .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
                 .hasCause(persistenceFailure);
+    }
+
+    @Test
+    void shouldDeleteAvatarAndReturnNoContentWhenUserIsOwner() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(imagePort).delete(USER_ID);
+    }
+
+    @Test
+    void shouldDeleteAvatarAndReturnNoContentWhenUserIsAdmin() throws Exception {
+        UUID imageOwnerId = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/v1/avatars/{id}", imageOwnerId)
+                        .header(HttpHeaders.AUTHORIZATION, bearerAdmin(USER_ID)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        verify(imagePort).delete(imageOwnerId);
+    }
+
+    @Test
+    void shouldPropagateChangeAvatarDeniedExceptionWhenDeletingAvatarAsUnauthorizedUser() {
+        UUID imageOwnerId = UUID.randomUUID();
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/api/v1/avatars/{id}", imageOwnerId)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCauseInstanceOf(ChangeAvatarDeniedException.class);
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectDeleteAvatarRequestWithoutToken() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/{id}", USER_ID))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectDeleteAvatarRequestWithMalformedToken() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, "******"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectDeleteAvatarRequestWithMalformedImageId() throws Exception {
+        mockMvc.perform(delete("/api/v1/avatars/not-a-uuid")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenDeletingAvatarFails() {
+        RuntimeException persistenceFailure = new RuntimeException("Could not delete image");
+        doThrow(persistenceFailure).when(imagePort).delete(USER_ID);
+
+        assertThatThrownBy(() -> mockMvc.perform(delete("/api/v1/avatars/{id}", USER_ID)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(persistenceFailure);
+
+        verify(imagePort).delete(USER_ID);
     }
 
     private Image image(UUID uuid) {

@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 
+import es.codeurjc.students.trainfyre.images.application.port.DeleteUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.UploadUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
@@ -30,6 +31,7 @@ public class ImageController {
 
     private final UploadUserAvatarUseCase uploadUserAvatarUseCase;
     private final FindUserAvatarUseCase findUserAvatarUseCase;
+    private final DeleteUserAvatarUseCase deleteUserAvatarUseCase;
 
     @ExceptionHandler({
             MissingServletRequestPartException.class,
@@ -103,6 +105,13 @@ public class ImageController {
         return findUserAvatarUseCase.execute(new Find(authenticatedUser, authenticatedUser.id()));
 
     }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Void delete(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return null;
+    }
+
 
 
 }

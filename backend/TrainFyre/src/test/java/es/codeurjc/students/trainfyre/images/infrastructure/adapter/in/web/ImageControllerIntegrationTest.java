@@ -424,6 +424,60 @@ class ImageControllerIntegrationTest {
     }
 
     @Test
+    void shouldFindOwnAvatarAndReturnItWhenUsingMeEndpoint() throws Exception {
+        when(imagePort.find(USER_ID)).thenReturn(Optional.of(image(USER_ID)));
+
+        mockMvc.perform(get("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.uuid").value(USER_ID.toString()))
+                .andExpect(jsonPath("$.contentType").value(IMAGE_CONTENT_TYPE))
+                .andExpect(jsonPath("$.contentLength").value(IMAGE_CONTENT.length));
+
+        verify(imagePort).find(USER_ID);
+    }
+
+    @Test
+    void shouldRejectFindOwnAvatarRequestWithoutToken() throws Exception {
+        mockMvc.perform(get("/api/v1/avatars/me"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectFindOwnAvatarRequestWithMalformedToken() throws Exception {
+        mockMvc.perform(get("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, "******"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenOwnAvatarIsNotFound() {
+        when(imagePort.find(USER_ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCauseInstanceOf(java.util.NoSuchElementException.class);
+
+        verify(imagePort).find(USER_ID);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenFindingOwnAvatarFails() {
+        RuntimeException persistenceFailure = new RuntimeException("Could not find image");
+        when(imagePort.find(USER_ID)).thenThrow(persistenceFailure);
+
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/v1/avatars/me")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(persistenceFailure);
+
+        verify(imagePort).find(USER_ID);
+    }
+
+    @Test
     void shouldPropagateFindAvatarDeniedExceptionWhenUserIsNotOwnerAndNotAdmin() {
         UUID imageOwnerId = UUID.randomUUID();
 

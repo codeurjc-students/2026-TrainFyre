@@ -66,6 +66,23 @@ public class ImageController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void upload(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,@NonNull @RequestParam("file") MultipartFile file) {
 
+        if(file.isEmpty()) {
+            throw new IllegalArgumentException("image file cannot be empty");
+        }
+
+        try {
+
+            InputStream inputStream = file.getInputStream();
+
+            Image image = new Image(authenticatedUser.id(), inputStream, file.getSize(), file.getContentType());
+
+            Upload upload = new Upload(authenticatedUser, image);
+
+            uploadUserAvatarUseCase.execute(upload);
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return null;
     }

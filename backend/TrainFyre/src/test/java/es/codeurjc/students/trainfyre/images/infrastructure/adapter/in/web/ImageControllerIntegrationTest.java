@@ -78,6 +78,15 @@ class ImageControllerIntegrationTest {
                 });
     }
 
+    private MockMultipartHttpServletRequestBuilder multipartPutMe(MockMultipartFile file) {
+        return multipart("/api/v1/images/me/avatar")
+                .file(file)
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                });
+    }
+
     @Test
     void shouldUploadAvatarAndReturnNoContentWhenUserIsOwner() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
@@ -121,6 +130,101 @@ class ImageControllerIntegrationTest {
 
         Image savedImage = captor.getValue();
         assertThat(savedImage.uuid()).isEqualTo(imageOwnerId);
+    }
+
+    @Test
+    void shouldUploadOwnAvatarAndReturnNoContentWhenUsingMeEndpoint() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "avatar.png",
+                IMAGE_CONTENT_TYPE,
+                IMAGE_CONTENT
+        );
+
+        mockMvc.perform(multipartPutMe(file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string(""));
+
+        ArgumentCaptor<Image> captor = ArgumentCaptor.forClass(Image.class);
+        verify(imagePort).save(captor.capture());
+
+        Image savedImage = captor.getValue();
+        assertThat(savedImage.uuid()).isEqualTo(USER_ID);
+        assertThat(savedImage.contentType()).isEqualTo(IMAGE_CONTENT_TYPE);
+        assertThat(savedImage.contentLength()).isEqualTo(IMAGE_CONTENT.length);
+    }
+
+    @Test
+    void shouldRejectMeEndpointRequestWithoutToken() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "avatar.png",
+                IMAGE_CONTENT_TYPE,
+                IMAGE_CONTENT
+        );
+
+        mockMvc.perform(multipartPutMe(file))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectMeEndpointRequestWithMalformedToken() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "avatar.png",
+                IMAGE_CONTENT_TYPE,
+                IMAGE_CONTENT
+        );
+
+        mockMvc.perform(multipartPutMe(file)
+                        .header(HttpHeaders.AUTHORIZATION, "******"))
+                .andExpect(status().isUnauthorized());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateEmptyFileValidationErrorForMeEndpoint() {
+        MockMultipartFile emptyFile = new MockMultipartFile(
+                "file",
+                "empty.png",
+                IMAGE_CONTENT_TYPE,
+                new byte[0]
+        );
+
+        assertThatThrownBy(() -> mockMvc.perform(multipartPutMe(emptyFile)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(new IllegalArgumentException("image file cannot be empty"));
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldRejectMissingFileParameterForMeEndpoint() throws Exception {
+        mockMvc.perform(put("/api/v1/images/me/avatar")
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID)))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(imagePort);
+    }
+
+    @Test
+    void shouldPropagateExceptionWhenSavingMeAvatarFails() {
+        doThrow(new RuntimeException("Storage failure")).when(imagePort).save(any(Image.class));
+
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "avatar.png",
+                IMAGE_CONTENT_TYPE,
+                IMAGE_CONTENT
+        );
+
+        assertThatThrownBy(() -> mockMvc.perform(multipartPutMe(file)
+                        .header(HttpHeaders.AUTHORIZATION, bearer(USER_ID))))
+                .hasCause(new RuntimeException("Storage failure"));
     }
 
     @Test

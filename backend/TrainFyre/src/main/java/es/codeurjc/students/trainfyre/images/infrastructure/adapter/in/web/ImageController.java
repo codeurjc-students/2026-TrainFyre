@@ -62,5 +62,13 @@ public class ImageController {
         return null;
     }
 
+    @PutMapping("/me/avatar")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Void upload(@AuthenticationPrincipal AuthenticatedUser authenticatedUser,@NonNull @RequestParam("file") MultipartFile file) {
+
+
+        return null;
+    }
+
 
 }

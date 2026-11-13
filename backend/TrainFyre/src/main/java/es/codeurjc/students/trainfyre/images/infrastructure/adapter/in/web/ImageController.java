@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.images.infrastructure.adapter.in.web;
 import es.codeurjc.students.trainfyre.images.application.port.DeleteUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.FindUserAvatarUseCase;
 import es.codeurjc.students.trainfyre.images.application.port.UploadUserAvatarUseCase;
+import es.codeurjc.students.trainfyre.images.application.port.in.command.Delete;
 import es.codeurjc.students.trainfyre.images.application.port.in.command.Upload;
 import es.codeurjc.students.trainfyre.images.application.port.in.query.Find;
 import es.codeurjc.students.trainfyre.images.domain.Image;
@@ -109,7 +110,9 @@ public class ImageController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Void delete(@NonNull @PathVariable("id") UUID id, @AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
-        return null;
+
+        return deleteUserAvatarUseCase.execute(new Delete(authenticatedUser, id));
+
     }
 
 

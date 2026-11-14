@@ -125,7 +125,7 @@ export function IncidenceEditor({ initial }: IncidenceEditorProps) {
                         disabled={informational}
                         onChange={event => setInstant(event.target.checked)}
                     />
-                    Sin retraso / instantánea
+                    <span>Sin retraso / instantánea</span>
                 </label>
 
                 {informational && (

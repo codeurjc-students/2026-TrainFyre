@@ -71,7 +71,7 @@ describe('Cliente HTTP', () => {
 
         const [url, options] = fetchMock.mock.calls.at(-1)!
 
-        expect(url).toBe('https://api.test/incidence')
+        expect(url).toBe('https://api.test/api/v1/incidence')
         expect(options.method).toBe('DELETE')
 
         expect(

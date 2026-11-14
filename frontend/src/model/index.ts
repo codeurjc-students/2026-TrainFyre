@@ -1,4 +1,14 @@
 export { causeLabels, dayLabels, severityLabels } from './labels'
+export {
+    AVATAR_MAX_BYTES,
+    AVATAR_MAX_MB,
+    AVATAR_TYPES,
+    avatarFromForm,
+    detectAvatarType,
+    isAvatarType,
+    readAvatarBlob,
+    validateAvatar,
+} from './avatar'
 export { emptyFilters } from './types'
 export type * from './types'
 export {

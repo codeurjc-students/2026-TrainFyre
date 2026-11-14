@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: trainfyre
+      POSTGRES_USER: trainfyre
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+    volumes:
+      - trainfyre-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U trainfyre -d trainfyre"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+
+  app:
+    image: ${DOCKERHUB_USERNAME:-escipion48}/trainfyre:${IMAGE_TAG:-0.1.0}
+    ports:
+      - "127.0.0.1:443:443"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 443
+      SERVER_SSL_ENABLED: "true"
+      SERVER_SSL_KEY_STORE: file:/run/trainfyre/trainfyre-local.p12
+      SERVER_SSL_KEY_STORE_PASSWORD: ${TRAINFYRE_TLS_PASSWORD:?Define TRAINFYRE_TLS_PASSWORD}
+      SERVER_SSL_KEY_STORE_TYPE: PKCS12
+      SERVER_SSL_KEY_ALIAS: trainfyre-local
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trainfyre
+      SPRING_DATASOURCE_USERNAME: trainfyre
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      TRAINFYRE_TLS_KEYSTORE: file:/run/trainfyre/trainfyre-local.p12
+      TRAINFYRE_TLS_PASSWORD: ${TRAINFYRE_TLS_PASSWORD:?Define TRAINFYRE_TLS_PASSWORD}
+      TRAINFYRE_JWT_PRIVATE_KEY: file:/run/trainfyre/jwt-private.pem
+      TRAINFYRE_JWT_PUBLIC_KEY: file:/run/trainfyre/jwt-public.pem
+      S3_ENDPOINT: ${S3_ENDPOINT:-}
+      S3_REGION: ${S3_REGION:?Define S3_REGION}
+      S3_BUCKET: ${S3_BUCKET:?Define S3_BUCKET}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:-}
+      S3_PATH_STYLE: ${S3_PATH_STYLE:-false}
+    volumes:
+      - type: bind
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/trainfyre-local.p12
+        target: /run/trainfyre/trainfyre-local.p12
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-private.pem
+        target: /run/trainfyre/jwt-private.pem
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-public.pem
+        target: /run/trainfyre/jwt-public.pem
+        read_only: true
+        bind:
+          create_host_path: false
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  trainfyre-db-data:

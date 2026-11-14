@@ -11,6 +11,8 @@ const HTTP_MESSAGES = new Map<number, string>([
     [403, 'El backend no permite esta operación con tu cuenta.'],
     [404, 'No se ha encontrado el recurso.'],
     [409, 'Hay un conflicto: el usuario o la suscripción podrían existir ya.'],
+    [413, 'El archivo supera el tamaño máximo permitido por el backend.'],
+    [415, 'El backend no admite este formato de archivo.'],
     [429, 'Demasiadas solicitudes. Espera antes de volver a intentarlo.'],
 ])
 
@@ -40,6 +42,8 @@ export interface RequestOptions {
     signal?: AbortSignal
     public?: boolean
     token?: string
+    /** `blob` para descargar ficheros binarios (por defecto, JSON). */
+    responseType?: 'json' | 'blob'
 }
 
 function resolveToken(options: RequestOptions): string | undefined {
@@ -73,7 +77,22 @@ function withTimeout(external?: AbortSignal) {
     }
 }
 
-async function readBody(response: Response): Promise<unknown> {
+/**
+ * Un `FormData` se envía tal cual: el navegador fija el `Content-Type`
+ * multipart con su boundary. Cualquier otro cuerpo se serializa como JSON.
+ */
+function encodeBody(body: unknown, headers: Record<string, string>): BodyInit | undefined {
+    if (body === undefined) return undefined
+    if (body instanceof FormData) return body
+
+    headers['Content-Type'] = 'application/json'
+
+    return JSON.stringify(body)
+}
+
+async function readBody(response: Response, responseType: RequestOptions['responseType']): Promise<unknown> {
+    if (responseType === 'blob') return response.blob()
+
     const raw = await response.text()
 
     if (!raw) return undefined
@@ -114,22 +133,25 @@ export async function request<T>(
 
     const token = resolveToken(options)
     const { signal, dispose } = withTimeout(options.signal)
-    const headers: Record<string, string> = { Accept: 'application/json' }
+    const headers: Record<string, string> = {
+        Accept: options.responseType === 'blob' ? '*/*' : 'application/json',
+    }
 
     if (token) headers.Authorization = `Bearer ${token}`
-    if (options.body !== undefined) headers['Content-Type'] = 'application/json'
+
+    const body = encodeBody(options.body, headers)
 
     try {
         const response = await fetch(`${API_BASE_URL}${path}`, {
             method: options.method ?? 'GET',
             headers,
-            body: options.body === undefined ? undefined : JSON.stringify(options.body),
+            body,
             signal,
             credentials: 'omit',
             cache: 'no-store',
         })
 
-        const data = await readBody(response)
+        const data = await readBody(response, options.responseType)
 
         if (!response.ok) throw failure(response.status, token)
 

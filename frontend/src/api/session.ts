@@ -13,8 +13,33 @@ interface AuthState {
 }
 
 const MAX_TIMER_DELAY = 2_147_483_647
+const SESSION_STORAGE_KEY = 'trainfyre.session'
 
-let state: AuthState = { session: null, notice: '' }
+function storedSession(): Session | null {
+    try {
+        const value = globalThis.sessionStorage.getItem(SESSION_STORAGE_KEY)
+        if (!value) return null
+
+        const session = JSON.parse(value) as Session
+        return session.deadline > Date.now() ? session : null
+    } catch {
+        return null
+    }
+}
+
+function storeSession(session: Session | null) {
+    try {
+        if (session) {
+            globalThis.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session))
+        } else {
+            globalThis.sessionStorage.removeItem(SESSION_STORAGE_KEY)
+        }
+    } catch {
+        // La sesión en memoria sigue funcionando si el navegador bloquea el almacenamiento.
+    }
+}
+
+let state: AuthState = { session: storedSession(), notice: '' }
 let expirationTimer: ReturnType<typeof setTimeout> | undefined
 let authGeneration = 0
 
@@ -43,6 +68,7 @@ export function notify(notice: string) {
 export function logout(notice = 'Has cerrado la sesión.') {
     authGeneration++
     clearTimeout(expirationTimer)
+    storeSession(null)
     emit({ session: null, notice })
 }
 
@@ -78,6 +104,7 @@ export function isCurrentLogin(attempt: number): boolean {
 }
 
 export function publishSession(session: Session) {
+    storeSession(session)
     emit({ notice: '', session })
     armExpiration()
 }

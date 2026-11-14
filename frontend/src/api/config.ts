@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL = 'https://localhost:8443'
+const DEFAULT_API_BASE_URL = 'https://localhost:443/api/v1'
 const DEFAULT_PAGE_SIZE = 100
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]'])
 

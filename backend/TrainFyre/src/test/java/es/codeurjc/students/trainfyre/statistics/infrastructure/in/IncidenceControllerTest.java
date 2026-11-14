@@ -90,7 +90,7 @@ class IncidenceControllerTest {
                 }
                 """.formatted(Severity.MODERATE.name(), Cause.WEATHER.name());
 
-        mockMvc.perform(post("/incidence")
+        mockMvc.perform(post("/api/v1/incidence")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -114,7 +114,7 @@ class IncidenceControllerTest {
                         )
                 );
 
-        mockMvc.perform(get("/incidence")
+        mockMvc.perform(get("/api/v1/incidence")
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk());
@@ -133,7 +133,7 @@ class IncidenceControllerTest {
 
         when(getIncidenceByIdUseCase.execute(getIncidenceByIdQuery)).thenReturn(incidence.getIncidenceDetails());
 
-        mockMvc.perform(get("/incidence/{id}", id))
+        mockMvc.perform(get("/api/v1/incidence/{id}", id))
                 .andExpect(status().isOk());
 
         verify(getIncidenceByIdUseCase).execute(getIncidenceByIdQuery);
@@ -161,7 +161,7 @@ class IncidenceControllerTest {
             }
             """;
 
-        mockMvc.perform(put("/incidence")
+        mockMvc.perform(put("/api/v1/incidence")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNoContent())
@@ -181,7 +181,7 @@ class IncidenceControllerTest {
             }
             """;
 
-        mockMvc.perform(delete("/incidence")
+        mockMvc.perform(delete("/api/v1/incidence")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNoContent())

@@ -84,7 +84,7 @@ class IncidenceControllerIntegrationTest {
                 new Classification(Severity.MODERATE, Cause.WEATHER)
         );
 
-        String createResponse = mockMvc.perform(post("/incidence")
+        String createResponse = mockMvc.perform(post("/api/v1/incidence")
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createCommand)))
@@ -97,12 +97,12 @@ class IncidenceControllerIntegrationTest {
                 .isEqualTo(createCommand.description());
 
         // GET /{id}: intervienen el controlador y GetIncidenceByIdService.
-        mockMvc.perform(get("/incidence/{id}", id)
+        mockMvc.perform(get("/api/v1/incidence/{id}", id)
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description.name").value("Avería"));
 
-        // PUT: UpdateIncidenceService recupera la incidencia y modifica su descripción.
+        // PUT: UpdateIncidenceService retrieves the incidence and changes its description.
         UpdateIncidenceCommand updateCommand = new UpdateIncidenceCommand(
                 id,
                 null,
@@ -111,20 +111,20 @@ class IncidenceControllerIntegrationTest {
                 null
         );
 
-        mockMvc.perform(put("/incidence")
+        mockMvc.perform(put("/api/v1/incidence")
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateCommand)))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/incidence/{id}", id)
+        mockMvc.perform(get("/api/v1/incidence/{id}", id)
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description.name").value("Avería actualizada"))
                 .andExpect(jsonPath("$.description.summary").value("Servicio restablecido"));
 
         // GET paginado: se comprueba la respuesta devuelta por el servicio real.
-        String listResponse = mockMvc.perform(get("/incidence")
+        String listResponse = mockMvc.perform(get("/api/v1/incidence")
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                         .param("page", "0")
                         .param("size", "10"))
@@ -145,7 +145,7 @@ class IncidenceControllerIntegrationTest {
                 .isEqualTo("Servicio restablecido");
 
         // DELETE: DeleteIncidenceService llama al puerto con el ID recibido.
-        mockMvc.perform(delete("/incidence")
+        mockMvc.perform(delete("/api/v1/incidence")
                         .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(

@@ -1,6 +1,7 @@
 package es.codeurjc.students.trainfyre.statistics.infrastructure.out;
 
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceCountCache;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceJPARepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @DataJpaTest
-@Import(IncidenceJPARepository.class)
+@Import({
+        IncidenceJPARepository.class,
+        IncidenceCountCache.class
+})
 class IncidencePersistenceIntegrationTest {
 
     @Autowired

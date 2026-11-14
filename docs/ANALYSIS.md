@@ -25,7 +25,7 @@ The domain model currently focuses on the transport domain and includes the foll
 - `Line`: transport line managed and displayed by the system
 - `Incidence`: event or alert affecting one or more lines
 
-The current implementation in the backend reflects this domain, especially in the `statistics` module where `Incidence` is modeled as a domain aggregate with value objects and persistence adapters.
+In version 0.1 the backend implements `User` (module `users`) and `Incidence` (module `statistics`) as domain aggregates with value objects and persistence adapters. `Map` and `Line` are not entities yet: an incidence references them through numeric identifiers. See [Architecture](ARCHITECTURE.md) for the implemented domain model.
 
 ## Permissions and roles
 
@@ -39,21 +39,19 @@ The authorization model is expected to follow the principle of least privilege a
 
 ## Images
 
-The application supports image uploads. At the moment, the main confirmed use case is the user profile image.
+The application supports image uploads. The use case implemented in version 0.1 is the user profile image (avatar), stored in an S3-compatible object storage.
 
 ## Charts and statistical visualization
 
-The system plans to render statistic charts related to:
+The system plans to render statistic charts (not implemented in version 0.1) related to:
 
 - number of incidents per transport line
 - distribution of incidents by time window
 - aggregate information about alerts affecting a map or line
 
-The frontend already includes `recharts` as a dependency for chart rendering.
-
 ## Complementary technology
 
-The first complementary technology selected is email notification integration for registered users. Users can subscribe to specific lines and receive alerts associated with them.
+The first complementary technology selected is email notification integration for registered users. Users can subscribe to specific lines and receive alerts associated with them. In version 0.1 the subscriptions are stored, but no e-mail is sent yet.
 
 ## Advanced algorithm or query
 
@@ -63,4 +61,4 @@ The application will include advanced processing beyond CRUD operations, especia
 - filtering of incidents by map or affected network
 - advanced identification of impacted users or subscribers for a given alert
 
-This logic is still being refined with the final domain model.
+This logic is still being refined with the final domain model and is not implemented in version 0.1.

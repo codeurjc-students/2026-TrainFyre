@@ -2,7 +2,7 @@
 .idea/
 target/
 secrets/
-.env
+../../docker/.env
 .env.*
 *.p12
 *.pfx

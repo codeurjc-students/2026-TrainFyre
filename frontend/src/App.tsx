@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 import { checkSession, notify } from './api'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { Notice } from './components/Notice'
 import { SiteFooter } from './components/SiteFooter'
 import { SiteHeader } from './components/SiteHeader'
@@ -54,7 +55,9 @@ export default function App() {
                         <button aria-label="Cerrar aviso" onClick={() => notify('')}>×</button>
                     </div>
                 )}
-                <Routes key={`${path}:${session?.id ?? 'guest'}`} path={path} />
+                <ErrorBoundary key={`${path}:${session?.id ?? 'guest'}`}>
+                    <Routes path={path} />
+                </ErrorBoundary>
             </main>
 
             <SiteFooter />

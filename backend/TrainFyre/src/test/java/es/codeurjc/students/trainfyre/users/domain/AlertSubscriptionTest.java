@@ -89,15 +89,15 @@ class AlertSubscriptionTest {
 
     private static Stream<Arguments> affectedCases() {
         return Stream.of(
-                Arguments.of("primera línea suscrita",
+                Arguments.of("first subscribed line",
                         List.of(1L), "2026-10-19T09:00:00Z", true),
-                Arguments.of("segunda línea suscrita",
+                Arguments.of("second subscribed line",
                         List.of(2L), "2026-10-19T09:00:00Z", true),
-                Arguments.of("basta una línea coincidente",
+                Arguments.of("one matching line is enough",
                         List.of(3L, 2L), "2026-10-19T09:00:00Z", true),
-                Arguments.of("ninguna línea coincidente",
+                Arguments.of("no matching line",
                         List.of(3L), "2026-10-19T09:00:00Z", false),
-                Arguments.of("lista de líneas vacía",
+                Arguments.of("empty list of lines",
                         List.of(), "2026-10-19T09:00:00Z", false),
                 Arguments.of("antes del inicio",
                         List.of(1L), "2026-10-19T07:59:59Z", false),
@@ -105,15 +105,15 @@ class AlertSubscriptionTest {
                         List.of(1L), "2026-10-19T08:00:00Z", true),
                 Arguments.of("final incluido",
                         List.of(1L), "2026-10-19T10:00:00Z", true),
-                Arguments.of("después del final",
+                Arguments.of("after the end",
                         List.of(1L), "2026-10-19T10:00:01Z", false),
-                Arguments.of("día no suscrito",
+                Arguments.of("day not subscribed",
                         List.of(1L), "2026-10-20T09:00:00Z", false),
                 Arguments.of("recurrencia la siguiente semana",
                         List.of(1L), "2026-10-26T08:30:00Z", true),
-                Arguments.of("expiración incluida",
+                Arguments.of("expiration included",
                         List.of(1L), "2026-10-26T09:00:00Z", true),
-                Arguments.of("suscripción expirada dentro de la franja",
+                Arguments.of("expired subscription inside the time window",
                         List.of(1L), "2026-10-26T09:00:01Z", false)
         );
     }

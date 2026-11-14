@@ -1,14 +1,15 @@
 openapi: 3.1.0
 info:
-  title: OpenAPI definition
-  version: v0
+  title: TrainFyre REST API
+  description: REST API of TrainFyre. Every path already includes the /api/v1 prefix.
+  version: 0.1.0
 servers:
-- url: https://localhost:8443
-  description: Generated server url
+- url: https://localhost
+  description: Local server (HTTPS on port 443)
 security:
 - bearer-jwt: []
 paths:
-  /users/{id}:
+  /api/v1/users/{id}:
     get:
       tags:
       - user-controller
@@ -61,7 +62,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /users/me:
+  /api/v1/users/me:
     get:
       tags:
       - user-controller
@@ -86,7 +87,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /incidence:
+  /api/v1/incidence:
     get:
       tags:
       - incidence-controller
@@ -94,16 +95,18 @@ paths:
       parameters:
       - name: page
         in: query
-        required: true
+        required: false
         schema:
           type: integer
           format: int32
+          default: 0
       - name: size
         in: query
-        required: true
+        required: false
         schema:
           type: integer
           format: int32
+          default: 300
       responses:
         "200":
           description: OK
@@ -155,7 +158,7 @@ paths:
       responses:
         "204":
           description: No Content
-  /users:
+  /api/v1/users:
     post:
       tags:
       - user-controller
@@ -174,7 +177,7 @@ paths:
               schema:
                 type: string
                 format: uuid
-  /auth/login:
+  /api/v1/auth/login:
     post:
       tags:
       - auth-controller
@@ -192,7 +195,7 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/TokenResponse"
-  /incidence/{id}:
+  /api/v1/incidence/{id}:
     get:
       tags:
       - incidence-controller
@@ -211,6 +214,113 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/IncidenceDetails"
+  /api/v1/avatars/{id}:
+    get:
+      tags:
+      - image-controller
+      operationId: find
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK. Binary content of the avatar with its original content type.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: The user has no avatar
+    put:
+      tags:
+      - image-controller
+      operationId: upload
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: The file part is missing or the file is empty
+    delete:
+      tags:
+      - image-controller
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+  /api/v1/avatars/me:
+    get:
+      tags:
+      - image-controller
+      operationId: find_1
+      responses:
+        "200":
+          description: OK. Binary content of the authenticated user's avatar.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: The user has no avatar
+    put:
+      tags:
+      - image-controller
+      operationId: upload_1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: The file part is missing or the file is empty
+    delete:
+      tags:
+      - image-controller
+      operationId: delete_1
+      responses:
+        "204":
+          description: No Content
 components:
   schemas:
     AlertSubscription:

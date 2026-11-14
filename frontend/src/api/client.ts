@@ -1,4 +1,5 @@
-import { isUuid, normalizeIncidence } from '../model'
+import { isUuid, normalizeIncidence, readAvatarBlob } from '../model'
+import { avatarChanged } from './avatarSync'
 import { PAGE_SIZE } from './config'
 import { ApiError, request } from './http'
 import { validateUser } from './auth'
@@ -14,6 +15,8 @@ import type {
 const encode = encodeURIComponent
 const INCIDENCE_PATH = '/incidence'
 const USERS_PATH = '/users'
+const AVATARS_PATH = '/avatars'
+const HTTP_NOT_FOUND = 404
 
 export const api = {
     register(username: string, password: string) {
@@ -41,6 +44,36 @@ export const api = {
         return request<void>(`${USERS_PATH}/${encode(id)}`, {
             method: 'DELETE',
         })
+    },
+
+    /** Descarga el avatar de `id` (UUID o `me`). Devuelve `null` si el usuario no tiene. */
+    async avatar(id: string, signal?: AbortSignal): Promise<Blob | null> {
+        try {
+            const blob = await request<Blob>(`${AVATARS_PATH}/${encode(id)}`, {
+                signal,
+                responseType: 'blob',
+            })
+
+            return await readAvatarBlob(blob)
+        } catch (error) {
+            if (error instanceof ApiError && error.status === HTTP_NOT_FOUND) return null
+
+            throw error
+        }
+    },
+
+    async uploadAvatar(id: string, file: File) {
+        const body = new FormData()
+
+        body.append('file', file)
+
+        await request<void>(`${AVATARS_PATH}/${encode(id)}`, { method: 'PUT', body })
+        avatarChanged()
+    },
+
+    async deleteAvatar(id: string) {
+        await request<void>(`${AVATARS_PATH}/${encode(id)}`, { method: 'DELETE' })
+        avatarChanged()
     },
 
     createIncidence(body: IncidenceDetails) {

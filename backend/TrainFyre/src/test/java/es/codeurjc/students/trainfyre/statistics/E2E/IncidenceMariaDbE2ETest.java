@@ -82,7 +82,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/incidence/{id}", id)
+                .get("/api/v1/incidence/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"))
@@ -97,7 +97,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/incidence/{id}", id)
+                .get("/api/v1/incidence/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"))
@@ -117,7 +117,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/incidence/{id}", id)
+                .get("/api/v1/incidence/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería actualizada"))
@@ -162,7 +162,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/incidence")
+                .get("/api/v1/incidence")
                 .then()
                 .statusCode(200)
                 .body("content.id", hasItem(id.toString()));
@@ -175,7 +175,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/incidence")
+                .get("/api/v1/incidence")
                 .then()
                 .statusCode(200)
                 .body("content.id", not(hasItem(id.toString())));
@@ -189,7 +189,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/incidence/{id}", id)
+                .get("/api/v1/incidence/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"));
@@ -200,7 +200,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/incidence/{id}", id)
+                .get("/api/v1/incidence/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería actualizada"))
@@ -212,7 +212,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/incidence")
+                .get("/api/v1/incidence")
                 .then()
                 .statusCode(200)
                 .body("content.id", hasItem(id.toString()));
@@ -225,7 +225,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/incidence")
+                .get("/api/v1/incidence")
                 .then()
                 .statusCode(200)
                 .body("content.id", not(hasItem(id.toString())));
@@ -248,7 +248,7 @@ class IncidenceMariaDbE2ETest {
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
-                .post("/incidence")
+                .post("/api/v1/incidence")
                 .then()
                 .statusCode(201)
                 .extract().asString();
@@ -274,7 +274,7 @@ class IncidenceMariaDbE2ETest {
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
-                .put("/incidence")
+                .put("/api/v1/incidence")
                 .then()
                 .statusCode(204);
     }
@@ -288,7 +288,7 @@ class IncidenceMariaDbE2ETest {
                         new DeleteIncidenceCommand(id)
                 ))
                 .when()
-                .delete("/incidence")
+                .delete("/api/v1/incidence")
                 .then()
                 .statusCode(204);
     }
@@ -300,7 +300,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .when()
-                .get("/incidence")
+                .get("/api/v1/incidence")
                 .then()
                 .statusCode(200)
                 .extract().asString();

@@ -1,0 +1,12 @@
+.git
+.idea
+
+frontend/node_modules
+frontend/dist
+frontend/coverage
+frontend/test-results
+
+backend/TrainFyre/target
+backend/TrainFyre/secrets
+backend/TrainFyre/.env
+backend/TrainFyre/.env.*

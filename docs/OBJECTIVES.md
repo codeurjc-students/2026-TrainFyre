@@ -28,7 +28,7 @@ TrainFyre is designed as a maintainable and extensible monolithic application wi
 
 The project includes the following technical objectives:
 
-- Implement a backend with Java 26 and Spring Boot 4.1.1
+- Implement a backend with Java and Spring Boot
 - Expose a REST API with OpenAPI documentation
 - Use a React + TypeScript frontend built with Vite
 - Persist data with PostgreSQL
@@ -41,4 +41,4 @@ The project includes the following technical objectives:
 
 ## Scope and current status
 
-The project has defined its objectives, architecture direction, and initial domain model. The implementation is already underway in the backend and frontend, although the full system is not yet complete.
+These objectives were defined in Phase 1 and are kept as the reference of the project. Version 0.1 (Phase 3) implements part of them; the state of each functionality is in [Detailed functionalities](FUNCTIONALITIES.md). Version 0.1 uses Java 27 and Spring Boot 4.1.

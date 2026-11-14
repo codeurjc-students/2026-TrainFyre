@@ -66,7 +66,6 @@ The account page (`#/cuenta`) lets the user:
 
 > The screenshots of the account page were taken with the `admin` account. A registered user sees the same page.
 
-<!-- TODO(author) OPTIONAL IMAGE: account page signed in as `dev_alice` (role USER), docs/images/07c-cuenta-usuario.png -->
 
 ### Avatar
 

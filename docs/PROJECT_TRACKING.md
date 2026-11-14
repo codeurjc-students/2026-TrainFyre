@@ -6,8 +6,8 @@ This project uses GitHub issues and project boards for task management.
 
 - [TrainFyre GitHub Project](https://github.com/orgs/codeurjc-students/projects/52)
 
-<!-- TODO(author) PENDING IMAGE: screenshot of the Kanban board. Save it as docs/images/24-github-project.png and replace this comment with:
-     ![GitHub Project board](images/24-github-project.png) -->
+  
+     ![GitHub Project board](images/24-github-project.png)
 
 ## Suggested Kanban workflow
 

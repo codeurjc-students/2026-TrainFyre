@@ -114,9 +114,7 @@ The project is analysed with SonarQube Cloud (organization `codeurjc-students`, 
 
 The client can also be linted with `oxlint` (`npm run lint`, run manually) and is type-checked with TypeScript (`npm run typecheck`, which is also part of `npm run build` and therefore of both workflows).
 
-<!-- TODO(author) PENDING IMAGE: SonarQube Cloud dashboard (quality gate, coverage, duplications, issues).
-     Save the screenshot as docs/images/22-sonar.png (take it after merging to main) and replace this comment with:
-     ![SonarQube Cloud dashboard](images/22-sonar.png) -->
+![SonarQube Cloud dashboard](images/22-sonar.png)
 
 ### Size of the code
 

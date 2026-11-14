@@ -3,7 +3,7 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://localhost:443/api/v1
+- url: https://localhost
   description: Generated server url
 security:
 - bearer-jwt: []
@@ -94,16 +94,18 @@ paths:
       parameters:
       - name: page
         in: query
-        required: true
+        required: false
         schema:
           type: integer
           format: int32
+          default: 0
       - name: size
         in: query
-        required: true
+        required: false
         schema:
           type: integer
           format: int32
+          default: 300
       responses:
         "200":
           description: OK
@@ -152,6 +154,103 @@ paths:
             schema:
               $ref: "#/components/schemas/DeleteIncidenceCommand"
         required: true
+      responses:
+        "204":
+          description: No Content
+  /api/v1/avatars/{id}:
+    get:
+      tags:
+      - image-controller
+      operationId: find
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+    put:
+      tags:
+      - image-controller
+      operationId: upload
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - image-controller
+      operationId: delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: No Content
+  /api/v1/avatars/me:
+    get:
+      tags:
+      - image-controller
+      operationId: find_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+    put:
+      tags:
+      - image-controller
+      operationId: upload_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+              required:
+              - file
+      responses:
+        "204":
+          description: No Content
+    delete:
+      tags:
+      - image-controller
+      operationId: delete_1
       responses:
         "204":
           description: No Content

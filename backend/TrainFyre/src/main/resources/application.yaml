@@ -2,6 +2,16 @@ spring:
   application:
     name: TrainFyre
 
+app:
+  storage:
+    s3:
+      endpoint: ${S3_ENDPOINT:}
+      region: ${S3_REGION:eu-west-1}
+      bucket: ${S3_BUCKET:user-avatars}
+      access-key: ${S3_ACCESS_KEY:}
+      secret-key: ${S3_SECRET_KEY:}
+      path-style: ${S3_PATH_STYLE:false}
+
 trainfyre:
   security:
     jwt:

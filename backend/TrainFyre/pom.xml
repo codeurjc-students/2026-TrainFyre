@@ -14,7 +14,7 @@
 
     <groupId>es.codeurjc.students</groupId>
     <artifactId>TrainFyre</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>TrainFyre</name>
     <description>TrainFyre</description>
     <url>https://github.com/codeurjc-students/2026-TrainFyre</url>
@@ -39,6 +39,7 @@
         <jmolecules-bom.version>2025.0.2</jmolecules-bom.version>
         <jackson-2-bom.version>2.21.8</jackson-2-bom.version>
         <logback.version>1.6.6</logback.version>
+        <aws.sdk.version>2.57.13</aws.sdk.version>
     </properties>
 
     <dependencyManagement>
@@ -64,6 +65,16 @@
                 <artifactId>archunit</artifactId>
                 <version>1.5.1</version>
             </dependency>
+
+            <!-- AWS SDK BOM -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -224,7 +235,15 @@
             <artifactId>bcprov-jdk18on</artifactId>
             <version>1.86</version>
         </dependency>
+
+        <!-- AWS SDK S3 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+        </dependency>
+
     </dependencies>
+
 
     <build>
         <plugins>

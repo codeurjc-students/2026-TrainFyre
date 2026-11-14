@@ -6,6 +6,9 @@ This project uses GitHub issues and project boards for task management.
 
 - [TrainFyre GitHub Project](https://github.com/orgs/codeurjc-students/projects/52)
 
+<!-- TODO(author) PENDING IMAGE: screenshot of the Kanban board. Save it as docs/images/24-github-project.png and replace this comment with:
+     ![GitHub Project board](images/24-github-project.png) -->
+
 ## Suggested Kanban workflow
 
 - Backlog
@@ -19,10 +22,12 @@ Each functionality or fix is tracked as a separate issue and linked to the relev
 
 ## Follow-up status
 
-At this stage, the project is in the Phase 2 setup and quality-control stage, where the following are being aligned:
+Phase 3 (version 0.1 - basic functionality and Docker) is being completed. The work of this phase includes:
 
-- backend + frontend configuration
-- automated tests
-- CI workflows
-- modular documentation
-- architecture validation
+- user accounts, authentication and avatars,
+- management of incidences,
+- packaging with Docker and Docker Compose,
+- continuous delivery of images and Compose files to DockerHub,
+- updated documentation.
+
+Test releases were used to validate the release process before publishing `0.1.0`, the first release of the project.

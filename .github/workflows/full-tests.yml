@@ -1,11 +1,11 @@
 name: Full test suite + SonarQube Cloud
 
-# Control de calidad completo (backend + frontend).
-# Se ejecuta al abrir/actualizar un PR hacia main y cuando se hace merge a main.
-# Backend y frontend se prueban en paralelo; el job "sonar" espera a ambos y envía
-# a SonarQube Cloud UN ÚNICO análisis con la cobertura de los dos.
-# Para impedir el merge si algo falla, marca los jobs como "Required status check"
-# en Settings > Branches > Branch protection rules (main).
+# Complete quality control (backend + frontend).
+# It runs when a pull request to main is opened or updated and when it is merged to main.
+# Backend and frontend are tested in parallel; the "sonar" job waits for both and sends
+# ONE single analysis with the coverage of both to SonarQube Cloud.
+# To block the merge when something fails, mark the jobs as "Required status check"
+# in Settings > Branches > Branch protection rules (main).
 on:
   pull_request:
     branches:
@@ -17,7 +17,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read   # necesario para que Sonar analice/decore el PR
+  pull-requests: read   # needed so that Sonar can analyse and decorate the pull request
 
 concurrency:
   group: full-tests-${{ github.event.pull_request.number || github.ref }}
@@ -80,6 +80,10 @@ jobs:
     env:
       DB_PASSWORD: ci-only-password
       TRAINFYRE_TLS_PASSWORD: ci-only-password
+      GARAGE_DEFAULT_ACCESS_KEY: GK0123456789abcdef01234567
+      GARAGE_DEFAULT_SECRET_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      GARAGE_DEFAULT_BUCKET: user-avatars
+      GARAGE_RPC_SECRET: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
 
     steps:
       - name: Checkout
@@ -135,7 +139,7 @@ jobs:
             -out secrets/jwt-public.pem
 
           echo "NODE_EXTRA_CA_CERTS=$GITHUB_WORKSPACE/backend/TrainFyre/secrets/tls.crt" >> "$GITHUB_ENV"
-          echo "VITE_API_BASE_URL=https://localhost:8443" >> "$GITHUB_ENV"
+          echo "VITE_API_BASE_URL=https://localhost:443/api/v1" >> "$GITHUB_ENV"
           rm secrets/tls.key
           
           sudo chown 10001:10001 \
@@ -149,12 +153,12 @@ jobs:
 
       - name: Start backend and database
         working-directory: backend/TrainFyre
-        run: docker compose up -d --build
+        run: docker compose -f ../../docker/docker-compose-dev.yml up -d --build
 
       - name: Wait for the REST API
         run: |
           for i in $(seq 1 60); do
-            if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:8443/incidence?page=0&size=1" > /dev/null; then
+            if curl -fsS --cacert "$NODE_EXTRA_CA_CERTS" "https://localhost:443/api/v1/incidence?page=0&size=1" > /dev/null; then
               echo "API ready"; exit 0
             fi
             echo "Waiting for the API ($i/60)..."; sleep 3
@@ -173,12 +177,12 @@ jobs:
       - name: Show backend logs
         if: failure()
         working-directory: backend/TrainFyre
-        run: docker compose logs --no-color
+        run: docker compose -f ../../docker/docker-compose-dev.yml logs --no-color
 
       - name: Stop backend and database
         if: always()
         working-directory: backend/TrainFyre
-        run: docker compose down -v
+        run: docker compose -f ../../docker/docker-compose-dev.yml down -v
 
       - name: Upload reports
         if: always()

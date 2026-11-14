@@ -80,7 +80,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void createShouldSaveUserAndReturnItsIdUsingRealService() throws Exception {
-        String response = mockMvc.perform(post("/users")
+        String response = mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content("""
@@ -146,7 +146,7 @@ class UserControllerIntegrationTest {
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
-        String response = mockMvc.perform(get("/users/{id}", id)
+        String response = mockMvc.perform(get("/api/v1/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -264,7 +264,7 @@ class UserControllerIntegrationTest {
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
-        mockMvc.perform(put("/users/{id}", id)
+        mockMvc.perform(put("/api/v1/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -309,7 +309,7 @@ class UserControllerIntegrationTest {
                 "123e4567-e89b-12d3-a456-426614174000"
         );
 
-        mockMvc.perform(delete("/users/{id}", id)
+        mockMvc.perform(delete("/api/v1/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, bearer(id)))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
@@ -321,10 +321,10 @@ class UserControllerIntegrationTest {
     void requestsWithoutTokenAreUnauthorized() throws Exception {
         UUID id = UUID.randomUUID();
 
-        mockMvc.perform(get("/users/{id}", id))
+        mockMvc.perform(get("/api/v1/users/{id}", id))
                 .andExpect(status().isUnauthorized());
 
-        mockMvc.perform(delete("/users/{id}", id))
+        mockMvc.perform(delete("/api/v1/users/{id}", id))
                 .andExpect(status().isUnauthorized());
 
         verifyNoInteractions(userPort);
@@ -332,7 +332,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void requestsWithMalformedTokenAreUnauthorized() throws Exception {
-        mockMvc.perform(get("/users/{id}", UUID.randomUUID())
+        mockMvc.perform(get("/api/v1/users/{id}", UUID.randomUUID())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt"))
                 .andExpect(status().isUnauthorized());
 
@@ -344,7 +344,7 @@ class UserControllerIntegrationTest {
         UUID owner = UUID.randomUUID();
         UUID attacker = UUID.randomUUID();
 
-        mockMvc.perform(get("/users/{id}", owner)
+        mockMvc.perform(get("/api/v1/users/{id}", owner)
                         .header(HttpHeaders.AUTHORIZATION, bearer(attacker)))
                 .andExpect(status().isForbidden());
 
@@ -356,7 +356,7 @@ class UserControllerIntegrationTest {
         UUID owner = UUID.randomUUID();
         UUID attacker = UUID.randomUUID();
 
-        mockMvc.perform(put("/users/{id}", owner)
+        mockMvc.perform(put("/api/v1/users/{id}", owner)
                         .header(HttpHeaders.AUTHORIZATION, bearer(attacker))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -374,7 +374,7 @@ class UserControllerIntegrationTest {
         UUID owner = UUID.randomUUID();
         UUID attacker = UUID.randomUUID();
 
-        mockMvc.perform(delete("/users/{id}", owner)
+        mockMvc.perform(delete("/api/v1/users/{id}", owner)
                         .header(HttpHeaders.AUTHORIZATION, bearer(attacker)))
                 .andExpect(status().isForbidden());
 
@@ -385,7 +385,7 @@ class UserControllerIntegrationTest {
     void updateWithoutModificationsIsABadRequest() throws Exception {
         UUID id = UUID.randomUUID();
 
-        mockMvc.perform(put("/users/{id}", id)
+        mockMvc.perform(put("/api/v1/users/{id}", id)
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -396,7 +396,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void createRejectsWeakPassword() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(post("/api/v1/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -439,7 +439,7 @@ class UserControllerIntegrationTest {
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -471,7 +471,7 @@ class UserControllerIntegrationTest {
                 null
         );
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/v1/users/me")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -488,7 +488,7 @@ class UserControllerIntegrationTest {
                 null
         );
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -501,7 +501,7 @@ class UserControllerIntegrationTest {
     void updateMeWithoutModificationsIsABadRequest() throws Exception {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        mockMvc.perform(put("/users/me")
+        mockMvc.perform(put("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
@@ -534,7 +534,7 @@ class UserControllerIntegrationTest {
 
         when(userPort.findById(id, User.class)).thenReturn(user);
 
-        String response = mockMvc.perform(get("/users/me")
+        String response = mockMvc.perform(get("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, bearer(id))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -564,7 +564,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void getMeWithoutTokenIsUnauthorized() throws Exception {
-        mockMvc.perform(get("/users/me")
+        mockMvc.perform(get("/api/v1/users/me")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());
 
@@ -573,7 +573,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void getMeWithMalformedTokenIsUnauthorized() throws Exception {
-        mockMvc.perform(get("/users/me")
+        mockMvc.perform(get("/api/v1/users/me")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer not-a-jwt")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());

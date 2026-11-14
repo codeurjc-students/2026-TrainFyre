@@ -1,8 +1,8 @@
 name: Unit tests
 
-# Control de calidad básico (backend + frontend).
-# Se ejecuta en cada push a cualquier rama EXCEPTO main.
-# En main (merge de un PR) se ejecuta el workflow "Full test suite".
+# Basic quality control (backend + frontend).
+# It runs on every push to any branch EXCEPT main.
+# On main (merge of a pull request) the "Full test suite" workflow runs.
 on:
   push:
     branches-ignore:
@@ -11,7 +11,7 @@ on:
 permissions:
   contents: read
 
-# Si se hace un nuevo push a la misma rama, se cancela la ejecución anterior.
+# A new push to the same branch cancels the previous run.
 concurrency:
   group: unit-tests-${{ github.ref }}
   cancel-in-progress: true
@@ -37,12 +37,12 @@ jobs:
           cache: maven
           cache-dependency-path: backend/TrainFyre/pom.xml
 
-      # Se excluyen los tests que arrancan contexto de Spring o usan Docker:
-      #   *IntegrationTest            -> @SpringBootTest / @DataJpaTest
+      # The tests that start a Spring context or use Docker are excluded:
+      #   *IntegrationTest            -> @SpringBootTest / @DataJpaTest / @WebMvcTest
       #   *E2ETest                    -> @SpringBootTest + Testcontainers (Postgres / MariaDB)
-      #   TrainFyreApplicationTests   -> carga completa del contexto
-      # Quedan: dominio, comandos/queries, servicios (Mockito), controlador (Mockito)
-      # y ArchitectureTest (Spring Modulith).
+      #   TrainFyreApplicationTests   -> full context load
+      # What remains: domain, commands/queries, services (Mockito), controllers (MockMvc standalone)
+      # and ArchitectureTest (Spring Modulith).
       - name: Run unit tests
         run: >
           mvn -B -ntp test

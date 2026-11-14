@@ -20,8 +20,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @PrimaryAdapter
 @RestController
-@RequestMapping("/incidence")
-@CrossOrigin(origins = "http://localhost:5173")
+@RequestMapping("/api/v1/incidence")
 public class IncidenceController {
 
 
@@ -38,7 +37,7 @@ public class IncidenceController {
     }
 
     @GetMapping
-    public PagedResponse<Incidence> getAllIncidencesPaginated(@RequestParam int page, @RequestParam int size){
+    public PagedResponse<Incidence> getAllIncidencesPaginated(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "300") int size){
         Pageable pageable = new Pageable(page, size);
         GetAllIncidencesPaginatedQuery getAllIncidencesPaginatedQuery = new GetAllIncidencesPaginatedQuery(pageable);
         return getAllIncidencesPaginatedUseCase.execute(getAllIncidencesPaginatedQuery);

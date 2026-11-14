@@ -11,15 +11,23 @@ export default defineConfig({
             'tests/components/**/*.test.tsx',
         ],
         env: {
-            VITE_API_BASE_URL: 'https://api.test',
+            VITE_API_BASE_URL: 'https://api.test/api/v1',
             VITE_PAGE_SIZE: '2',
         },
         coverage: {
             provider: 'v8',
             reporter: ['text', 'html', 'lcov'],
-            setupFiles: ['tests/components/setup.ts'],
-        include: ['src/**/*.{ts,tsx}'],
-            exclude: ['src/main.tsx', 'src/**/*.d.ts'],
+            include: ['src/**/*.{ts,tsx}'],
+            exclude: [
+                'src/main.tsx',
+                'src/**/*.d.ts',
+                'src/model/types.ts',
+                'src/model/index.ts',
+                'src/api/config.ts',
+                'src/assets/**',
+                'src/App.css',
+                '**/*.config.ts',
+            ],
         },
     },
 })

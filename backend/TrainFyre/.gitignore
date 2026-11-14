@@ -35,7 +35,7 @@ build/
 
 ### enviroment ãnd secrets ###
 secrets/
-.env
+../../docker/.env
 .env.*
 !.env.example
 *.p12

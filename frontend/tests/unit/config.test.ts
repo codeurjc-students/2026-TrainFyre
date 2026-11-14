@@ -4,15 +4,15 @@ import { resolveApiBaseUrl, resolvePageSize } from '../../src/api/config'
 
 describe('Configuración de la API', () => {
     it('acepta HTTPS y elimina barras finales', () => {
-        expect(resolveApiBaseUrl('https://api.example.com/v1///')).toBe('https://api.example.com/v1')
+        expect(resolveApiBaseUrl('https://api.example.com/api/v1///')).toBe('https://api.example.com/api/v1')
     })
 
     it('usa el valor por defecto cuando no hay configuración', () => {
-        expect(resolveApiBaseUrl(undefined)).toBe('https://localhost:8443')
+        expect(resolveApiBaseUrl(undefined)).toBe('https://localhost:443/api/v1')
     })
 
     it('admite HTTP solo en la propia máquina', () => {
-        expect(resolveApiBaseUrl('http://localhost:8080')).toBe('http://localhost:8080')
+        expect(resolveApiBaseUrl('http://localhost:8080/api/v1')).toBe('http://localhost:8080/api/v1')
         expect(() => resolveApiBaseUrl('http://api.example.com')).toThrow(/HTTPS/)
     })
 

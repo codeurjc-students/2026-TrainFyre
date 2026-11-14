@@ -1,3 +1,4 @@
+export { getAvatarVersion, subscribeAvatar } from './avatarSync'
 export { login, validateUser } from './auth'
 export { api, loadIncidence, loadIncidences } from './client'
 export { API_BASE_URL } from './config'

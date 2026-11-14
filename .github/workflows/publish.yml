@@ -138,7 +138,7 @@ jobs:
           compose_file="docker-compose-release.yml"
           trap 'rm -f "$compose_file"' EXIT
 
-          sed "s|\${IMAGE_TAG:-0\.1\.0}|${RELEASE_IMAGE_TAG}|g" \
+          sed -E "s|\\\$\{IMAGE_TAG:-[^}]*\}|${RELEASE_IMAGE_TAG}|g" \
             docker/docker-compose.yml > "$compose_file"
 
           oras push "docker.io/${COMPOSE_REPOSITORY}:${{ steps.metadata.outputs.compose_tag }}" \

@@ -1,11 +1,11 @@
 name: Full test suite + SonarQube Cloud
 
-# Control de calidad completo (backend + frontend).
-# Se ejecuta al abrir/actualizar un PR hacia main y cuando se hace merge a main.
-# Backend y frontend se prueban en paralelo; el job "sonar" espera a ambos y envía
-# a SonarQube Cloud UN ÚNICO análisis con la cobertura de los dos.
-# Para impedir el merge si algo falla, marca los jobs como "Required status check"
-# en Settings > Branches > Branch protection rules (main).
+# Complete quality control (backend + frontend).
+# It runs when a pull request to main is opened or updated and when it is merged to main.
+# Backend and frontend are tested in parallel; the "sonar" job waits for both and sends
+# ONE single analysis with the coverage of both to SonarQube Cloud.
+# To block the merge when something fails, mark the jobs as "Required status check"
+# in Settings > Branches > Branch protection rules (main).
 on:
   pull_request:
     branches:
@@ -17,7 +17,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: read   # necesario para que Sonar analice/decore el PR
+  pull-requests: read   # needed so that Sonar can analyse and decorate the pull request
 
 concurrency:
   group: full-tests-${{ github.event.pull_request.number || github.ref }}
@@ -80,6 +80,10 @@ jobs:
     env:
       DB_PASSWORD: ci-only-password
       TRAINFYRE_TLS_PASSWORD: ci-only-password
+      GARAGE_DEFAULT_ACCESS_KEY: GK0123456789abcdef01234567
+      GARAGE_DEFAULT_SECRET_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      GARAGE_DEFAULT_BUCKET: user-avatars
+      GARAGE_RPC_SECRET: abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
 
     steps:
       - name: Checkout

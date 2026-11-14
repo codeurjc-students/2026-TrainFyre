@@ -24,6 +24,7 @@ Changes included in version 0.1.0, the first release of the project (Phase 3: ba
 - Architecture verification with Spring Modulith and jMolecules.
 - Tests for the new functionality: server unit, controller, integration and system tests, client unit, component and integration tests, Playwright scenarios, and Gatling load simulations.
 - Quality control: JaCoCo coverage for the server, Vitest coverage for the client and a single SonarQube Cloud analysis, executed in the complete quality workflow.
+- `TRAINFYRE_SECRETS_DIR` variable to choose the folder of the TLS keystore and JWT keys in the Compose files, and `GARAGE_RPC_SECRET` variable instead of a secret stored in `garage.toml`.
 - Continuous integration workflows: `unit-tests.yml` (basic control on feature branches) and `full-tests.yml` (complete control on pull requests to `main`). The complete workflow starts the stack with `docker/docker-compose-dev.yml` and uses ephemeral TLS and JWT credentials.
 - Performance: the list of incidences is read with slices and the total count is cached.
 - Documentation: features, detailed functionalities, execution, architecture, development guide, quality control, CI/CD and releases, and the AI usage log.

@@ -27,6 +27,7 @@ services:
       GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_DEFAULT_ACCESS_KEY:?Define GARAGE_DEFAULT_ACCESS_KEY}
       GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_DEFAULT_SECRET_KEY:?Define GARAGE_DEFAULT_SECRET_KEY}
       GARAGE_DEFAULT_BUCKET: ${GARAGE_DEFAULT_BUCKET:?Define GARAGE_DEFAULT_BUCKET}
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET:?Define GARAGE_RPC_SECRET}
 
     ports:
       - "127.0.0.1:3900:3900"
@@ -70,19 +71,19 @@ services:
 
     volumes:
       - type: bind
-        source: ../backend/TrainFyre/secrets/trainfyre-local.p12
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/trainfyre-local.p12
         target: /run/trainfyre/trainfyre-local.p12
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ../backend/TrainFyre/secrets/jwt-private.pem
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-private.pem
         target: /run/trainfyre/jwt-private.pem
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ../backend/TrainFyre/secrets/jwt-public.pem
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-public.pem
         target: /run/trainfyre/jwt-public.pem
         read_only: true
         bind:

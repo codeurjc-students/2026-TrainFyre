@@ -11,7 +11,7 @@ This document describes the automated tests and the static analysis applied to T
 | Unit | JUnit 5, Mockito | Domain rules, commands and queries, and use case services with their ports replaced by mocks | `IncidenceTest`, `UserTest`, `AlertSubscriptionTest`, `CreateIncidenceServiceTest`, `UpdateUserServiceTest`, `UploadUserAvatarServiceTest` |
 | Controller | Spring MockMvc (`@WebMvcTest`, `@SpringBootTest` with `@MockitoBean`) | HTTP contract of the controllers: status codes, security rules, validation and serialization | `UserControllerIntegrationTest`, `ImageControllerIntegrationTest`, `IncidenceControllerIntegrationTest` |
 | Adapter | Mockito (`S3Client`) | The S3 adapter translates the SDK calls and errors | `S3StorageAdapterTest` |
-| Integration server - database | `@DataJpaTest` and Testcontainers (PostgreSQL) | Repositories against a real PostgreSQL | `UserJPARepositoryTest`, `IncidencePersistenceIntegrationTest`, `IncidenceJPARepositoryTest` |
+| Integration server - database | `@DataJpaTest` and Testcontainers (PostgreSQL) | Repositories against a real PostgreSQL | `UserJPARepositoryIntegrationTest`, `IncidencePersistenceIntegrationTest`, `IncidenceJPARepositoryIntegrationTest` |
 | System (E2E) | Rest Assured, `@SpringBootTest` on a random port and Testcontainers (PostgreSQL and MariaDB) | The incidence REST API from the HTTP request to the database | `IncidencePostgreE2ETest`, `IncidenceMariaDbE2ETest` |
 | Architecture | Spring Modulith and jMolecules | The module boundaries and the hexagonal rules | `ArchitectureTest` |
 | Security | JUnit | JWT issue and verification round trip | `JwtRoundTripTest` |
@@ -37,7 +37,7 @@ The client has 133 unit, component and integration tests (13 files) and 5 end-to
 | Functionality | Server | Client |
 | --- | --- | --- |
 | Register and sign in | `CreateUserServiceTest`, `LoginServiceTest`, `UserControllerIntegrationTest`, `JwtRoundTripTest` | `tests/components/pages.test.tsx` (registration), `tests/integration/api.test.ts` (login, 401), E2E *el registro inicia sesión y conserva la sesión al recargar* |
-| Manage the account (username, password, delete) | `UpdateUserServiceTest`, `DeleteUserServiceTest`, `UserAccessPolicyTest`, `UserJPARepositoryTest` | `tests/components/pages.test.tsx` (account), E2E *un administrador consulta su cuenta...* |
+| Manage the account (username, password, delete) | `UpdateUserServiceTest`, `DeleteUserServiceTest`, `UserAccessPolicyTest`, `UserJPARepositoryIntegrationTest` | `tests/components/pages.test.tsx` (account), E2E *un administrador consulta su cuenta...* |
 | Alert subscriptions | `AlertSubscriptionTest`, `UserTest`, `UpdateUserServiceTest` | `tests/unit/model-extra.test.ts`, `tests/unit/payload.test.ts`, `tests/components/pages.test.tsx` |
 | Avatar | `UploadUserAvatarServiceTest`, `FindUserAvatarServiceTest`, `DeleteUserAvatarServiceTest`, `ImageControllerIntegrationTest`, `S3StorageAdapterTest` | `tests/unit/avatar.test.ts`, `tests/integration/avatar.test.ts`, `tests/components/avatar.test.tsx` |
 | List, filter and view incidences | `GetAllIncidencesPaginatedServiceTest`, `GetIncidenceByIdServiceTest`, `IncidenceControllerIntegrationTest`, `IncidencePostgreE2ETest` | `tests/integration/api-branches.test.ts` (pagination), `tests/components/pages.test.tsx` (filters and paging), E2E *un visitante consulta incidencias...* and *muestra y recupera un error de carga...* |

@@ -15,6 +15,7 @@ import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -132,13 +133,33 @@ public class ImageController {
 
     }
 
+    /**
+     * Returns the bytes of the image with its Content-Type and Content-Length.
+     * The InputStreamResource is closed when the response has been written.
+     */
     private static ResponseEntity<InputStreamResource> toResponse(Image image) {
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(image.contentType()))
-                .contentLength(image.contentLength())
-                .cacheControl(CacheControl.noCache().cachePrivate())
-                .body(new InputStreamResource(image.content()));
+        ResponseEntity.BodyBuilder response = ResponseEntity.ok()
+                .contentType(mediaTypeOf(image.contentType()))
+                .cacheControl(CacheControl.noCache().cachePrivate());
+
+        // A length of 0 means unknown: the header is not set so that the response is not truncated.
+        if (image.contentLength() > 0) {
+            response.contentLength(image.contentLength());
+        }
+
+        return response.body(new InputStreamResource(image.content()));
+
+    }
+
+    /** A stored Content-Type that is not valid must not prevent the image from being served. */
+    private static MediaType mediaTypeOf(String contentType) {
+
+        try {
+            return MediaType.parseMediaType(contentType);
+        } catch (InvalidMediaTypeException e) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
 
     }
 

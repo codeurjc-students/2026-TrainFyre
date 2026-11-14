@@ -81,7 +81,16 @@ Edit `docker/.env` and replace every `change-me` value. The file is not committe
 | `TRAINFYRE_TLS_PASSWORD` | both | Password of the PKCS12 keystore created in step 2 |
 | `DOCKERHUB_USERNAME` | both | DockerHub account that owns the image (default `escipion48`) |
 | `IMAGE_TAG` | published | Version of the image to run (default `0.1.0`) |
-| `GARAGE_DEFAULT_ACCESS_KEY`, `GARAGE_DEFAULT_SECRET_KEY`, `GARAGE_DEFAULT_BUCKET` | development | Credentials and bucket of the Garage container |
+| `GARAGE_DEFAULT_ACCESS_KEY`, `GARAGE_DEFAULT_SECRET_KEY`, `GARAGE_DEFAULT_BUCKET` | development | Credentials and bucket of the Garage container. The access key is `GK` followed by 24 hexadecimal characters and the secret key has 64 hexadecimal characters |
+| `GARAGE_RPC_SECRET` | development | Internal secret of the Garage node (64 hexadecimal characters) |
+| `TRAINFYRE_SECRETS_DIR` | both | Optional. Folder with the keystore and the JWT keys created in step 2 (default `../backend/TrainFyre/secrets`, relative to the Compose file) |
+
+The Garage values can be generated with:
+
+```bash
+echo "GK$(openssl rand -hex 12)"   # GARAGE_DEFAULT_ACCESS_KEY
+openssl rand -hex 32               # GARAGE_DEFAULT_SECRET_KEY and, again, GARAGE_RPC_SECRET
+```
 | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_PATH_STYLE` | published | External S3-compatible storage for the avatars |
 
 ## 4a. Run the published version

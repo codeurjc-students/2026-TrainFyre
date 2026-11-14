@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Entrega la SPA para las rutas de navegación que no son recursos estáticos.
- * React decide después si la ruta existe y muestra su página 404.
+ * Serves the SPA for the navigation routes that are not static resources.
+ * React then decides whether the route exists and shows its 404 page.
  */
 @Controller
 public class SpaController {

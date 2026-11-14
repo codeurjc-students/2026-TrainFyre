@@ -39,7 +39,7 @@ class UpdateUserCommandTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] añadir={0}, eliminar={1}")
+    @ParameterizedTest(name = "[{index}] add={0}, remove={1}")
     @MethodSource("listsWithoutChanges")
     void shouldThrowNullPointerExceptionWhenNoChangesAreProvided(
             List<AlertSubscription> subscriptionsToAdd,
@@ -58,7 +58,7 @@ class UpdateUserCommandTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] añadir={0}, eliminar={1}")
+    @ParameterizedTest(name = "[{index}] add={0}, remove={1}")
     @MethodSource("listsWithoutChanges")
     void shouldAcceptUsernameUpdateEvenWhenListsProvideNoChanges(
             List<AlertSubscription> subscriptionsToAdd,
@@ -76,7 +76,7 @@ class UpdateUserCommandTest {
         );
     }
 
-    @ParameterizedTest(name = "[{index}] añadir={0}, eliminar={1}")
+    @ParameterizedTest(name = "[{index}] add={0}, remove={1}")
     @MethodSource("listsWithoutChanges")
     void shouldAcceptPasswordUpdateEvenWhenListsProvideNoChanges(
             List<AlertSubscription> subscriptionsToAdd,

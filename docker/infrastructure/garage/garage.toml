@@ -9,7 +9,7 @@ replication_factor = 1
 # Internal Garage communication
 rpc_bind_addr = "[::]:3901"
 rpc_public_addr = "127.0.0.1:3901"
-rpc_secret = "a08ce824d69adea103f5eddebdd79944f685e7c32cf1a7684fe3f1d493454d1a"
+# The RPC secret is not stored here: it is passed with the GARAGE_RPC_SECRET environment variable.
 
 [s3_api]
 api_bind_addr = "[::]:3900"

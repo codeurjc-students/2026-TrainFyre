@@ -73,7 +73,7 @@ public class S3StorageAdapter implements ImagePort {
                 return Optional.empty();
             }
 
-            throw new ObjectStorageException("No se pudo recuperar la fotografía", e);
+            throw new ObjectStorageException("Could not retrieve the picture", e);
 
         } catch (SdkException e) {
             throw new ObjectStorageException("Image could not be saved", e);

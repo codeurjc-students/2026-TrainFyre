@@ -102,7 +102,7 @@ class IncidenceControllerIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description.name").value("Avería"));
 
-        // PUT: UpdateIncidenceService recupera la incidencia y modifica su descripción.
+        // PUT: UpdateIncidenceService retrieves the incidence and changes its description.
         UpdateIncidenceCommand updateCommand = new UpdateIncidenceCommand(
                 id,
                 null,

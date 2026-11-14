@@ -22,7 +22,7 @@ Runs on every push to a feature or fix branch. A new push to the same branch can
 Runs when a pull request to `main` is opened or updated (draft pull requests are skipped) and when a change is pushed to `main`. It has three jobs:
 
 1. **Backend**: `mvn verify`, which runs every server test (unit, controller, integration with Testcontainers and system tests with Rest Assured) and generates the JaCoCo report.
-2. **Frontend**: builds the client, runs the unit, component and integration tests with coverage, generates ephemeral TLS and JWT credentials, starts the backend and the database with `docker/docker-compose-dev.yml`, waits until the REST API answers (up to 60 attempts), runs the client - API integration tests and the Playwright tests, and stops the containers.
+2. **Frontend**: builds the client, runs the unit, component and integration tests with coverage, generates ephemeral TLS and JWT credentials, starts the backend, the database and Garage with `docker/docker-compose-dev.yml` (with fixed throwaway values for the `DB_PASSWORD`, `TRAINFYRE_TLS_PASSWORD` and `GARAGE_*` variables), waits until the REST API answers (up to 60 attempts), runs the client - API integration tests and the Playwright tests, and stops the containers.
 3. **SonarQube Cloud analysis**: runs after the two previous jobs and sends a single analysis with the server and client coverage.
 
 To prevent merging when a quality control fails, the jobs of this workflow have to be marked as *required status checks* in the branch protection rules of `main` (Settings > Branches). The workflow cannot enforce this by itself.
@@ -83,4 +83,4 @@ To try the process before the first real release, publish test releases with ver
 
 ## Running the published version
 
-The instructions to run the application are in [Execution](EXECUTION.md). The published Compose file mounts the TLS keystore and the JWT keys from `../backend/TrainFyre/secrets/`, a path relative to the Compose file inside the repository, so in version 0.1 it is meant to be run from a clone of the repository.
+The instructions to run the application are in [Execution](EXECUTION.md). The Compose files mount the TLS keystore and the JWT keys from the folder in `TRAINFYRE_SECRETS_DIR`, which by default is `../backend/TrainFyre/secrets/` (relative to the Compose file, so inside a clone of the repository). To run a Compose file downloaded from DockerHub outside a clone, set `TRAINFYRE_SECRETS_DIR` to the folder where the secrets were created.

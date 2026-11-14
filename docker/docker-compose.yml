@@ -42,19 +42,19 @@ services:
       S3_PATH_STYLE: ${S3_PATH_STYLE:-false}
     volumes:
       - type: bind
-        source: ../backend/TrainFyre/secrets/trainfyre-local.p12
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/trainfyre-local.p12
         target: /run/trainfyre/trainfyre-local.p12
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ../backend/TrainFyre/secrets/jwt-private.pem
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-private.pem
         target: /run/trainfyre/jwt-private.pem
         read_only: true
         bind:
           create_host_path: false
       - type: bind
-        source: ../backend/TrainFyre/secrets/jwt-public.pem
+        source: ${TRAINFYRE_SECRETS_DIR:-../backend/TrainFyre/secrets}/jwt-public.pem
         target: /run/trainfyre/jwt-public.pem
         read_only: true
         bind:

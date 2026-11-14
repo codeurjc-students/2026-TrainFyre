@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class IncidenceJPARepositoryTest {
+class IncidenceJPARepositoryIntegrationTest {
 
     @Mock
     private SpringDataIncidenceRepository repository;

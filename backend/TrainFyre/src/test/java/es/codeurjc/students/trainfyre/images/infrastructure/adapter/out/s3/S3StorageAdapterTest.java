@@ -120,7 +120,7 @@ class S3StorageAdapterTest {
 
         assertThatThrownBy(() -> s3StorageAdapter.find(IMAGE_UUID))
                 .isInstanceOf(ObjectStorageException.class)
-                .hasMessageContaining("No se pudo recuperar la fotografía")
+                .hasMessageContaining("Could not retrieve the picture")
                 .hasCause(s3Exception);
     }
 

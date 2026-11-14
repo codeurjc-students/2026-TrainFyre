@@ -37,9 +37,9 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 @Import({
         UserJPARepository.class,
-        UserJPARepositoryTest.DatabaseConfiguration.class
+        UserJPARepositoryIntegrationTest.DatabaseConfiguration.class
 })
-class UserJPARepositoryTest {
+class UserJPARepositoryIntegrationTest {
 
     @Autowired
     private UserJPARepository adapter;

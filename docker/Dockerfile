@@ -7,7 +7,7 @@ FROM ${BUILD_IMAGE_FRONTEND} AS frontend-build
 WORKDIR /frontend
 
 COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 COPY frontend/ ./
 RUN npm run build

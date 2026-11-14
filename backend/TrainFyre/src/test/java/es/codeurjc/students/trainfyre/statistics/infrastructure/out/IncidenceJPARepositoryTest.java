@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.statistics.infrastructure.out;
 import es.codeurjc.students.trainfyre.common.Pageable;
 import es.codeurjc.students.trainfyre.common.PagedResponse;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
+import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceCountCache;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceEntity;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.IncidenceJPARepository;
 import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.out.persistance.sql.SpringDataIncidenceRepository;
@@ -29,10 +30,13 @@ class IncidenceJPARepositoryTest {
     @Mock
     private SpringDataIncidenceRepository repository;
 
+    @Mock
+    private IncidenceCountCache countCache;
+
     @Test
     void shouldDeleteIncidenceById() {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         adapter.delete(id);
 
@@ -42,7 +46,7 @@ class IncidenceJPARepositoryTest {
     @Test
     void shouldSaveIncidence() {
         Incidence incidence = anIncidence().build();
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         adapter.save(incidence);
 
@@ -67,7 +71,7 @@ class IncidenceJPARepositoryTest {
     void shouldFindIncidenceById() {
         Incidence original = anIncidence().build();
         UUID id = original.getId();
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         when(repository.findById(id))
                 .thenReturn(Optional.of(new IncidenceEntity(original)));
@@ -87,9 +91,9 @@ class IncidenceJPARepositoryTest {
         Incidence second = anIncidence().build();
         Pageable pageable = new Pageable(1, 2);
         PageRequest pageRequest = PageRequest.of(1, 2);
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
-        when(repository.findAll(pageRequest)).thenReturn(
+        when(repository.findAllSlice(pageRequest)).thenReturn(
                 new PageImpl<>(
                         List.of(
                                 new IncidenceEntity(first),
@@ -99,6 +103,7 @@ class IncidenceJPARepositoryTest {
                         5
                 )
         );
+        when(countCache.getTotalElements()).thenReturn(5L);
 
         PagedResponse<Incidence> result = adapter.findAll(pageable);
 
@@ -114,14 +119,15 @@ class IncidenceJPARepositoryTest {
         assertEquals(second.getIncidenceDetails(),
                 result.content().get(1).getIncidenceDetails());
 
-        verify(repository).findAll(pageRequest);
+        verify(repository).findAllSlice(pageRequest);
+        verify(countCache).getTotalElements();
     }
 
 
     @Test
     void shouldFailWhenIncidenceDoesNotExist() {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -133,7 +139,7 @@ class IncidenceJPARepositoryTest {
     @Test
     void shouldDescribeIncidenceNotFound() {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
         when(repository.findById(id)).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(
@@ -147,7 +153,7 @@ class IncidenceJPARepositoryTest {
 
     @Test
     void shouldRejectNullIdWhenDeleting() {
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
@@ -160,7 +166,7 @@ class IncidenceJPARepositoryTest {
 
     @Test
     void shouldRejectNullIncidenceWhenSaving() {
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
@@ -173,7 +179,7 @@ class IncidenceJPARepositoryTest {
 
     @Test
     void shouldRejectNullIdWhenFindingById() {
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         NullPointerException exception = assertThrows(
                 NullPointerException.class,
@@ -186,7 +192,7 @@ class IncidenceJPARepositoryTest {
 
     @Test
     void shouldRejectNullPageable() {
-        IncidenceJPARepository adapter = new IncidenceJPARepository(repository);
+        IncidenceJPARepository adapter = new IncidenceJPARepository(repository, countCache);
 
         NullPointerException exception = assertThrows(
                 NullPointerException.class,

@@ -6,10 +6,13 @@ import es.codeurjc.students.trainfyre.statistics.application.port.out.IncidenceP
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
@@ -20,11 +23,13 @@ import java.util.UUID;
 public class IncidenceJPARepository implements IncidencePort {
 
     private final SpringDataIncidenceRepository repository;
+    private final IncidenceCountCache countCache;
 
     @Override
     public Void delete(UUID id) {
         Objects.requireNonNull(id, "id should not be null");
         repository.deleteById(id);
+        countCache.invalidate();
         return null;
     }
 
@@ -32,6 +37,7 @@ public class IncidenceJPARepository implements IncidencePort {
     public void save(Incidence incidence) {
         Objects.requireNonNull(incidence, "incidence should not be null");
         repository.save(new IncidenceEntity(incidence));
+        countCache.invalidate();
     }
 
     @Override
@@ -48,15 +54,20 @@ public class IncidenceJPARepository implements IncidencePort {
     public PagedResponse<Incidence> findAll(Pageable pageable) {
         Objects.requireNonNull(pageable, "pageable should not be null");
 
-        Page<Incidence> result = repository
-                .findAll(PageRequest.of(pageable.page(), pageable.size()))
-                .map(IncidenceEntity::toDomain);
+        Slice<IncidenceEntity> result = repository.findAllSlice(
+                PageRequest.of(pageable.page(), pageable.size())
+        );
+
+        List<Incidence> content = result.getContent()
+                .stream()
+                .map(IncidenceEntity::toDomain)
+                .toList();
 
         return new PagedResponse<>(
-                result.getContent(),
+                content,
                 result.getNumber(),
                 result.getSize(),
-                result.getTotalElements()
+                countCache.getTotalElements()
         );
     }
 

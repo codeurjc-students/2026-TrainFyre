@@ -1,5 +1,13 @@
 # TrainFyre: A web application for real-time transport alert management
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=coverage)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=codeurjc-students_2026-TrainFyre&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=codeurjc-students_2026-TrainFyre)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/Escipion48/badge.svg)](https://hub.xerj.org/contributors/Escipion48)
+
 TrainFyre is a web application to consult and manage transport incidents. In version 0.1, anyone can browse and filter the incidences of the network (with their severity, cause, duration and affected lines); registered users can manage their account, upload a profile picture and define alert subscriptions by line, time window and days of the week; and administrators can publish, edit and delete incidences. The application is a SPA built with React, a Spring Boot REST API, PostgreSQL and an S3-compatible storage for the avatars, and it runs with Docker.
 
 > [!IMPORTANT]

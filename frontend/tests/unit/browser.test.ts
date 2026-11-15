@@ -14,6 +14,23 @@ describe('blobToDataUrl', () => {
         await expect(blobToDataUrl(blob)).resolves.toBe('data:image/png;base64,aG9sYQ==')
     })
 
+    it('rechaza si el lector no devuelve texto', async () => {
+        class BinaryReader {
+            result = new ArrayBuffer(1)
+            error = null
+            onload: (() => void) | null = null
+            onerror: (() => void) | null = null
+
+            readAsDataURL() {
+                this.onload?.()
+            }
+        }
+
+        vi.stubGlobal('FileReader', BinaryReader)
+
+        await expect(blobToDataUrl(new Blob(['x']))).rejects.toThrow('No se pudo leer la imagen.')
+    })
+
     it.each([
         ['el error original del lector', new DOMException('lectura fallida'), 'lectura fallida'],
         ['un error genérico si no hay detalle', null, 'No se pudo leer la imagen.'],

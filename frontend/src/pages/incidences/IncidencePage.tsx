@@ -56,7 +56,7 @@ export function IncidencePage({ id, edit = false }: IncidencePageProps) {
         signal => loadIncidence(id, admin, signal),
     )
 
-    if (resource.loading) return <p role="status">Cargando incidencia…</p>
+    if (resource.loading) return <output className="status-block">Cargando incidencia…</output>
     if (resource.error) return <Retry error={resource.error} retry={resource.reload} />
     if (!resource.data) return null
 

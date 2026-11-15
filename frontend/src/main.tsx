@@ -13,22 +13,22 @@ const root = createRoot(container)
 
 // La aplicación se importa de forma diferida para poder mostrar los errores de
 // arranque (p. ej. una configuración .env inválida) en lugar de una pantalla en blanco.
-import('./App')
-    .then(({ default: App }) => {
-        root.render(
-            <StrictMode>
-                <ErrorBoundary>
-                    <App />
-                </ErrorBoundary>
-            </StrictMode>,
-        )
-    })
-    .catch((error: unknown) => {
-        // oxlint-disable-next-line no-console
-        console.error('No se pudo iniciar la aplicación.', error)
-        root.render(
-            <StrictMode>
-                <ErrorPage />
-            </StrictMode>,
-        )
-    })
+try {
+    const { default: App } = await import('./App')
+
+    root.render(
+        <StrictMode>
+            <ErrorBoundary>
+                <App />
+            </ErrorBoundary>
+        </StrictMode>,
+    )
+} catch (error: unknown) {
+    // oxlint-disable-next-line no-console
+    console.error('No se pudo iniciar la aplicación.', error)
+    root.render(
+        <StrictMode>
+            <ErrorPage />
+        </StrictMode>,
+    )
+}

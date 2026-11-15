@@ -38,7 +38,7 @@ export function IncidenceList() {
 
     function results() {
         if (resource.loading) {
-            return <div className="card" role="status">Cargando todas las páginas de incidencias…</div>
+            return <output className="card status-block">Cargando todas las páginas de incidencias…</output>
         }
 
         if (resource.error) {

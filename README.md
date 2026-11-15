@@ -14,16 +14,7 @@ TrainFyre is a web application to consult and manage transport incidents. In ver
 
 More screenshots, by type of user, in [Features of version 0.1](docs/FEATURES.md).
 
-<!-- TODO(author) PENDING VIDEO: one-minute video of version 0.1 (features by type of user, with voice-over).
-     Upload it (YouTube, or drag it into a GitHub issue/PR comment to get a github.com/user-attachments URL) and replace this comment with:
-     [Video of version 0.1](PASTE_URL_HERE) -->
-
-<!-- TODO(author) PENDING IMAGES (take them after merging to main and publishing 0.1.0, save them in docs/images/):
-     - 23-actions.png      GitHub Actions: successful runs of unit-tests, full-tests and publish  -> add to docs/CI_CD.md
-     - 24-github-project.png  GitHub Project Kanban board                                         -> add to docs/PROJECT_TRACKING.md
-     - 25-dockerhub.png    DockerHub repository escipion48/trainfyre with the 0.1.0 tag           -> add to docs/CI_CD.md or docs/EXECUTION.md
-     - 22-sonar.png        SonarQube Cloud dashboard                                              -> docs/TESTING.md (comment already there)
-     Search the repository for "PENDING" to find every placeholder. -->
+[Video of version 0.1](https://urjc-my.sharepoint.com/:v:/r/personal/p_sainz_2023_alumnos_urjc_es/_layouts/15/stream.aspx?id=%2Fpersonal%2Fp_sainz_2023_alumnos_urjc_es%2FDocuments%2Ftrainfyre-v0.1.mp4&share=cQon4G8NGyZlQ4kpb484d6ZkEgUCgUqj26WeECB1z601JuPvVw&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0): one-minute walkthrough of the features by type of user.
 
 ## Next versions
 

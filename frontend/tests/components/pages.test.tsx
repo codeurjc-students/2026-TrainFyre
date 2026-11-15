@@ -3,7 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { publishSession, logout } from '../../src/api/session'
+import { getAuthState, publishSession, logout } from '../../src/api/session'
 import { api } from '../../src/api'
 import { AdminUsers } from '../../src/pages/AdminUsers'
 import { AccountForm } from '../../src/pages/account/AccountForm'
@@ -178,6 +178,37 @@ describe('páginas de cuenta y administración', () => {
         await userEventApi.type(screen.getByRole('textbox', { name: /IDs de líneas/ }), '3')
         await userEventApi.click(screen.getByRole('button', { name: 'Guardar alerta' }))
         await waitFor(() => expect(save).toHaveBeenCalled())
+    })
+
+    it.each([
+        ['propia', 'me', true],
+        ['ajena', '00000000-0000-4000-8000-000000000002', false],
+        ['propia indicada por UUID', id, true],
+    ])('el cargador de una cuenta %s %s la sesión', async (_name, userId, updatesSession) => {
+        publishSession({ id, token: 'token', deadline: Date.now() + 60_000, user })
+        const renamed = { ...user, username: 'renombrado' }
+        vi.spyOn(api, 'user').mockResolvedValue(renamed)
+        loaded(renamed)
+
+        render(<UserPage id={userId} />)
+
+        const load = resource.mock.calls[0][1]
+        await expect(load(new AbortController().signal)).resolves.toBe(renamed)
+        expect(getAuthState().session?.user.username).toBe(updatesSession ? 'renombrado' : 'pablo')
+    })
+
+    it('no actualiza la sesión si la carga se canceló', async () => {
+        publishSession({ id, token: 'token', deadline: Date.now() + 60_000, user })
+        vi.spyOn(api, 'user').mockResolvedValue({ ...user, username: 'renombrado' })
+        loaded(user)
+
+        render(<UserPage />)
+
+        const controller = new AbortController()
+        const pending = resource.mock.calls[0][1](controller.signal)
+        controller.abort()
+        await pending
+        expect(getAuthState().session?.user.username).toBe('pablo')
     })
 
     it('muestra perfiles ajenos sin roles proporcionados', () => {

@@ -24,5 +24,6 @@ public class IncidenceCountCache {
             allEntries = true
     )
     public void invalidate() {
+        // Intentionally empty: @CacheEvict clears the cache through the Spring proxy.
     }
 }

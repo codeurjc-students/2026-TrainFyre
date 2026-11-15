@@ -46,7 +46,7 @@ main:focus { outline: none; }
 
 .site-header { background: white; border-bottom: 1px solid var(--border); }
 .header-inner { max-width: 1340px; min-height: 90px; margin: auto; padding: 16px 32px; display: flex; align-items: center; gap: 35px; }
-.brand { display: flex; align-items: center; gap: 10px; color: var(--navy); font-size: 1.35rem; font-weight: 800; letter-spacing: -.06em; }
+.brand { display: flex; flex-shrink: 0; align-items: center; gap: 10px; color: var(--navy); font-size: 1.35rem; font-weight: 800; letter-spacing: -.06em; }
 .brand:hover { text-decoration: none; }
 .brand > span > span { color: var(--accent); }
 .brand img { width: 48px; height: 48px; object-fit: contain; border-radius: 12px; }
@@ -68,8 +68,8 @@ main:focus { outline: none; }
 .button.primary:hover { background: var(--accent-dark); }
 .button.secondary { color: #24364d; background: white; border-color: #cbd5e2; }
 .button.secondary:hover { background: #edf2f7; }
-.button.light { background: #ffffff13; border-color: #ffffff35; color: white; }
-.button.light:hover { background: #ffffff25; }
+.button.light { background: #1f2838; border-color: #3f4755; color: white; }
+.button.light:hover { background: #303947; }
 .button.danger { color: #a72532; background: #fff1f3; border-color: #eeb8c0; }
 .button.danger:hover { background: #ffe0e5; }
 .button.compact { min-height: 40px; padding: 10px 15px; }
@@ -112,6 +112,9 @@ main:focus { outline: none; }
 }
 
 /* ===== Contenedores y tarjetas ===== */
+
+.status-block { display: block; line-height: 1.7; }
+.status-block:not(.card) { margin: 1em 0; }
 
 .card {
     background: white;
@@ -589,10 +592,6 @@ dd {
 .auth-layout > *,
 .detail-grid > * {
     min-width: 0;
-}
-
-.brand {
-    flex-shrink: 0;
 }
 
 .actions > div {

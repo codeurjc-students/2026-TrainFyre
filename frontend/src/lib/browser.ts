@@ -1,5 +1,7 @@
 export const LOCAL_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone
 
+const UNREADABLE_IMAGE = 'No se pudo leer la imagen.'
+
 /** Navega a una ruta interna de la aplicación (enrutado por hash). */
 export function go(path: string) {
     globalThis.location.hash = path
@@ -15,8 +17,13 @@ export function blobToDataUrl(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader()
 
-        reader.onload = () => resolve(String(reader.result))
-        reader.onerror = () => reject(reader.error ?? new Error('No se pudo leer la imagen.'))
+        reader.onload = () => {
+            const { result } = reader
+
+            if (typeof result === 'string') resolve(result)
+            else reject(new Error(UNREADABLE_IMAGE))
+        }
+        reader.onerror = () => reject(reader.error ?? new Error(UNREADABLE_IMAGE))
         reader.readAsDataURL(blob)
     })
 }

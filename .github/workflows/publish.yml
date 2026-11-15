@@ -66,6 +66,10 @@ jobs:
               image_tag="${branch}-$(date -u +%Y%m%d%H%M%S)-${commit}"
               compose_tag="$image_tag"
               ;;
+            *)
+              echo "::error::Unsupported event '${GITHUB_EVENT_NAME}'. Only push, release and workflow_dispatch publish artifacts."
+              exit 1
+              ;;
           esac
 
           {

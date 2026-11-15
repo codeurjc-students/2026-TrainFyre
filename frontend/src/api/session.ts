@@ -112,7 +112,7 @@ export function publishSession(session: Session) {
 export function updateCurrentUser(id: string, user: UserDetails) {
     const current = state.session
 
-    if (!current || current.id !== id) return
+    if (current?.id !== id) return
 
     emit({
         ...state,

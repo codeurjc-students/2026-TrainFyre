@@ -77,9 +77,9 @@ To try the process before the first real release, publish test releases with ver
 | --- | --- | --- |
 | 0.1.0 | _pending_ | Version 0.1: registration and sign in, user accounts, avatars, alert subscriptions and public and administrative management of incidences. See [`CHANGELOG.md`](../CHANGELOG.md) |
 
-<!-- TODO(author) PENDING IMAGES: after merging to main and publishing 0.1.0, save as docs/images/23-actions.png (successful runs of the workflows) and docs/images/25-dockerhub.png (repository escipion48/trainfyre with the 0.1.0 tag), and replace this comment with:
-     ![GitHub Actions runs](images/23-actions.png)
-     ![Image published in DockerHub](images/25-dockerhub.png) -->
+
+![GitHub Actions runs](images/23-actions.png)
+![Image published in DockerHub](images/25-dockerhub.png)
 
 ## Running the published version
 

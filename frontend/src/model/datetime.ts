@@ -50,7 +50,7 @@ export function durationSeconds(value: string): number {
         Number(seconds || 0)
 
     if (!Number.isFinite(total)) {
-        throw new Error('Duración fuera de rango.')
+        throw new TypeError('Duración fuera de rango.')
     }
 
     return total

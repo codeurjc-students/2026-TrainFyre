@@ -26,7 +26,7 @@ export function useGuardedTask() {
         setBusy(true)
         setError('')
 
-        execute(task, setError).finally(() => {
+        void execute(task, setError).finally(() => {
             locked.current = false
             setBusy(false)
         })

@@ -26,7 +26,7 @@ export function parseId(value: string): number {
     const number = Number(value)
 
     if (!Number.isSafeInteger(number)) {
-        throw new Error('El ID excede el rango de enteros seguro del navegador.')
+        throw new TypeError('El ID excede el rango de enteros seguro del navegador.')
     }
 
     return number

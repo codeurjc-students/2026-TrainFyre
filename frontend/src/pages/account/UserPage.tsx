@@ -39,7 +39,7 @@ export function UserPage({ id = 'me' }: UserPageProps) {
         },
     )
 
-    if (resource.loading) return <p role="status">Cargando cuenta…</p>
+    if (resource.loading) return <output className="status-block">Cargando cuenta…</output>
     if (resource.error) return <Retry error={resource.error} retry={resource.reload} />
     if (!resource.data) return null
 

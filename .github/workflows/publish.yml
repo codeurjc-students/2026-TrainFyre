@@ -124,7 +124,7 @@ jobs:
             ${{ env.IMAGE_REPOSITORY }}:${{ steps.metadata.outputs.image_tag }}
             ${{ github.event_name == 'release' && format('{0}:latest', env.IMAGE_REPOSITORY) || '' }}
           build-args: |
-            AOT_PROFILES=prod
+            AOT_PROFILES=${{ steps.metadata.outputs.image_tag == 'dev' && 'dev' || 'prod' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

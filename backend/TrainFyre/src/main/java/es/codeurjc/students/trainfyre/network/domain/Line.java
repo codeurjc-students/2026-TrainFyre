@@ -49,7 +49,11 @@ public class Line {
     }
 
     protected void update(LineChanges lineChanges){
-        throw new UnsupportedOperationException();
+
+        if(lineChanges.name() != null) name = lineChanges.name();
+        if(lineChanges.type() != null) type = lineChanges.type();
+        if(lineChanges.colors() != null) colors = lineChanges.colors();
+
     }
 
 }

@@ -43,4 +43,8 @@ public class Line {
 
     }
 
+    public static Line reconstitute(LineId id, String externalId, LineName name, LineType type, LineColors colors) {
+        throw new UnsupportedOperationException();
+    }
+
 }

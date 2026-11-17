@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LineTest {
 
+    private static final LineId ID = new LineId(1L);
     private static final String EXTERNAL_ID = "L1";
     private static final LineName NAME = new LineName("L1", "Line 1");
     private static final LineType TYPE = LineType.METRO;
@@ -31,19 +31,53 @@ class LineTest {
                 .isInstanceOf(NullPointerException.class);
     }
 
-    @ParameterizedTest(name = "externalId = {0}")
-    @ValueSource(strings = {"", " ", "   ", "\t", "\n", " \t\n "})
+    @ParameterizedTest(name = "externalId = \"{0}\"")
+    @MethodSource("blankExternalIds")
     void shouldThrowIllegalArgumentExceptionWhenExternalIdIsEmptyOrBlank(String externalId) {
         assertThatThrownBy(() -> Line.createLine(externalId, NAME, TYPE, COLORS))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedTest(name = "externalId = \"{0}\"")
-    @ValueSource(strings = {" L1", "L1 ", "  L1\t", "\nL1\n"})
+    @MethodSource("paddedExternalIds")
     void shouldStripExternalIdWhenItHasSurroundingWhitespace(String externalId) {
         Line line = Line.createLine(externalId, NAME, TYPE, COLORS);
 
         assertThat(line.getExternalId()).isEqualTo(EXTERNAL_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidReconstitutionNullArguments")
+    void shouldThrowNullPointerExceptionWhenAnyReconstitutionArgumentIsNull(
+            String scenario, LineId id, String externalId, LineName name, LineType type, LineColors colors) {
+        assertThatThrownBy(() -> Line.reconstitute(id, externalId, name, type, colors))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest(name = "externalId = \"{0}\"")
+    @MethodSource("blankExternalIds")
+    void shouldThrowIllegalArgumentExceptionWhenReconstitutedExternalIdIsEmptyOrBlank(String externalId) {
+        assertThatThrownBy(() -> Line.reconstitute(ID, externalId, NAME, TYPE, COLORS))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "externalId = \"{0}\"")
+    @MethodSource("paddedExternalIds")
+    void shouldStripExternalIdWhenReconstitutingWithSurroundingWhitespace(String externalId) {
+        Line line = Line.reconstitute(ID, externalId, NAME, TYPE, COLORS);
+
+        assertThat(line.getExternalId()).isEqualTo(EXTERNAL_ID);
+    }
+
+    @Test
+    void shouldKeepGivenIdAndValuesWhenReconstituting() {
+        Line line = Line.reconstitute(ID, EXTERNAL_ID, NAME, TYPE, COLORS);
+
+        assertThat(line.getId()).isEqualTo(ID);
+        assertThat(line.getExternalId()).isEqualTo(EXTERNAL_ID);
+        assertThat(line.getName()).isEqualTo(NAME);
+        assertThat(line.getType()).isEqualTo(TYPE);
+        assertThat(line.getColors()).isEqualTo(COLORS);
     }
 
     @Test
@@ -103,6 +137,24 @@ class LineTest {
 
     private static Line lineWithoutColors(String externalId) {
         return Line.createLine(externalId, NAME, TYPE, null);
+    }
+
+    private static Stream<String> blankExternalIds() {
+        return Stream.of("", " ", "   ", "\t", "\n", " \t\n ");
+    }
+
+    private static Stream<String> paddedExternalIds() {
+        return Stream.of(" L1", "L1 ", "  L1\t", "\nL1\n");
+    }
+
+    private static Stream<Arguments> invalidReconstitutionNullArguments() {
+        return Stream.of(
+                Arguments.of("id is null", null, EXTERNAL_ID, NAME, TYPE, COLORS),
+                Arguments.of("externalId is null", ID, null, NAME, TYPE, COLORS),
+                Arguments.of("name is null", ID, EXTERNAL_ID, null, TYPE, COLORS),
+                Arguments.of("type is null", ID, EXTERNAL_ID, NAME, null, COLORS),
+                Arguments.of("colors is null", ID, EXTERNAL_ID, NAME, TYPE, null)
+        );
     }
 
     private static Stream<Arguments> invalidNullArguments() {

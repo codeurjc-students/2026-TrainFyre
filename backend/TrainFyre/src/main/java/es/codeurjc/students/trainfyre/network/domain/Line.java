@@ -3,6 +3,8 @@ package es.codeurjc.students.trainfyre.network.domain;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.Entity;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 public class Line {
@@ -22,6 +24,9 @@ public class Line {
     }
 
     public static Line createLine(String externalId, LineName name, LineType type, LineColors colors) {
+        Objects.requireNonNull(externalId);
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(type);
         return new Line(null, externalId, name, type, colors);
     }
 }

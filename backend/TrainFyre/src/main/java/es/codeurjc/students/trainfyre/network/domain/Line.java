@@ -48,4 +48,8 @@ public class Line {
         return normalized;
     }
 
+    protected void update(LineChanges lineChanges){
+        throw new UnsupportedOperationException();
+    }
+
 }

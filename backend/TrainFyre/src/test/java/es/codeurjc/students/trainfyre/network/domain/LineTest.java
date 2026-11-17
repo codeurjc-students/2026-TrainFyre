@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +21,9 @@ class LineTest {
     private static final LineName NAME = new LineName("L1", "Line 1");
     private static final LineType TYPE = LineType.METRO;
     private static final LineColors COLORS = new LineColors(new HexColor("FF0000"), new HexColor("FFFFFF"));
+    private static final LineName NEW_NAME = new LineName("L2", "Line 2");
+    private static final LineType NEW_TYPE = LineType.BUS;
+    private static final LineColors NEW_COLORS = new LineColors(new HexColor("00FF00"), new HexColor("000000"));
     private static final HexColor BLACK = new HexColor("000000");
     private static final int CONSECUTIVE_LINES = 10;
 
@@ -137,6 +141,49 @@ class LineTest {
 
     private static Line lineWithoutColors(String externalId) {
         return Line.createLine(externalId, NAME, TYPE, null);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("partialUpdates")
+    void shouldReplaceGivenValuesAndKeepTheRestWhenSomeChangesAreNull(String scenario, LineChanges changes) {
+        Line line = existingLine();
+
+        line.update(changes);
+
+        assertThat(line.getName()).isEqualTo(Objects.requireNonNullElse(changes.name(), NAME));
+        assertThat(line.getType()).isEqualTo(Objects.requireNonNullElse(changes.type(), TYPE));
+        assertThat(line.getColors()).isEqualTo(Objects.requireNonNullElse(changes.colors(), COLORS));
+    }
+
+    @Test
+    void shouldKeepIdAndExternalIdWhenUpdating() {
+        Line line = existingLine();
+
+        line.update(new LineChanges(NEW_NAME, NEW_TYPE, NEW_COLORS));
+
+        assertThat(line.getId()).isEqualTo(ID);
+        assertThat(line.getExternalId()).isEqualTo(EXTERNAL_ID);
+    }
+
+    @Test
+    void shouldThrowNullPointerExceptionWhenChangesAreNull() {
+        Line line = existingLine();
+
+        assertThatThrownBy(() -> line.update(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    private static Line existingLine() {
+        return Line.reconstitute(ID, EXTERNAL_ID, NAME, TYPE, COLORS);
+    }
+
+    private static Stream<Arguments> partialUpdates() {
+        return Stream.of(
+                Arguments.of("only name", new LineChanges(NEW_NAME, null, null)),
+                Arguments.of("only type", new LineChanges(null, NEW_TYPE, null)),
+                Arguments.of("only colors", new LineChanges(null, null, NEW_COLORS)),
+                Arguments.of("all three", new LineChanges(NEW_NAME, NEW_TYPE, NEW_COLORS))
+        );
     }
 
     private static Stream<String> blankExternalIds() {

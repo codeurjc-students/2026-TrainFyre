@@ -33,7 +33,12 @@ public class Line {
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
 
+        if(colors == null) {
+            colors = LineColors.defaultFor(normalizedExternalId);
+        }
+
         return new Line(null, normalizedExternalId, name, type, colors);
 
     }
+
 }

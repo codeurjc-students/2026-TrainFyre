@@ -44,7 +44,18 @@ public class Line {
     }
 
     public static Line reconstitute(LineId id, String externalId, LineName name, LineType type, LineColors colors) {
-        throw new UnsupportedOperationException();
+
+        Objects.requireNonNull(id, "id should not be null");
+        Objects.requireNonNull(externalId, "external id should not be null");
+
+        if(externalId.isBlank()) throw new IllegalArgumentException("external id cannot be blank");
+
+        Objects.requireNonNull(name, "name should not be null");
+        Objects.requireNonNull(type, "line type should not be null");
+        Objects.requireNonNull(colors, "line colors should not be null");
+
+        return new Line(id, externalId.trim(), name, type, colors);
+
     }
 
 }

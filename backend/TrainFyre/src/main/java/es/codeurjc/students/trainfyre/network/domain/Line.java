@@ -24,9 +24,16 @@ public class Line {
     }
 
     public static Line createLine(String externalId, LineName name, LineType type, LineColors colors) {
+
         Objects.requireNonNull(externalId);
+
+        String normalizedExternalId = externalId.strip();
+        if(normalizedExternalId.isEmpty()) throw new IllegalArgumentException();
+
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
-        return new Line(null, externalId, name, type, colors);
+
+        return new Line(null, normalizedExternalId, name, type, colors);
+
     }
 }

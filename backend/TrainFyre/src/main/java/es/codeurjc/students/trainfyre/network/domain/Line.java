@@ -20,42 +20,32 @@ public class Line {
     private Line(LineId id, String externalId, LineName name, LineType type, LineColors colors) {
         this.id = id;
         this.externalId = externalId;
-        this.name = name;
-        this.type = type;
-        this.colors = colors;
+        this.name = Objects.requireNonNull(name, "name should not be null");
+        this.type = Objects.requireNonNull(type, "line type should not be null");
+        this.colors = Objects.requireNonNull(colors, "line colors should not be null");
     }
 
     public static Line createLine(String externalId, LineName name, LineType type, LineColors colors) {
+        String normalizedExternalId = normalizeExternalId(externalId);
+        LineColors resolvedColors = colors != null ? colors : LineColors.defaultFor(normalizedExternalId);
 
-        Objects.requireNonNull(externalId);
-
-        String normalizedExternalId = externalId.strip();
-        if(normalizedExternalId.isEmpty()) throw new IllegalArgumentException();
-
-        Objects.requireNonNull(name);
-        Objects.requireNonNull(type);
-
-        if(colors == null) {
-            colors = LineColors.defaultFor(normalizedExternalId);
-        }
-
-        return new Line(null, normalizedExternalId, name, type, colors);
-
+        return new Line(null, normalizedExternalId, name, type, resolvedColors);
     }
 
     public static Line reconstitute(LineId id, String externalId, LineName name, LineType type, LineColors colors) {
-
         Objects.requireNonNull(id, "id should not be null");
+
+        return new Line(id, normalizeExternalId(externalId), name, type, colors);
+    }
+
+    private static String normalizeExternalId(String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");
 
-        if(externalId.isBlank()) throw new IllegalArgumentException("external id cannot be blank");
-
-        Objects.requireNonNull(name, "name should not be null");
-        Objects.requireNonNull(type, "line type should not be null");
-        Objects.requireNonNull(colors, "line colors should not be null");
-
-        return new Line(id, externalId.trim(), name, type, colors);
-
+        String normalized = externalId.strip();
+        if (normalized.isEmpty()) {
+            throw new IllegalArgumentException("external id cannot be blank");
+        }
+        return normalized;
     }
 
 }

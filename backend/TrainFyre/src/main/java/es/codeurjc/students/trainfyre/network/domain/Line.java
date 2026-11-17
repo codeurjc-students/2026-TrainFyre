@@ -2,6 +2,7 @@ package es.codeurjc.students.trainfyre.network.domain;
 
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.Entity;
+import org.jmolecules.ddd.annotation.Identity;
 
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 @Getter
 public class Line {
 
+    @Identity
     private final LineId id;
     private final String externalId;
     private LineName name;

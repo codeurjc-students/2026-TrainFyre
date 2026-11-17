@@ -7,4 +7,10 @@ import org.jmolecules.ddd.annotation.ValueObject;
  */
 @ValueObject
 public record LineChanges(LineName name, LineType type, LineColors colors) {
+
+    public LineChanges {
+
+        if(name == null && type == null && colors == null) throw new IllegalArgumentException("at least one change must be declared");
+
+    }
 }

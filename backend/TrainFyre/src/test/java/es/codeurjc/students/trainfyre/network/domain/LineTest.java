@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
@@ -23,6 +24,21 @@ class LineTest {
             String scenario, String externalId, LineName name, LineType type) {
         assertThatThrownBy(() -> Line.createLine(externalId, name, type, COLORS))
                 .isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest(name = "externalId = {0}")
+    @ValueSource(strings = {"", " ", "   ", "\t", "\n", " \t\n "})
+    void shouldThrowIllegalArgumentExceptionWhenExternalIdIsEmptyOrBlank(String externalId) {
+        assertThatThrownBy(() -> Line.createLine(externalId, NAME, TYPE, COLORS))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "externalId = \"{0}\"")
+    @ValueSource(strings = {" L1", "L1 ", "  L1\t", "\nL1\n"})
+    void shouldStripExternalIdWhenItHasSurroundingWhitespace(String externalId) {
+        Line line = Line.createLine(externalId, NAME, TYPE, COLORS);
+
+        assertThat(line.getExternalId()).isEqualTo(EXTERNAL_ID);
     }
 
     @Test

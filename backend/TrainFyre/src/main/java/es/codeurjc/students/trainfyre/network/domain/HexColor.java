@@ -10,18 +10,18 @@ import java.util.regex.Pattern;
 public record HexColor(String value) {
 
     private static final String HASH_PREFIX = "#";
-    private static final Pattern SIX_HEX_DIGITS = Pattern.compile("^[A-F0-9]{6}$");
+    private static final Pattern SIX_HEX_DIGITS = Pattern.compile("[A-F0-9]{6}");
 
     public HexColor {
         Objects.requireNonNull(value, "color should not be null");
         value = normalize(value);
         if (!SIX_HEX_DIGITS.matcher(value).matches()) {
-            throw new IllegalArgumentException("value is not a hexadecimal color");
+            throw new IllegalArgumentException("not a six-digit hexadecimal color: " + value);
         }
     }
 
     private static String normalize(String raw) {
-        String trimmed = raw.trim();
+        String trimmed = raw.strip();
         if (trimmed.startsWith(HASH_PREFIX)) {
             trimmed = trimmed.substring(HASH_PREFIX.length());
         }

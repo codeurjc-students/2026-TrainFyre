@@ -12,5 +12,7 @@ public record DataSource(String provider, String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");
         if(provider.isBlank()) throw new IllegalArgumentException("provider should not be empty or blank");
         if(externalId.isBlank()) throw new IllegalArgumentException("provider should not be empty or blank");
+        provider = provider.strip().toLowerCase();
+        externalId = externalId.strip();
     }
 }

@@ -220,10 +220,10 @@ test('un administrador consulta su cuenta y publica una incidencia', async ({ pa
             body = { accessToken: jwt, tokenType: 'Bearer', expiresIn: 900 }
         } else if (path === `${API_PATH}/users/me`) {
             body = { username: 'admin', roles: ['ADMIN'], alertSubscriptions: [] }
-        } else if (path === `${API_PATH}/incidence` && request.method() === 'POST') {
+        } else if (path === `${API_PATH}/incidences` && request.method() === 'POST') {
             body = INCIDENCE_ID
             status = 201
-        } else if (path === `${API_PATH}/incidence/${INCIDENCE_ID}`) {
+        } else if (path === `${API_PATH}/incidences/${INCIDENCE_ID}`) {
             body = {
                 id: INCIDENCE_ID,
                 affectedNetwork: { mapId: 1, lineIds: [4] },
@@ -260,7 +260,7 @@ test('un administrador consulta su cuenta y publica una incidencia', async ({ pa
     await page.getByRole('button', { name: 'Crear incidencia' }).click()
 
     await expect(page.getByRole('heading', { name: 'Qué está ocurriendo' })).toBeVisible()
-    expect(calls).toContain(`POST ${API_PATH}/incidence`)
+    expect(calls).toContain(`POST ${API_PATH}/incidences`)
 })
 
 test('muestra y recupera un error de carga de incidencias', async ({ page }) => {
@@ -269,7 +269,7 @@ test('muestra y recupera un error de carga de incidencias', async ({ page }) => 
     await page.route(`${API_ORIGIN}${API_PATH}/**`, async route => {
         const path = new URL(route.request().url()).pathname
 
-        if (path !== `${API_PATH}/incidence`) {
+        if (path !== `${API_PATH}/incidences`) {
             await route.fulfill({
                 status: 404,
                 headers: CORS_HEADERS,

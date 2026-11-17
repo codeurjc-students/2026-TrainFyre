@@ -83,8 +83,8 @@ public final class TrainFyreLoadSimulation extends Simulation {
                             int page = ThreadLocalRandom.current().nextInt(pageCount);
                             return session.set("pageSize", pageSize).set("page", page);
                         })
-                        .exec(http("GET /api/v1/incidence")
-                                .get("/api/v1/incidence")
+                        .exec(http("GET /api/v1/incidences")
+                                .get("/api/v1/incidences")
                                 .queryParam("page", session -> Integer.toString(session.getInt("page")))
                                 .queryParam("size", session -> Integer.toString(session.getInt("pageSize")))
                                 .check(status().is(200))
@@ -107,8 +107,8 @@ public final class TrainFyreLoadSimulation extends Simulation {
         ScenarioBuilder incidenceDetailScenario = scenario("04 - Incidence details")
                 .exec(adminLogin())
                 .exec(session -> session.set("incidenceId", randomIncidenceId()))
-                .exec(http("GET /api/v1/incidence/{id}")
-                        .get("/api/v1/incidence/#{incidenceId}")
+                .exec(http("GET /api/v1/incidences/{id}")
+                        .get("/api/v1/incidences/#{incidenceId}")
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + "#{accessToken}")
                         .check(status().is(200)))
                 .pause(1, 3);
@@ -116,8 +116,8 @@ public final class TrainFyreLoadSimulation extends Simulation {
         ScenarioBuilder incidenceCrudScenario = scenario("05 - Incidence create/read/update/delete")
                 .exec(adminLogin())
                 .exec(session -> session.set("incidenceName", "Load-" + UUID.randomUUID()))
-                .exec(http("POST /api/v1/incidence")
-                        .post("/api/v1/incidence")
+                .exec(http("POST /api/v1/incidences")
+                        .post("/api/v1/incidences")
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + "#{accessToken}")
                         .asJson()
                         .body(StringBody(session -> createIncidenceBody(session.getString("incidenceName"))))
@@ -125,23 +125,21 @@ public final class TrainFyreLoadSimulation extends Simulation {
                         .check(jsonPath("$").saveAs("createdIncidenceId")))
                 .exitHereIfFailed()
                 .pause(Duration.ofMillis(200))
-                .exec(http("GET /api/v1/incidence/{id} [created]")
-                        .get("/api/v1/incidence/#{createdIncidenceId}")
+                .exec(http("GET /api/v1/incidences/{id} [created]")
+                        .get("/api/v1/incidences/#{createdIncidenceId}")
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + "#{accessToken}")
                         .check(status().is(200)))
                 .pause(Duration.ofMillis(200))
-                .exec(http("PUT /api/v1/incidence")
-                        .put("/api/v1/incidence")
+                .exec(http("PUT /api/v1/incidences/{id}")
+                        .put("/api/v1/incidences/#{createdIncidenceId}")
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + "#{accessToken}")
                         .asJson()
-                        .body(StringBody(session -> updateIncidenceBody(session.getString("createdIncidenceId"))))
+                        .body(StringBody(session -> updateIncidenceBody()))
                         .check(status().is(204)))
                 .pause(Duration.ofMillis(200))
-                .exec(http("DELETE /api/v1/incidence")
-                        .delete("/api/v1/incidence")
+                .exec(http("DELETE /api/v1/incidences/{id}")
+                        .delete("/api/v1/incidences/#{createdIncidenceId}")
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + "#{accessToken}")
-                        .asJson()
-                        .body(StringBody(session -> deleteIncidenceBody(session.getString("createdIncidenceId"))))
                         .check(status().is(204)));
 
         ScenarioBuilder userLifecycleScenario = scenario("06 - User registration and self-management")
@@ -321,10 +319,9 @@ public final class TrainFyreLoadSimulation extends Simulation {
             String token = loginAndGetToken(client, config.adminUsername(), config.adminPassword());
             for (String id : createdSeedIncidenceIds) {
                 HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(config.baseUrl() + "/api/v1/incidence"))
-                        .header("Content-Type", CONTENT_TYPE_JSON)
+                        .uri(URI.create(config.baseUrl() + "/api/v1/incidences/" + id))
                         .header(AUTHORIZATION_HEADER, BEARER_PREFIX + token)
-                        .method("DELETE", HttpRequest.BodyPublishers.ofString(deleteIncidenceBody(id)))
+                        .DELETE()
                         .build();
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() != 204) {
@@ -374,14 +371,14 @@ public final class TrainFyreLoadSimulation extends Simulation {
 
     private List<String> readIncidenceIds(HttpClient client) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.baseUrl() + "/api/v1/incidence?page=0&size=300"))
+                .uri(URI.create(config.baseUrl() + "/api/v1/incidences?page=0&size=300"))
                 .header("Accept", CONTENT_TYPE_JSON)
                 .GET()
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
             throw new IllegalStateException(
-                    "GET /api/v1/incidence failed: HTTP " + response.statusCode() + " - " + response.body()
+                    "GET /api/v1/incidences failed: HTTP " + response.statusCode() + " - " + response.body()
             );
         }
 
@@ -399,7 +396,7 @@ public final class TrainFyreLoadSimulation extends Simulation {
     private String createSeedIncidence(HttpClient client, String token, int index)
             throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.baseUrl() + "/api/v1/incidence"))
+                .uri(URI.create(config.baseUrl() + "/api/v1/incidences"))
                 .header("Content-Type", CONTENT_TYPE_JSON)
                 .header(AUTHORIZATION_HEADER, BEARER_PREFIX + token)
                 .POST(HttpRequest.BodyPublishers.ofString(createIncidenceBody("Load-seed-" + index)))
@@ -421,7 +418,7 @@ public final class TrainFyreLoadSimulation extends Simulation {
     private void verifyAdminAccess(HttpClient client, String token, String id)
             throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(config.baseUrl() + "/api/v1/incidence/" + id))
+                .uri(URI.create(config.baseUrl() + "/api/v1/incidences/" + id))
                 .header(AUTHORIZATION_HEADER, BEARER_PREFIX + token)
                 .GET()
                 .build();
@@ -534,13 +531,9 @@ public final class TrainFyreLoadSimulation extends Simulation {
                 + "}";
     }
 
-    private static String updateIncidenceBody(String id) {
-        return "{\"uuid\":\"" + id + "\",\"changeDescription\":{"
+    private static String updateIncidenceBody() {
+        return "{\"description\":{"
                 + "\"name\":\"Load updated\",\"summary\":\"Updated by load test\"}}";
-    }
-
-    private static String deleteIncidenceBody(String id) {
-        return "{\"id\":\"" + id + "\"}";
     }
 
     private static String extractUuid(String body) {

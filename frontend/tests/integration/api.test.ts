@@ -57,7 +57,7 @@ afterEach(() => {
 })
 
 describe('Cliente HTTP', () => {
-    it('inicia sesión y envía DELETE de incidencia con cuerpo JSON', async () => {
+    it('inicia sesión y envía DELETE de incidencia con el id en la URL', async () => {
         const fetchMock = vi.fn()
         vi.stubGlobal('fetch', fetchMock)
 
@@ -71,12 +71,10 @@ describe('Cliente HTTP', () => {
 
         const [url, options] = fetchMock.mock.calls.at(-1)!
 
-        expect(url).toBe('https://api.test/api/v1/incidence')
+        expect(url).toBe(`https://api.test/api/v1/incidences/${USER_ID}`)
         expect(options.method).toBe('DELETE')
 
-        expect(
-            JSON.parse(options.body),
-        ).toEqual({ id: USER_ID })
+        expect(options.body).toBeUndefined()
 
         expect(
             options.headers.Authorization,
@@ -93,7 +91,7 @@ describe('Cliente HTTP', () => {
             new Response('{}'),
         )
 
-        await request('/incidence?page=0&size=2', {
+        await request('/incidences?page=0&size=2', {
             public: true,
         })
 

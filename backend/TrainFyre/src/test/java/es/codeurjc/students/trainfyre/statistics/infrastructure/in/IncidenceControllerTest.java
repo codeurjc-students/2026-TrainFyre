@@ -90,7 +90,7 @@ class IncidenceControllerTest {
                 }
                 """.formatted(Severity.MODERATE.name(), Cause.WEATHER.name());
 
-        mockMvc.perform(post("/api/v1/incidence")
+        mockMvc.perform(post("/api/v1/incidences")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -114,11 +114,10 @@ class IncidenceControllerTest {
                         )
                 );
 
-        mockMvc.perform(get("/api/v1/incidence")
+        mockMvc.perform(get("/api/v1/incidences")
                         .param("page", "0")
                         .param("size", "10"))
                 .andExpect(status().isOk());
-
 
         verify(getAllIncidencesPaginatedUseCase).execute(getAllIncidencesPaginatedQuery);
     }
@@ -130,14 +129,12 @@ class IncidenceControllerTest {
         GetIncidenceByIdQuery getIncidenceByIdQuery = new GetIncidenceByIdQuery(id);
         Incidence incidence = anIncidence().build();
 
-
         when(getIncidenceByIdUseCase.execute(getIncidenceByIdQuery)).thenReturn(incidence.getIncidenceDetails());
 
-        mockMvc.perform(get("/api/v1/incidence/{id}", id))
+        mockMvc.perform(get("/api/v1/incidences/{id}", id))
                 .andExpect(status().isOk());
 
         verify(getIncidenceByIdUseCase).execute(getIncidenceByIdQuery);
-
     }
 
     @Test
@@ -152,16 +149,15 @@ class IncidenceControllerTest {
         );
 
         String json = """
-            {
-              "uuid": "123e4567-e89b-12d3-a456-426614174000",
-              "changeDescription": {
-                "name": "Avería actualizada",
-                "summary": "Servicio restablecido"
-              }
-            }
-            """;
+                {
+                  "description": {
+                    "name": "Avería actualizada",
+                    "summary": "Servicio restablecido"
+                  }
+                }
+                """;
 
-        mockMvc.perform(put("/api/v1/incidence")
+        mockMvc.perform(put("/api/v1/incidences/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isNoContent())
@@ -175,21 +171,10 @@ class IncidenceControllerTest {
         UUID id = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         DeleteIncidenceCommand command = new DeleteIncidenceCommand(id);
 
-        String json = """
-            {
-              "id": "123e4567-e89b-12d3-a456-426614174000"
-            }
-            """;
-
-        mockMvc.perform(delete("/api/v1/incidence")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json))
+        mockMvc.perform(delete("/api/v1/incidences/{id}", id))
                 .andExpect(status().isNoContent())
                 .andExpect(content().string(""));
 
         verify(deleteIncidenceUseCase).execute(command);
     }
-
-
-
 }

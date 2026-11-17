@@ -198,13 +198,10 @@ describe('operaciones de API', () => {
         expect(fetchMock.mock.calls[0][1].method).toBe('POST')
         expect(fetchMock.mock.calls[1][1].method).toBe('PUT')
         expect(fetchMock.mock.calls[2][1].method).toBe('DELETE')
-        expect(JSON.parse(fetchMock.mock.calls[4][1].body)).toEqual({
-            uuid: ID,
-            changeAffectedNetwork: incidence.affectedNetwork,
-            changeOccurrence: incidence.occurrence,
-            changeDescription: incidence.description,
-            changeClassification: incidence.classification,
-        })
+        expect(fetchMock.mock.calls[4][0]).toContain(`/incidences/${ID}`)
+        expect(JSON.parse(fetchMock.mock.calls[4][1].body)).toEqual(incidence)
+        expect(fetchMock.mock.calls[5][0]).toContain(`/incidences/${ID}`)
+        expect(fetchMock.mock.calls[5][1].body).toBeUndefined()
     })
 })
 

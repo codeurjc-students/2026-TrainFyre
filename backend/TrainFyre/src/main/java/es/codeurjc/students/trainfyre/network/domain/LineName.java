@@ -6,21 +6,18 @@ import org.jmolecules.ddd.annotation.ValueObject;
 public record LineName(String shortName, String longName) {
 
     public LineName {
+        String cleanShortName = stripOrNull(shortName);
+        String cleanLongName = stripOrNull(longName);
 
-        if((shortName == null || shortName.trim() == "") && (longName == null || longName.trim() == "")) throw new IllegalArgumentException("both arguments cannot be null, at least one");
-
-        if((shortName != null && shortName.trim() != "") && (longName == null || longName.trim() == "")) {
-            shortName = shortName.strip();
-            longName = shortName.strip();
-        } else if ((shortName == null || shortName.trim() == "") && (longName != null && longName.trim() != "")) {
-            shortName = longName.strip();
-            longName = longName.strip();
-        }
-        else {
-            shortName = shortName.strip();
-            longName = longName.strip();
+        if (cleanShortName == null && cleanLongName == null) {
+            throw new IllegalArgumentException("at least one of shortName and longName is required");
         }
 
+        shortName = cleanShortName != null ? cleanShortName : cleanLongName;
+        longName = cleanLongName != null ? cleanLongName : cleanShortName;
+    }
 
+    private static String stripOrNull(String raw) {
+        return raw == null || raw.isBlank() ? null : raw.strip();
     }
 }

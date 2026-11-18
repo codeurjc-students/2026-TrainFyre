@@ -25,6 +25,9 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class TransportMapTest {
 
+    private static final String FIRST_EXTERNAL_ID = "C1";
+    private static final String SECOND_EXTERNAL_ID = "C2";
+    private static final String THIRD_EXTERNAL_ID = "C3";
     private static final DataSource SOURCE = new DataSource("renfe", "cercanias-madrid");
     private static final DataSource OTHER_SOURCE = new DataSource("metro", "metro-madrid");
     private static final MapMetadata METADATA =
@@ -38,20 +41,23 @@ class TransportMapTest {
             new MapMetadata(SOURCE, "Cercanias Madrid", ZoneId.of("Europe/Madrid"), "ES", URI.create("https://www.renfe.com"));
     private static final LineId UPDATABLE_LINE_ID = new LineId(1L);
     private static final LineId OTHER_LINE_ID = new LineId(2L);
-    private static final String UPDATABLE_EXTERNAL_ID = "C2";
+    private static final String UPDATABLE_EXTERNAL_ID = SECOND_EXTERNAL_ID;
     private static final LineName NEW_LINE_NAME = new LineName("N1", "New line");
     private static final LineType NEW_LINE_TYPE = LineType.METRO;
     private static final LineColors NEW_LINE_COLORS = new LineColors(new HexColor("00FF00"), new HexColor("000000"));
     private static final LineChanges LINE_CHANGES = new LineChanges(NEW_LINE_NAME, NEW_LINE_TYPE, NEW_LINE_COLORS);
     private static final Instant LATER = NOW.plusSeconds(3600);
     private static final Instant EARLIER = NOW.minusSeconds(3600);
-    private static final Line LINE_WITHOUT_ID = newLine(null, "C1");
-    private static final Line LINE_WITH_ID = newLine(1L, "C2");
-    private static final Line SECOND_LINE_WITH_ID = newLine(2L, "C3");
+    private static final Line LINE_WITHOUT_ID = newLine(null, FIRST_EXTERNAL_ID);
+    private static final Line LINE_WITH_ID = newLine(1L, SECOND_EXTERNAL_ID);
+    private static final Line SECOND_LINE_WITH_ID = newLine(2L, THIRD_EXTERNAL_ID);
 
-    @Test
-    void shouldThrowNullPointerExceptionWhenMetadataIsNull() {
-        assertThatThrownBy(() -> TransportMap.createTransportMap(null, NOW))
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForCreate")
+    void shouldThrowNullPointerExceptionWhenMapIsCreatedWithNullArguments(String scenario,
+                                                                          MapMetadata metadata,
+                                                                          Instant now) {
+        assertThatThrownBy(() -> TransportMap.createTransportMap(metadata, now))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -62,12 +68,6 @@ class TransportMapTest {
 
         assertThat(first.getId()).isNotNull();
         assertThat(first.getId()).isNotEqualTo(second.getId());
-    }
-
-    @Test
-    void shouldThrowNullPointerExceptionWhenNowIsNull() {
-        assertThatThrownBy(() -> TransportMap.createTransportMap(METADATA, null))
-                .isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -100,7 +100,7 @@ class TransportMapTest {
     }
 
     private static Stream<Arguments> lineViewModifications() {
-        Line line = Line.createLine("C1", new LineName("C1", "Cercanias C1"), LineType.RAIL, null);
+        Line line = Line.createLine(FIRST_EXTERNAL_ID, new LineName(FIRST_EXTERNAL_ID, "Cercanias C1"), LineType.RAIL, null);
         Map<String, Consumer<Collection<Line>>> modifications = Map.of(
                 "add", lines -> lines.add(line),
                 "remove", lines -> lines.remove(line),
@@ -208,7 +208,9 @@ class TransportMapTest {
 
     @Test
     void shouldThrowIllegalArgumentExceptionWhenReconstitutedLineHasNoId() {
-        assertThatThrownBy(() -> TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITHOUT_ID)))
+        List<Line> lines = List.of(LINE_WITHOUT_ID);
+
+        assertThatThrownBy(() -> TransportMap.reconstitute(MAP_ID, METADATA, NOW, lines))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -614,7 +616,7 @@ class TransportMapTest {
 
         ref.update(map, LINE_CHANGES, LATER);
 
-        assertLineHasOriginalValues(map.findLine(OTHER_LINE_ID), newLine(2L, "C3"));
+        assertLineHasOriginalValues(map.findLine(OTHER_LINE_ID), newLine(2L, THIRD_EXTERNAL_ID));
     }
 
     @ParameterizedTest(name = "{0}")
@@ -643,7 +645,7 @@ class TransportMapTest {
 
         catchThrowable(() -> ref.update(map, LINE_CHANGES, now));
 
-        assertLineHasOriginalValues(map.findLine(UPDATABLE_LINE_ID), newLine(1L, "C2"));
+        assertLineHasOriginalValues(map.findLine(UPDATABLE_LINE_ID), newLine(1L, SECOND_EXTERNAL_ID));
         assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
     }
 
@@ -702,8 +704,9 @@ class TransportMapTest {
         TransportMap map = mapWithLinesWithAndWithoutId();
 
         ref.remove(map, LATER);
+        Line lineWithSameIdentity = newLine(1L, SECOND_EXTERNAL_ID);
 
-        assertThatCode(() -> map.addLine(newLine(1L, "C2"))).doesNotThrowAnyException();
+        assertThatCode(() -> map.addLine(lineWithSameIdentity)).doesNotThrowAnyException();
     }
 
     @ParameterizedTest(name = "{0}")
@@ -826,7 +829,7 @@ class TransportMapTest {
     }
 
     private static TransportMap mapWithUpdatableLines() {
-        return TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(newLine(1L, "C2"), newLine(2L, "C3")));
+        return TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(newLine(1L, SECOND_EXTERNAL_ID), newLine(2L, THIRD_EXTERNAL_ID)));
     }
 
 
@@ -836,8 +839,8 @@ class TransportMapTest {
 
     private static Stream<Arguments> existingLinesByExternalId() {
         return Stream.of(
-                Arguments.of("line with id", "C2", LINE_WITH_ID),
-                Arguments.of("line without id", "C1", LINE_WITHOUT_ID),
+                Arguments.of("line with id", SECOND_EXTERNAL_ID, LINE_WITH_ID),
+                Arguments.of("line without id", FIRST_EXTERNAL_ID, LINE_WITHOUT_ID),
                 Arguments.of("external id with surrounding blanks", " \tC2\n ", LINE_WITH_ID));
     }
 
@@ -849,8 +852,8 @@ class TransportMapTest {
 
     private static Stream<Arguments> duplicatedLinesToAdd() {
         return Stream.of(
-                Arguments.of("same external id without id", newLine(null, "C2")),
-                Arguments.of("same external id with id", newLine(5L, "C2")),
+                Arguments.of("same external id without id", newLine(null, SECOND_EXTERNAL_ID)),
+                Arguments.of("same external id with id", newLine(5L, SECOND_EXTERNAL_ID)),
                 Arguments.of("same line id", newLine(1L, "C9")));
     }
 
@@ -920,8 +923,14 @@ class TransportMapTest {
 
     private static Stream<Arguments> duplicatedPersistedLines() {
         return Stream.of(
-                Arguments.of("same external id", List.of(newLine(1L, "C1"), newLine(2L, "C1"))),
-                Arguments.of("same line id", List.of(newLine(1L, "C1"), newLine(1L, "C2"))));
+                Arguments.of("same external id", List.of(newLine(1L, FIRST_EXTERNAL_ID), newLine(2L, FIRST_EXTERNAL_ID))),
+                Arguments.of("same line id", List.of(newLine(1L, FIRST_EXTERNAL_ID), newLine(1L, SECOND_EXTERNAL_ID))));
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForCreate() {
+        return Stream.of(
+                Arguments.of("null metadata", null, NOW),
+                Arguments.of("null now", METADATA, null));
     }
 
     private static Stream<Arguments> invalidNullArgumentsForCreateWithLines() {
@@ -934,9 +943,9 @@ class TransportMapTest {
 
     private static Stream<Arguments> duplicatedLines() {
         return Stream.of(
-                Arguments.of("same external id", List.of(newLine(null, "C1"), newLine(null, "C1"))),
-                Arguments.of("same external id with ids", List.of(newLine(1L, "C1"), newLine(2L, "C1"))),
-                Arguments.of("same line id", List.of(newLine(1L, "C1"), newLine(1L, "C2"))));
+                Arguments.of("same external id", List.of(newLine(null, FIRST_EXTERNAL_ID), newLine(null, FIRST_EXTERNAL_ID))),
+                Arguments.of("same external id with ids", List.of(newLine(1L, FIRST_EXTERNAL_ID), newLine(2L, FIRST_EXTERNAL_ID))),
+                Arguments.of("same line id", List.of(newLine(1L, FIRST_EXTERNAL_ID), newLine(1L, SECOND_EXTERNAL_ID))));
     }
 
     private static Line newLine(Long id, String externalId) {

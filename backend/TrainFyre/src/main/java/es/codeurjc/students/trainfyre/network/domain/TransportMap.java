@@ -43,6 +43,6 @@ public class TransportMap {
     }
 
     public Collection<Line> linesByExternalId() {
-        throw new UnsupportedOperationException();
+        return Collections.unmodifiableCollection(linesByExternalId.values());
     }
 }

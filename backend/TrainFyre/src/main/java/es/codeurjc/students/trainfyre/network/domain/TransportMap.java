@@ -91,15 +91,14 @@ public class TransportMap {
         return Collections.unmodifiableCollection(linesByExternalId.values());
     }
 
-    public void updateMetadata(MapMetadata mapMetadata, Instant newLastUpdatedTime) {
-
+    public void updateMetadata(MapMetadata mapMetadata, Instant now) {
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        Objects.requireNonNull(newLastUpdatedTime, "last updated at should not be null");
-
-        if(this.lastUpdatedAt.isAfter(newLastUpdatedTime)) throw new IllegalArgumentException("last updated time cannot be after new time");
+        Objects.requireNonNull(now, "now should not be null");
+        if (now.isBefore(lastUpdatedAt)) {
+            throw new IllegalArgumentException("now cannot be before the last update");
+        }
 
         this.mapMetadata = mapMetadata;
-        this.lastUpdatedAt = newLastUpdatedTime;
-
+        this.lastUpdatedAt = now;
     }
 }

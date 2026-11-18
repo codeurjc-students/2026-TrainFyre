@@ -91,7 +91,15 @@ public class TransportMap {
         return Collections.unmodifiableCollection(linesByExternalId.values());
     }
 
-    public void updateMetadata(MapMetadata mapMetadata, Instant now) {
-        throw new UnsupportedOperationException();
+    public void updateMetadata(MapMetadata mapMetadata, Instant newLastUpdatedTime) {
+
+        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
+        Objects.requireNonNull(newLastUpdatedTime, "last updated at should not be null");
+
+        if(this.lastUpdatedAt.isAfter(newLastUpdatedTime)) throw new IllegalArgumentException("last updated time cannot be after new time");
+
+        this.mapMetadata = mapMetadata;
+        this.lastUpdatedAt = newLastUpdatedTime;
+
     }
 }

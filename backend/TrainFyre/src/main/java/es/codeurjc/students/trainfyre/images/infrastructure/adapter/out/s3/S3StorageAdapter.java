@@ -3,6 +3,7 @@ package es.codeurjc.students.trainfyre.images.infrastructure.adapter.out.s3;
 import es.codeurjc.students.trainfyre.images.application.port.out.ImagePort;
 import es.codeurjc.students.trainfyre.images.domain.Image;
 import lombok.AllArgsConstructor;
+import org.jmolecules.architecture.hexagonal.SecondaryAdapter;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.exception.SdkException;
@@ -13,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.util.Optional;
 import java.util.UUID;
 
+@SecondaryAdapter
 @Component
 @AllArgsConstructor
 public class S3StorageAdapter implements ImagePort {

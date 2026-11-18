@@ -39,7 +39,26 @@ public class TransportMap {
     }
 
     public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines){
-        throw new UnsupportedOperationException();
+
+        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
+        Objects.requireNonNull(lines, "lines shoul not be null");
+
+        Map<LineId, Line> linesById = new HashMap<>();
+        Map<String, Line> linesByExternalId = new HashMap<>();
+
+        for(Line line : lines){
+
+            if(line.getId() != null) {
+                if(linesById.containsKey(line.getId())) throw new DuplicateLineException("A line with id: " + line.getId() + " already exists");
+                linesById.put(line.getId(), line);
+            }
+
+            if(linesByExternalId.containsKey(line.getExternalId())) throw new DuplicateLineException("A line with external id: " + line.getId() + " already exists");
+            linesByExternalId.put(line.getExternalId(), line);
+
+        }
+
+        return new TransportMap(MapId.generate(), mapMetadata, null, linesById, linesByExternalId);
     }
 
     public Collection<Line> lines() {

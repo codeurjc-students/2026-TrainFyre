@@ -5,6 +5,7 @@ import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -31,6 +32,6 @@ public class TransportMap {
 
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
 
-        return null;
+        return new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<LineId, Line>(), new HashMap<String, Line>());
     }
 }

@@ -38,6 +38,10 @@ public class TransportMap {
         return new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<>(), new HashMap<>());
     }
 
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines){
+        throw new UnsupportedOperationException();
+    }
+
     public Collection<Line> lines() {
         return Collections.unmodifiableCollection(lines.values());
     }

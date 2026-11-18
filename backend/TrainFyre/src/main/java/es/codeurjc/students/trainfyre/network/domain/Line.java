@@ -51,9 +51,14 @@ public final class Line {
     void update(LineChanges lineChanges) {
         Objects.requireNonNull(lineChanges, "line changes should not be null");
 
-        if (lineChanges.name() != null) name = lineChanges.name();
-        if (lineChanges.type() != null) type = lineChanges.type();
-        if (lineChanges.colors() != null) colors = lineChanges.colors();
+        if (lineChanges.name() != null) {
+            name = lineChanges.name();
+        }
+        if (lineChanges.type() != null) {
+            type = lineChanges.type();
+        }
+        if (lineChanges.colors() != null) {
+            colors = lineChanges.colors();
+        }
     }
-
 }

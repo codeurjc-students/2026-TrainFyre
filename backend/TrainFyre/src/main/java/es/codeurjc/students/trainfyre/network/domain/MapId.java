@@ -13,6 +13,6 @@ public record MapId(UUID value) {
     }
 
     public static MapId generate() {
-        return null;
+        return new MapId(UUID.randomUUID());
     }
 }

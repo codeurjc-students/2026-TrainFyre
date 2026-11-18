@@ -7,7 +7,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.ZoneId;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,26 +40,39 @@ class TransportMapTest {
         assertThat(TransportMap.createTransportMap(METADATA).getLastUpdatedAt()).isNull();
     }
 
-    @Test
-    void shouldHaveNoLinesWhenMapIsCreated() {
-        assertThat(TransportMap.createTransportMap(METADATA).lines()).isNotNull().isEmpty();
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineViews")
+    void shouldHaveNoLinesWhenMapIsCreated(String view, Function<TransportMap, Collection<Line>> lineView) {
+        assertThat(lineView.apply(TransportMap.createTransportMap(METADATA))).isNotNull().isEmpty();
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("linesModifications")
-    void shouldThrowUnsupportedOperationExceptionWhenLinesViewIsModified(String operation,
-                                                                         Consumer<Collection<Line>> modification) {
-        Collection<Line> lines = TransportMap.createTransportMap(METADATA).lines();
+    @ParameterizedTest(name = "{0} - {1}")
+    @MethodSource("lineViewModifications")
+    void shouldThrowUnsupportedOperationExceptionWhenLineViewIsModified(String view,
+                                                                        String operation,
+                                                                        Function<TransportMap, Collection<Line>> lineView,
+                                                                        Consumer<Collection<Line>> modification) {
+        Collection<Line> lines = lineView.apply(TransportMap.createTransportMap(METADATA));
 
         assertThatThrownBy(() -> modification.accept(lines))
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
-    private static Stream<Arguments> linesModifications() {
-        Line line = Line.createLine("C1", new LineName("C1", "Cercanias C1"), LineType.RAIL, null);
+    private static Stream<Arguments> lineViews() {
         return Stream.of(
-                Arguments.of("add", (Consumer<Collection<Line>>) lines -> lines.add(line)),
-                Arguments.of("remove", (Consumer<Collection<Line>>) lines -> lines.remove(line)),
-                Arguments.of("clear", (Consumer<Collection<Line>>) Collection::clear));
+                Arguments.of("lines", (Function<TransportMap, Collection<Line>>) TransportMap::lines),
+                Arguments.of("linesByExternalId", (Function<TransportMap, Collection<Line>>) TransportMap::linesByExternalId));
+    }
+
+    private static Stream<Arguments> lineViewModifications() {
+        Line line = Line.createLine("C1", new LineName("C1", "Cercanias C1"), LineType.RAIL, null);
+        Map<String, Consumer<Collection<Line>>> modifications = Map.of(
+                "add", lines -> lines.add(line),
+                "remove", lines -> lines.remove(line),
+                "clear", Collection::clear);
+
+        return lineViews().flatMap(view -> modifications.entrySet().stream()
+                .map(modification -> Arguments.of(view.get()[0], modification.getKey(),
+                        view.get()[1], modification.getValue())));
     }
 }

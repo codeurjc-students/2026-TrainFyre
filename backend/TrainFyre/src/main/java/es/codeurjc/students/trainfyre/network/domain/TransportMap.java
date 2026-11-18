@@ -41,4 +41,8 @@ public class TransportMap {
     public Collection<Line> lines() {
         return Collections.unmodifiableCollection(lines.values());
     }
+
+    public Collection<Line> linesByExternalId() {
+        throw new UnsupportedOperationException();
+    }
 }

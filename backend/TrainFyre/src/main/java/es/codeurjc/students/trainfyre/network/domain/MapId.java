@@ -11,4 +11,8 @@ public record MapId(UUID value) {
     public MapId {
         Objects.requireNonNull(value, "map id should not be null");
     }
+
+    public static MapId generate() {
+        return null;
+    }
 }

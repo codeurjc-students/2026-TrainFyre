@@ -39,6 +39,6 @@ public class TransportMap {
     }
 
     public Collection<Line> lines() {
-        return Collections.unmodifiableCollection(linesByExternalId.values());
+        return Collections.unmodifiableCollection(lines.values());
     }
 }

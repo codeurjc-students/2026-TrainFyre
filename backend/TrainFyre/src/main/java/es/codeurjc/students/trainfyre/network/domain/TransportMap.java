@@ -33,17 +33,22 @@ public class TransportMap {
         this.linesByExternalId = linesByExternalId;
     }
 
-    public static TransportMap createTransportMap(MapMetadata mapMetadata) {
-        return createTransportMap(mapMetadata, List.of());
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Instant lastUpdatedAt) {
+        return createTransportMap(mapMetadata, List.of(), lastUpdatedAt);
     }
 
-    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines) {
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines, Instant lastUpdatedAt) {
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
         Objects.requireNonNull(lines, "lines should not be null");
+        Objects.requireNonNull(lastUpdatedAt, "last updated at should not be null");
 
-        TransportMap map = new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<>(), new HashMap<>());
+        TransportMap map = new TransportMap(MapId.generate(), mapMetadata, lastUpdatedAt, new HashMap<>(), new HashMap<>());
         lines.forEach(map::index);
         return map;
+    }
+
+    public static TransportMap reconstitute(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Collection<Line> lines) {
+        throw new UnsupportedOperationException();
     }
 
     private void index(Line line) {

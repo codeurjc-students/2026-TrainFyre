@@ -5,12 +5,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -22,33 +24,42 @@ class TransportMapTest {
 
     private static final MapMetadata METADATA =
             new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), null, null);
+    private static final Instant NOW = Instant.parse("2026-01-01T10:00:00Z");
+    private static final MapId MAP_ID = new MapId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     private static final Line LINE_WITHOUT_ID = newLine(null, "C1");
     private static final Line LINE_WITH_ID = newLine(1L, "C2");
+    private static final Line SECOND_LINE_WITH_ID = newLine(2L, "C3");
 
     @Test
     void shouldThrowNullPointerExceptionWhenMetadataIsNull() {
-        assertThatThrownBy(() -> TransportMap.createTransportMap(null))
+        assertThatThrownBy(() -> TransportMap.createTransportMap(null, NOW))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void shouldGenerateRandomIdWhenMapIsCreated() {
-        TransportMap first = TransportMap.createTransportMap(METADATA);
-        TransportMap second = TransportMap.createTransportMap(METADATA);
+        TransportMap first = TransportMap.createTransportMap(METADATA, NOW);
+        TransportMap second = TransportMap.createTransportMap(METADATA, NOW);
 
         assertThat(first.getId()).isNotNull();
         assertThat(first.getId()).isNotEqualTo(second.getId());
     }
 
     @Test
-    void shouldHaveNullLastUpdatedAtWhenMapIsCreated() {
-        assertThat(TransportMap.createTransportMap(METADATA).getLastUpdatedAt()).isNull();
+    void shouldThrowNullPointerExceptionWhenNowIsNull() {
+        assertThatThrownBy(() -> TransportMap.createTransportMap(METADATA, null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldSetLastUpdatedAtToNowWhenMapIsCreated() {
+        assertThat(TransportMap.createTransportMap(METADATA, NOW).getLastUpdatedAt()).isEqualTo(NOW);
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("lineViews")
     void shouldHaveNoLinesWhenMapIsCreated(String view, Function<TransportMap, Collection<Line>> lineView) {
-        assertThat(lineView.apply(TransportMap.createTransportMap(METADATA))).isNotNull().isEmpty();
+        assertThat(lineView.apply(TransportMap.createTransportMap(METADATA, NOW))).isNotNull().isEmpty();
     }
 
     @ParameterizedTest(name = "{0} - {1}")
@@ -57,7 +68,7 @@ class TransportMapTest {
                                                                         String operation,
                                                                         Function<TransportMap, Collection<Line>> lineView,
                                                                         Consumer<Collection<Line>> modification) {
-        Collection<Line> lines = lineView.apply(TransportMap.createTransportMap(METADATA));
+        Collection<Line> lines = lineView.apply(TransportMap.createTransportMap(METADATA, NOW));
 
         assertThatThrownBy(() -> modification.accept(lines))
                 .isInstanceOf(UnsupportedOperationException.class);
@@ -85,29 +96,30 @@ class TransportMapTest {
     @MethodSource("invalidNullArgumentsForCreateWithLines")
     void shouldThrowNullPointerExceptionWhenMapIsCreatedFromLinesWithNullArguments(String scenario,
                                                                                    MapMetadata metadata,
-                                                                                   Collection<Line> lines) {
-        assertThatThrownBy(() -> TransportMap.createTransportMap(metadata, lines))
+                                                                                   Collection<Line> lines,
+                                                                                   Instant now) {
+        assertThatThrownBy(() -> TransportMap.createTransportMap(metadata, lines, now))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
-    void shouldInitializeIdAndLastUpdatedAtWhenMapIsCreatedFromLines() {
-        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID));
+    void shouldInitializeIdAndLastUpdatedAtToNowWhenMapIsCreatedFromLines() {
+        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID), NOW);
 
         assertThat(map.getId()).isNotNull();
-        assertThat(map.getLastUpdatedAt()).isNull();
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
     }
 
     @Test
     void shouldIndexEveryLineByExternalIdWhenMapIsCreatedFromLines() {
-        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID, LINE_WITH_ID));
+        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID, LINE_WITH_ID), NOW);
 
         assertThat(map.linesByExternalId()).containsExactlyInAnyOrder(LINE_WITHOUT_ID, LINE_WITH_ID);
     }
 
     @Test
     void shouldIndexOnlyLinesWithIdByLineIdWhenMapIsCreatedFromLines() {
-        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID, LINE_WITH_ID));
+        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID, LINE_WITH_ID), NOW);
 
         assertThat(map.lines()).containsExactly(LINE_WITH_ID);
     }
@@ -115,7 +127,7 @@ class TransportMapTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("lineViews")
     void shouldHaveNoLinesWhenMapIsCreatedFromEmptyLines(String view, Function<TransportMap, Collection<Line>> lineView) {
-        TransportMap map = TransportMap.createTransportMap(METADATA, List.of());
+        TransportMap map = TransportMap.createTransportMap(METADATA, List.of(), NOW);
 
         assertThat(lineView.apply(map)).isEmpty();
     }
@@ -123,14 +135,14 @@ class TransportMapTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("duplicatedLines")
     void shouldThrowDuplicateLineExceptionWhenMapIsCreatedFromDuplicatedLines(String scenario, List<Line> lines) {
-        assertThatThrownBy(() -> TransportMap.createTransportMap(METADATA, lines))
+        assertThatThrownBy(() -> TransportMap.createTransportMap(METADATA, lines, NOW))
                 .isInstanceOf(DuplicateLineException.class);
     }
 
     @Test
     void shouldNotChangeMapWhenSourceLinesAreModifiedAfterCreation() {
         List<Line> sourceLines = new ArrayList<>(List.of(LINE_WITH_ID));
-        TransportMap map = TransportMap.createTransportMap(METADATA, sourceLines);
+        TransportMap map = TransportMap.createTransportMap(METADATA, sourceLines, NOW);
 
         sourceLines.add(LINE_WITHOUT_ID);
         sourceLines.remove(LINE_WITH_ID);
@@ -139,11 +151,89 @@ class TransportMapTest {
         assertThat(map.lines()).containsExactly(LINE_WITH_ID);
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForReconstitute")
+    void shouldThrowNullPointerExceptionWhenMapIsReconstitutedWithNullArguments(String scenario,
+                                                                                MapId id,
+                                                                                MapMetadata metadata,
+                                                                                Instant lastUpdatedAt,
+                                                                                Collection<Line> lines) {
+        assertThatThrownBy(() -> TransportMap.reconstitute(id, metadata, lastUpdatedAt, lines))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldKeepIdMetadataAndLastUpdatedAtWhenMapIsReconstituted() {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+
+        assertThat(map.getId()).isEqualTo(MAP_ID);
+        assertThat(map.getMapMetadata()).isEqualTo(METADATA);
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineViews")
+    void shouldIndexEveryLineWhenMapIsReconstituted(String view, Function<TransportMap, Collection<Line>> lineView) {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID, SECOND_LINE_WITH_ID));
+
+        assertThat(lineView.apply(map)).containsExactlyInAnyOrder(LINE_WITH_ID, SECOND_LINE_WITH_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineViews")
+    void shouldHaveNoLinesWhenMapIsReconstitutedFromEmptyLines(String view, Function<TransportMap, Collection<Line>> lineView) {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of());
+
+        assertThat(lineView.apply(map)).isEmpty();
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenReconstitutedLineHasNoId() {
+        assertThatThrownBy(() -> TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITHOUT_ID)))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("duplicatedPersistedLines")
+    void shouldThrowDuplicateLineExceptionWhenMapIsReconstitutedFromDuplicatedLines(String scenario, List<Line> lines) {
+        assertThatThrownBy(() -> TransportMap.reconstitute(MAP_ID, METADATA, NOW, lines))
+                .isInstanceOf(DuplicateLineException.class);
+    }
+
+    @Test
+    void shouldNotChangeReconstitutedMapWhenSourceLinesAreModifiedAfterReconstitution() {
+        List<Line> sourceLines = new ArrayList<>(List.of(LINE_WITH_ID));
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, sourceLines);
+
+        sourceLines.add(SECOND_LINE_WITH_ID);
+        sourceLines.remove(LINE_WITH_ID);
+
+        assertThat(map.linesByExternalId()).containsExactly(LINE_WITH_ID);
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForReconstitute() {
+        List<Line> lines = List.of(LINE_WITH_ID);
+        return Stream.of(
+                Arguments.of("null id", null, METADATA, NOW, lines),
+                Arguments.of("null metadata", MAP_ID, null, NOW, lines),
+                Arguments.of("null lastUpdatedAt", MAP_ID, METADATA, null, lines),
+                Arguments.of("null lines", MAP_ID, METADATA, NOW, null),
+                Arguments.of("null line inside lines", MAP_ID, METADATA, NOW, Arrays.asList(LINE_WITH_ID, null)));
+    }
+
+    private static Stream<Arguments> duplicatedPersistedLines() {
+        return Stream.of(
+                Arguments.of("same external id", List.of(newLine(1L, "C1"), newLine(2L, "C1"))),
+                Arguments.of("same line id", List.of(newLine(1L, "C1"), newLine(1L, "C2"))));
+    }
+
     private static Stream<Arguments> invalidNullArgumentsForCreateWithLines() {
         return Stream.of(
-                Arguments.of("null metadata", null, List.of(LINE_WITHOUT_ID)),
-                Arguments.of("null lines", METADATA, null),
-                Arguments.of("null line inside lines", METADATA, Arrays.asList(LINE_WITHOUT_ID, null)));
+                Arguments.of("null metadata", null, List.of(LINE_WITHOUT_ID), NOW),
+                Arguments.of("null lines", METADATA, null, NOW),
+                Arguments.of("null line inside lines", METADATA, Arrays.asList(LINE_WITHOUT_ID, null), NOW),
+                Arguments.of("null now", METADATA, List.of(LINE_WITHOUT_ID), null));
     }
 
     private static Stream<Arguments> duplicatedLines() {

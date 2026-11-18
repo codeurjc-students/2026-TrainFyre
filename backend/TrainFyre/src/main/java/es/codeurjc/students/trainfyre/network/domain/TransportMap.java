@@ -48,7 +48,20 @@ public class TransportMap {
     }
 
     public static TransportMap reconstitute(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Collection<Line> lines) {
-        throw new UnsupportedOperationException();
+
+        Objects.requireNonNull(id, "id should not be null");
+        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
+        Objects.requireNonNull(lines, "lines should not be null");
+        Objects.requireNonNull(lastUpdatedAt, "last updated at should not be null");
+
+
+        TransportMap map = new TransportMap(id, mapMetadata, lastUpdatedAt, new HashMap<>(), new HashMap<>());
+
+        for(Line line : lines) if(line.getId() == null) throw new IllegalArgumentException("Line id cannot be null when being reconstituted");
+
+        lines.forEach(map::index);
+        return map;
+
     }
 
     private void index(Line line) {

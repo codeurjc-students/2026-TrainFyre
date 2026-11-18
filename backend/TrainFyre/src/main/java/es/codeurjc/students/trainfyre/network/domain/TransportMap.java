@@ -148,11 +148,31 @@ public class TransportMap {
     }
 
     public void removeLine(LineId lineId, Instant now) {
-        throw new UnsupportedOperationException();
+
+        requireNotBeforeLastUpdate(now);
+
+        Line line = findLine(lineId);
+
+        lines.remove(line.getId());
+        linesByExternalId.remove(line.getExternalId());
+
+        lastUpdatedAt = now;
+
     }
 
     public void removeLine(String externalId, Instant now) {
-        throw new UnsupportedOperationException();
+
+        requireNotBeforeLastUpdate(now);
+
+        Line line = findLine(externalId);
+
+        if(line.getId() != null) {
+            lines.remove(line.getId());
+        }
+        linesByExternalId.remove(line.getExternalId());
+
+        lastUpdatedAt = now;
+
     }
 
     private void requireNotBeforeLastUpdate(Instant now) {

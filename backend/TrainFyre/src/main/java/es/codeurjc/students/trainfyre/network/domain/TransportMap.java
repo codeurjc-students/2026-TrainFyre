@@ -22,46 +22,46 @@ public class TransportMap {
     private MapMetadata mapMetadata;
     @Getter
     private Instant lastUpdatedAt;
-    private final Map<LineId, Line> lines;
-    private final Map<String, Line> linesByExternalId;
+    private final Map<LineId, Line> lines = new HashMap<>();
+    private final Map<String, Line> linesByExternalId = new HashMap<>();
 
-    private TransportMap(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Map<LineId, Line> lines, Map<String, Line> linesByExternalId) {
+    private TransportMap(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt) {
         this.id = id;
         this.mapMetadata = mapMetadata;
         this.lastUpdatedAt = lastUpdatedAt;
-        this.lines = lines;
-        this.linesByExternalId = linesByExternalId;
     }
 
-    public static TransportMap createTransportMap(MapMetadata mapMetadata, Instant lastUpdatedAt) {
-        return createTransportMap(mapMetadata, List.of(), lastUpdatedAt);
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Instant now) {
+        return createTransportMap(mapMetadata, List.of(), now);
     }
 
-    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines, Instant lastUpdatedAt) {
-        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        Objects.requireNonNull(lines, "lines should not be null");
-        Objects.requireNonNull(lastUpdatedAt, "last updated at should not be null");
-
-        TransportMap map = new TransportMap(MapId.generate(), mapMetadata, lastUpdatedAt, new HashMap<>(), new HashMap<>());
-        lines.forEach(map::index);
-        return map;
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines, Instant now) {
+        return build(MapId.generate(), mapMetadata, now, lines);
     }
 
     public static TransportMap reconstitute(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Collection<Line> lines) {
+        Objects.requireNonNull(lines, "lines should not be null");
+        lines.forEach(TransportMap::requirePersisted);
 
+        return build(id, mapMetadata, lastUpdatedAt, lines);
+    }
+
+    private static TransportMap build(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Collection<Line> lines) {
         Objects.requireNonNull(id, "id should not be null");
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        Objects.requireNonNull(lines, "lines should not be null");
         Objects.requireNonNull(lastUpdatedAt, "last updated at should not be null");
+        Objects.requireNonNull(lines, "lines should not be null");
 
-
-        TransportMap map = new TransportMap(id, mapMetadata, lastUpdatedAt, new HashMap<>(), new HashMap<>());
-
-        for(Line line : lines) if(line.getId() == null) throw new IllegalArgumentException("Line id cannot be null when being reconstituted");
-
+        TransportMap map = new TransportMap(id, mapMetadata, lastUpdatedAt);
         lines.forEach(map::index);
         return map;
+    }
 
+    private static void requirePersisted(Line line) {
+        Objects.requireNonNull(line, "line should not be null");
+        if (line.getId() == null) {
+            throw new IllegalArgumentException("a reconstituted line should have an id");
+        }
     }
 
     private void index(Line line) {

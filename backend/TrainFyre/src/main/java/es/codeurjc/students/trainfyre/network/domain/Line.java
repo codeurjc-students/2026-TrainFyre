@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
-public class Line {
+public final class Line {
 
     @Identity
     private final LineId id;
@@ -48,12 +48,12 @@ public class Line {
         return normalized;
     }
 
-    protected void update(LineChanges lineChanges){
+    void update(LineChanges lineChanges) {
+        Objects.requireNonNull(lineChanges, "line changes should not be null");
 
-        if(lineChanges.name() != null) name = lineChanges.name();
-        if(lineChanges.type() != null) type = lineChanges.type();
-        if(lineChanges.colors() != null) colors = lineChanges.colors();
-
+        if (lineChanges.name() != null) name = lineChanges.name();
+        if (lineChanges.type() != null) type = lineChanges.type();
+        if (lineChanges.colors() != null) colors = lineChanges.colors();
     }
 
 }

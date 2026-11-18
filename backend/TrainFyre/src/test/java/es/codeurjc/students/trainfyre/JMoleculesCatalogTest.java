@@ -18,6 +18,7 @@ import org.jmolecules.architecture.hexagonal.SecondaryPort;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Entity;
 import org.jmolecules.ddd.annotation.Identity;
+import org.jmolecules.ddd.annotation.Service;
 import org.jmolecules.ddd.annotation.ValueObject;
 import org.junit.jupiter.api.Test;
 
@@ -90,6 +91,7 @@ class JMoleculesCatalogTest {
         categories.put("Entities", classNamed(c -> has(c, Entity.class)));
         categories.put("Value objects", classNamed(c -> has(c, ValueObject.class)));
         categories.put("Identities", JMoleculesCatalogTest::identities);
+        categories.put("Domain services", classNamed(c -> has(c, Service.class)));
         categories.put("Commands", classNamed(c -> has(c, Command.class)));
         categories.put("Query models", classNamed(c -> has(c, QueryModel.class)));
         categories.put("Command handlers", JMoleculesCatalogTest::commandHandlers);

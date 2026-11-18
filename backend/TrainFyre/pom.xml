@@ -163,6 +163,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Bases de datos y Testcontainers para tests -->
         <dependency>
             <groupId>com.h2database</groupId>

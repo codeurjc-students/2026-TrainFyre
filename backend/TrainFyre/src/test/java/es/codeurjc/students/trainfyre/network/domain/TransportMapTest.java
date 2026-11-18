@@ -35,6 +35,13 @@ class TransportMapTest {
             new MapMetadata("Metro Madrid", ZoneId.of("Europe/Madrid"), null, null);
     private static final MapMetadata FULL_METADATA =
             new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), "ES", URI.create("https://www.renfe.com"));
+    private static final LineId UPDATABLE_LINE_ID = new LineId(1L);
+    private static final LineId OTHER_LINE_ID = new LineId(2L);
+    private static final String UPDATABLE_EXTERNAL_ID = "C2";
+    private static final LineName NEW_LINE_NAME = new LineName("N1", "New line");
+    private static final LineType NEW_LINE_TYPE = LineType.METRO;
+    private static final LineColors NEW_LINE_COLORS = new LineColors(new HexColor("00FF00"), new HexColor("000000"));
+    private static final LineChanges LINE_CHANGES = new LineChanges(NEW_LINE_NAME, NEW_LINE_TYPE, NEW_LINE_COLORS);
     private static final Instant LATER = NOW.plusSeconds(3600);
     private static final Instant EARLIER = NOW.minusSeconds(3600);
     private static final Line LINE_WITHOUT_ID =newLine(null, "C1");
@@ -523,6 +530,173 @@ class TransportMapTest {
         map.findLine(LINE_WITH_ID.getExternalId());
 
         assertMapUnchanged(map);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForUpdateLine")
+    void shouldThrowNullPointerExceptionWhenLineIsUpdatedWithNullArguments(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        assertThatThrownBy(() -> update.apply(map, LINE_CHANGES, LATER))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest(name = "[{index}]")
+    @ValueSource(strings = {"", " ", "\t\n"})
+    void shouldThrowIllegalArgumentExceptionWhenLineIsUpdatedWithEmptyOrBlankExternalId(String externalId) {
+        TransportMap map = mapWithUpdatableLines();
+
+        assertThatThrownBy(() -> map.updateLine(externalId, LINE_CHANGES, LATER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldThrowIllegalArgumentExceptionWhenLineIsUpdatedWithInstantBeforeLastUpdate(String scenario,
+                                                                                         LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        assertThatThrownBy(() -> update.apply(map, LINE_CHANGES, EARLIER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("unknownLineUpdates")
+    void shouldThrowLineNotFoundExceptionWhenUpdatedLineDoesNotExist(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        assertThatThrownBy(() -> update.apply(map, LINE_CHANGES, LATER))
+                .isInstanceOf(LineNotFoundException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldApplyChangesToTheSameLineWhenLineIsUpdated(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+        Line line = map.findLine(UPDATABLE_LINE_ID);
+
+        update.apply(map, LINE_CHANGES, LATER);
+
+        assertThat(map.findLine(UPDATABLE_LINE_ID)).isSameAs(line);
+        assertThat(line.getName()).isEqualTo(NEW_LINE_NAME);
+        assertThat(line.getType()).isEqualTo(NEW_LINE_TYPE);
+        assertThat(line.getColors()).isEqualTo(NEW_LINE_COLORS);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldKeepIdentityAndIndexesWhenLineIsUpdated(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+        Line line = map.findLine(UPDATABLE_LINE_ID);
+
+        update.apply(map, LINE_CHANGES, LATER);
+
+        assertThat(line.getId()).isEqualTo(UPDATABLE_LINE_ID);
+        assertThat(line.getExternalId()).isEqualTo(UPDATABLE_EXTERNAL_ID);
+        assertThat(map.findLine(UPDATABLE_EXTERNAL_ID)).isSameAs(line);
+        assertThat(map.lines()).hasSize(2);
+        assertThat(map.linesByExternalId()).hasSize(2);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldNotChangeOtherLinesWhenLineIsUpdated(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        update.apply(map, LINE_CHANGES, LATER);
+
+        Line other = map.findLine(OTHER_LINE_ID);
+        assertThat(other.getName()).isEqualTo(newLine(2L, "C3").getName());
+        assertThat(other.getType()).isEqualTo(newLine(2L, "C3").getType());
+        assertThat(other.getColors()).isEqualTo(newLine(2L, "C3").getColors());
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldSetLastUpdatedAtToNowWhenLineIsUpdated(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        update.apply(map, LINE_CHANGES, LATER);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(LATER);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineUpdates")
+    void shouldAcceptInstantEqualToLastUpdateWhenLineIsUpdated(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        assertThatCode(() -> update.apply(map, LINE_CHANGES, NOW)).doesNotThrowAnyException();
+        assertThat(map.findLine(UPDATABLE_LINE_ID).getName()).isEqualTo(NEW_LINE_NAME);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rejectedLineUpdates")
+    void shouldKeepLineAndLastUpdatedAtWhenLineUpdateIsRejected(String scenario, LineUpdate update) {
+        TransportMap map = mapWithUpdatableLines();
+
+        catchThrowable(() -> update.apply(map, LINE_CHANGES, LATER));
+
+        Line line = map.findLine(UPDATABLE_LINE_ID);
+        assertThat(line.getName()).isEqualTo(newLine(1L, "C2").getName());
+        assertThat(line.getType()).isEqualTo(newLine(1L, "C2").getType());
+        assertThat(line.getColors()).isEqualTo(newLine(1L, "C2").getColors());
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @FunctionalInterface
+    private interface LineUpdate {
+        void apply(TransportMap map, LineChanges changes, Instant now);
+    }
+
+    private static TransportMap mapWithUpdatableLines() {
+        return TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(newLine(1L, "C2"), newLine(2L, "C3")));
+    }
+
+    private static Stream<Arguments> lineUpdates() {
+        return Stream.of(
+                Arguments.of("by line id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_LINE_ID, changes, now)),
+                Arguments.of("by external id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_EXTERNAL_ID, changes, now)));
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForUpdateLine() {
+        return Stream.of(
+                Arguments.of("null line id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine((LineId) null, changes, now)),
+                Arguments.of("null external id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine((String) null, changes, now)),
+                Arguments.of("null changes by line id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_LINE_ID, null, now)),
+                Arguments.of("null changes by external id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_EXTERNAL_ID, null, now)),
+                Arguments.of("null now by line id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_LINE_ID, changes, null)),
+                Arguments.of("null now by external id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(UPDATABLE_EXTERNAL_ID, changes, null)));
+    }
+
+    private static Stream<Arguments> unknownLineUpdates() {
+        return Stream.of(
+                Arguments.of("unknown line id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine(new LineId(99L), changes, now)),
+                Arguments.of("unknown external id", (LineUpdate) (map, changes, now) ->
+                        map.updateLine("C99", changes, now)),
+                Arguments.of("external id with different case", (LineUpdate) (map, changes, now) ->
+                        map.updateLine("c2", changes, now)));
+    }
+
+    private static Stream<Arguments> rejectedLineUpdates() {
+        return Stream.of(
+                invalidNullArgumentsForUpdateLine(),
+                unknownLineUpdates(),
+                Stream.of(
+                        Arguments.of("now before last update by line id", (LineUpdate) (map, changes, now) ->
+                                map.updateLine(UPDATABLE_LINE_ID, changes, EARLIER)),
+                        Arguments.of("now before last update by external id", (LineUpdate) (map, changes, now) ->
+                                map.updateLine(UPDATABLE_EXTERNAL_ID, changes, EARLIER))))
+                .flatMap(Function.identity());
     }
 
     private static TransportMap mapWithLinesWithAndWithoutId() {

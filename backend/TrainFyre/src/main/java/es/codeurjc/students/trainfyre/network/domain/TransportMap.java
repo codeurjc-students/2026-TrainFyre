@@ -130,6 +130,14 @@ public class TransportMap {
         return line;
     }
 
+    public void updateLine(LineId lineId, LineChanges lineChanges, Instant now) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void updateLine(String externalId, LineChanges lineChanges, Instant now) {
+        throw new UnsupportedOperationException();
+    }
+
     private void requireNotBeforeLastUpdate(Instant now) {
         Objects.requireNonNull(now, "now should not be null");
         if (now.isBefore(lastUpdatedAt)) {

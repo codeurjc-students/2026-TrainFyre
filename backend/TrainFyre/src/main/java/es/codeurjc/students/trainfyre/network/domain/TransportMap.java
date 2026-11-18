@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.network.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
@@ -13,10 +14,12 @@ import java.util.Map;
 import java.util.Objects;
 
 @AggregateRoot
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TransportMap {
 
     @Identity
     @Getter
+    @EqualsAndHashCode.Include
     private final MapId id;
     @Getter
     private MapMetadata mapMetadata;

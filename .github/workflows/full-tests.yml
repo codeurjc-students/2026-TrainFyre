@@ -53,8 +53,11 @@ jobs:
         continue-on-error: true
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends plantuml graphviz asciidoctor
-          bash ../../.github/scripts/build-architecture-site.sh target/spring-modulith-docs target/architecture-site
+          sudo apt-get install -y --no-install-recommends graphviz asciidoctor
+          # The PlantUML in apt is too old for the C4 diagrams of Modulith; Maven verifies the checksums.
+          mvn -B -ntp dependency:get -Dartifact=net.sourceforge.plantuml:plantuml:1.2025.4
+          PLANTUML="java -jar $HOME/.m2/repository/net/sourceforge/plantuml/plantuml/1.2025.4/plantuml-1.2025.4.jar" \
+            bash ../../.github/scripts/build-architecture-site.sh target/spring-modulith-docs target/architecture-site
 
       - name: Upload architecture documentation
         if: always()

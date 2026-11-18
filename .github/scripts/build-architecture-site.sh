@@ -3,7 +3,8 @@
 # (ArchitectureTest, ArchitectureDiagramTest and JMoleculesCatalogTest).
 #
 # Usage: build-architecture-site.sh <generated-docs-dir> <output-dir>
-# Requires: plantuml, graphviz and asciidoctor.
+# Requires: PlantUML >= 1.2025 (the Modulith diagrams use the C4 standard library, missing in older
+# versions), graphviz and asciidoctor. Set PLANTUML to the command that runs PlantUML.
 set -euo pipefail
 
 src="${1:?usage: $0 <generated-docs-dir> <output-dir>}"
@@ -13,7 +14,9 @@ rm -rf "$out"
 mkdir -p "$out"
 out="$(cd "$out" && pwd)"
 
-plantuml -tsvg -o "$out" "$src"/*.puml
+# PLANTUML may hold a full command (e.g. "java -jar plantuml.jar"); it defaults to the plantuml binary.
+read -r -a plantuml <<< "${PLANTUML:-plantuml}"
+"${plantuml[@]}" -tsvg -o "$out" "$src"/*.puml
 asciidoctor -o "$out/jmolecules-catalog.html" "$src/jmolecules-catalog.adoc"
 
 figure() {

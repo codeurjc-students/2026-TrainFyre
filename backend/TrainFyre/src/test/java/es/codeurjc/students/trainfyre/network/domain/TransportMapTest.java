@@ -26,7 +26,11 @@ class TransportMapTest {
             new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), null, null);
     private static final Instant NOW = Instant.parse("2026-01-01T10:00:00Z");
     private static final MapId MAP_ID = new MapId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-    private static final Line LINE_WITHOUT_ID = newLine(null, "C1");
+    private static final MapId OTHER_MAP_ID = new MapId(UUID.fromString("223e4567-e89b-12d3-a456-426614174000"));
+    private static final MapMetadata OTHER_METADATA =
+            new MapMetadata("Metro Madrid", ZoneId.of("Europe/Madrid"), null, null);
+    private static final Instant LATER = NOW.plusSeconds(3600);
+    private static final Line LINE_WITHOUT_ID =newLine(null, "C1");
     private static final Line LINE_WITH_ID = newLine(1L, "C2");
     private static final Line SECOND_LINE_WITH_ID = newLine(2L, "C3");
 
@@ -210,6 +214,54 @@ class TransportMapTest {
 
         assertThat(map.linesByExternalId()).containsExactly(LINE_WITH_ID);
         assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("mapsWithSameIdAndDifferentState")
+    void shouldBeEqualWhenMapsHaveSameId(String scenario, TransportMap other) {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+
+        assertThat(map).isEqualTo(other);
+    }
+
+    @Test
+    void shouldNotBeEqualWhenMapsHaveDifferentIdAndSameState() {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+        TransportMap other = TransportMap.reconstitute(OTHER_MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+
+        assertThat(map).isNotEqualTo(other);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("mapsWithSameIdAndDifferentState")
+    void shouldHaveSameHashCodeWhenMapsHaveSameId(String scenario, TransportMap other) {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+
+        assertThat(map).hasSameHashCodeAs(other);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("objectsThatAreNotMaps")
+    void shouldNotBeEqualWhenComparedWithNullOrAnotherType(String scenario, Object other) {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+
+        assertThat(map).isNotEqualTo(other);
+    }
+
+    private static Stream<Arguments> mapsWithSameIdAndDifferentState() {
+        return Stream.of(
+                Arguments.of("same state", TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID))),
+                Arguments.of("different metadata", TransportMap.reconstitute(MAP_ID, OTHER_METADATA, NOW, List.of(LINE_WITH_ID))),
+                Arguments.of("different lastUpdatedAt", TransportMap.reconstitute(MAP_ID, METADATA, LATER, List.of(LINE_WITH_ID))),
+                Arguments.of("different lines", TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(SECOND_LINE_WITH_ID))),
+                Arguments.of("no lines", TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of())));
+    }
+
+    private static Stream<Arguments> objectsThatAreNotMaps() {
+        return Stream.of(
+                Arguments.of("null", null),
+                Arguments.of("its own id", MAP_ID),
+                Arguments.of("a string", "map"));
     }
 
     private static Stream<Arguments> invalidNullArgumentsForReconstitute() {

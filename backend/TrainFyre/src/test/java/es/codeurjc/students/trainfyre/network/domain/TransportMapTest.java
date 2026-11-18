@@ -644,6 +644,147 @@ class TransportMapTest {
         assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForRemoveLine")
+    void shouldThrowNullPointerExceptionWhenLineIsRemovedWithNullArguments(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> removal.apply(map, LATER))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest(name = "[{index}]")
+    @ValueSource(strings = {"", " ", "\t\n"})
+    void shouldThrowIllegalArgumentExceptionWhenLineIsRemovedWithEmptyOrBlankExternalId(String externalId) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> map.removeLine(externalId, LATER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineRemovals")
+    void shouldThrowIllegalArgumentExceptionWhenLineIsRemovedWithInstantBeforeLastUpdate(String scenario,
+                                                                                         LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> removal.apply(map, EARLIER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("unknownLineRemovals")
+    void shouldThrowLineNotFoundExceptionWhenRemovedLineDoesNotExist(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> removal.apply(map, LATER))
+                .isInstanceOf(LineNotFoundException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineRemovals")
+    void shouldRemoveLineFromBothIndexesAndKeepOthersWhenLineWithIdIsRemoved(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        removal.apply(map, LATER);
+
+        assertThat(map.lines()).isEmpty();
+        assertThat(map.linesByExternalId()).containsExactly(LINE_WITHOUT_ID);
+    }
+
+    @Test
+    void shouldRemoveLineFromExternalIdIndexWhenLineWithoutIdIsRemoved() {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        map.removeLine(LINE_WITHOUT_ID.getExternalId(), LATER);
+
+        assertThat(map.linesByExternalId()).containsExactly(LINE_WITH_ID);
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineRemovals")
+    void shouldAllowAddingLineWithSameIdentityWhenLineIsRemoved(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        removal.apply(map, LATER);
+
+        assertThatCode(() -> map.addLine(newLine(1L, "C2"))).doesNotThrowAnyException();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineRemovals")
+    void shouldSetLastUpdatedAtToNowWhenLineIsRemoved(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        removal.apply(map, LATER);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(LATER);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("lineRemovals")
+    void shouldAcceptInstantEqualToLastUpdateWhenLineIsRemoved(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatCode(() -> removal.apply(map, NOW)).doesNotThrowAnyException();
+        assertThat(map.lines()).isEmpty();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rejectedLineRemovals")
+    void shouldKeepLinesAndLastUpdatedAtWhenLineRemovalIsRejected(String scenario, LineRemoval removal) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        catchThrowable(() -> removal.apply(map, LATER));
+
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+        assertThat(map.linesByExternalId()).containsExactlyInAnyOrder(LINE_WITHOUT_ID, LINE_WITH_ID);
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @FunctionalInterface
+    private interface LineRemoval {
+        void apply(TransportMap map, Instant now);
+    }
+
+    private static Stream<Arguments> lineRemovals() {
+        return Stream.of(
+                Arguments.of("by line id", (LineRemoval) (map, now) -> map.removeLine(LINE_WITH_ID.getId(), now)),
+                Arguments.of("by external id", (LineRemoval) (map, now) ->
+                        map.removeLine(LINE_WITH_ID.getExternalId(), now)));
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForRemoveLine() {
+        return Stream.of(
+                Arguments.of("null line id", (LineRemoval) (map, now) -> map.removeLine((LineId) null, now)),
+                Arguments.of("null external id", (LineRemoval) (map, now) -> map.removeLine((String) null, now)),
+                Arguments.of("null now by line id", (LineRemoval) (map, now) ->
+                        map.removeLine(LINE_WITH_ID.getId(), null)),
+                Arguments.of("null now by external id", (LineRemoval) (map, now) ->
+                        map.removeLine(LINE_WITH_ID.getExternalId(), null)));
+    }
+
+    private static Stream<Arguments> unknownLineRemovals() {
+        return Stream.of(
+                Arguments.of("unknown line id", (LineRemoval) (map, now) -> map.removeLine(new LineId(99L), now)),
+                Arguments.of("unknown external id", (LineRemoval) (map, now) -> map.removeLine("C99", now)),
+                Arguments.of("external id with different case", (LineRemoval) (map, now) ->
+                        map.removeLine("c2", now)));
+    }
+
+    private static Stream<Arguments> rejectedLineRemovals() {
+        return Stream.of(
+                invalidNullArgumentsForRemoveLine(),
+                unknownLineRemovals(),
+                Stream.of(
+                        Arguments.of("now before last update by line id", (LineRemoval) (map, now) ->
+                                map.removeLine(LINE_WITH_ID.getId(), EARLIER)),
+                        Arguments.of("now before last update by external id", (LineRemoval) (map, now) ->
+                                map.removeLine(LINE_WITH_ID.getExternalId(), EARLIER))))
+                .flatMap(Function.identity());
+    }
+
     @FunctionalInterface
     private interface LineUpdate {
         void apply(TransportMap map, LineChanges changes, Instant now);

@@ -147,6 +147,14 @@ public class TransportMap {
         this.lastUpdatedAt = now;
     }
 
+    public void removeLine(LineId lineId, Instant now) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void removeLine(String externalId, Instant now) {
+        throw new UnsupportedOperationException();
+    }
+
     private void requireNotBeforeLastUpdate(Instant now) {
         Objects.requireNonNull(now, "now should not be null");
         if (now.isBefore(lastUpdatedAt)) {

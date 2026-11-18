@@ -104,37 +104,30 @@ public class TransportMap {
     }
 
     public void addLine(Line line, Instant now) {
-
         requireNotBeforeLastUpdate(now);
 
         index(line);
-
         this.lastUpdatedAt = now;
-
     }
 
     public Line findLine(LineId lineId) {
-
         Objects.requireNonNull(lineId, "line id should not be null");
 
-        if(!lines.containsKey(lineId)) throw new LineNotFoundException("Line was not found with id: "+lineId);
-
-        return lines.get(lineId);
-
+        Line line = lines.get(lineId);
+        if (line == null) {
+            throw new LineNotFoundException("no line with id " + lineId.value() + " exists");
+        }
+        return line;
     }
 
     public Line findLine(String externalId) {
+        String normalizedExternalId = Line.normalizeExternalId(externalId);
 
-        Objects.requireNonNull(externalId, "external id must not be null");
-
-        String normalizedExternalId = externalId.strip();
-
-        if(normalizedExternalId.isBlank()) throw new IllegalArgumentException("external id should not be blank");
-
-        if(!linesByExternalId.containsKey(normalizedExternalId)) throw new LineNotFoundException("Line was not found with id: "+normalizedExternalId);
-
-        return linesByExternalId.get(normalizedExternalId);
-
+        Line line = linesByExternalId.get(normalizedExternalId);
+        if (line == null) {
+            throw new LineNotFoundException("no line with external id " + normalizedExternalId + " exists");
+        }
+        return line;
     }
 
     private void requireNotBeforeLastUpdate(Instant now) {

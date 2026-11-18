@@ -38,7 +38,7 @@ public final class Line {
         return new Line(id, normalizeExternalId(externalId), name, type, colors);
     }
 
-    private static String normalizeExternalId(String externalId) {
+    static String normalizeExternalId(String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");
 
         String normalized = externalId.strip();

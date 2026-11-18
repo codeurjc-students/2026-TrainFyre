@@ -23,4 +23,8 @@ public class TransportMap {
         this.lines = lines;
         this.linesByExternalId = linesByExternalId;
     }
+
+    public static TransportMap createTransportMap(MapMetadata mapMetadata) {
+        return null;
+    }
 }

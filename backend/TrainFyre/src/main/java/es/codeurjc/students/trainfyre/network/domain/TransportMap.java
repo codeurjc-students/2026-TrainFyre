@@ -113,6 +113,14 @@ public class TransportMap {
 
     }
 
+    public Line findLine(LineId lineId) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Line findLine(String externalId) {
+        throw new UnsupportedOperationException();
+    }
+
     private void requireNotBeforeLastUpdate(Instant now) {
         Objects.requireNonNull(now, "now should not be null");
         if (now.isBefore(lastUpdatedAt)) {

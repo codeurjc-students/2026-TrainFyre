@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.net.URI;
 import java.time.Instant;
@@ -469,6 +470,83 @@ class TransportMapTest {
         catchThrowable(() -> map.addLine(line, now));
 
         assertMapUnchanged(map);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("nullLineSearches")
+    void shouldThrowNullPointerExceptionWhenLineIsFoundWithNullArgument(String scenario,
+                                                                        Function<TransportMap, Line> search) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> search.apply(map))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @ParameterizedTest(name = "[{index}]")
+    @ValueSource(strings = {"", " ", "\t\n"})
+    void shouldThrowIllegalArgumentExceptionWhenLineIsFoundWithEmptyOrBlankExternalId(String externalId) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> map.findLine(externalId))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void shouldReturnSameLineWhenLineIsFoundByLineId() {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThat(map.findLine(LINE_WITH_ID.getId())).isSameAs(LINE_WITH_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("existingLinesByExternalId")
+    void shouldReturnSameLineWhenLineIsFoundByExternalId(String scenario, String externalId, Line expected) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThat(map.findLine(externalId)).isSameAs(expected);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("missingLineSearches")
+    void shouldThrowLineNotFoundExceptionWhenLineDoesNotExist(String scenario, Function<TransportMap, Line> search) {
+        TransportMap map = mapWithLinesWithAndWithoutId();
+
+        assertThatThrownBy(() -> search.apply(map))
+                .isInstanceOf(LineNotFoundException.class);
+    }
+
+    @Test
+    void shouldNotChangeMapWhenLineIsFound() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.findLine(LINE_WITH_ID.getId());
+        map.findLine(LINE_WITH_ID.getExternalId());
+
+        assertMapUnchanged(map);
+    }
+
+    private static TransportMap mapWithLinesWithAndWithoutId() {
+        return TransportMap.createTransportMap(METADATA, List.of(LINE_WITHOUT_ID, LINE_WITH_ID), NOW);
+    }
+
+    private static Stream<Arguments> nullLineSearches() {
+        return Stream.of(
+                Arguments.of("null line id", (Function<TransportMap, Line>) map -> map.findLine((LineId) null)),
+                Arguments.of("null external id", (Function<TransportMap, Line>) map -> map.findLine((String) null)));
+    }
+
+    private static Stream<Arguments> existingLinesByExternalId() {
+        return Stream.of(
+                Arguments.of("line with id", "C2", LINE_WITH_ID),
+                Arguments.of("line without id", "C1", LINE_WITHOUT_ID),
+                Arguments.of("external id with surrounding blanks", " \tC2\n ", LINE_WITH_ID));
+    }
+
+    private static Stream<Arguments> missingLineSearches() {
+        return Stream.of(
+                Arguments.of("unknown line id", (Function<TransportMap, Line>) map -> map.findLine(new LineId(99L))),
+                Arguments.of("unknown external id", (Function<TransportMap, Line>) map -> map.findLine("C99")),
+                Arguments.of("external id with different case", (Function<TransportMap, Line>) map -> map.findLine("c2")));
     }
 
     private static void assertMapUnchanged(TransportMap map) {

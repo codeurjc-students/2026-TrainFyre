@@ -131,27 +131,20 @@ public class TransportMap {
     }
 
     public void updateLine(LineId lineId, LineChanges lineChanges, Instant now) {
-
         requireNotBeforeLastUpdate(now);
 
-        Line line = findLine(lineId);
-
-        line.update(lineChanges);
-
-        lastUpdatedAt = now;
-
+        applyChanges(findLine(lineId), lineChanges, now);
     }
 
     public void updateLine(String externalId, LineChanges lineChanges, Instant now) {
-
         requireNotBeforeLastUpdate(now);
 
-        Line line = findLine(externalId);
+        applyChanges(findLine(externalId), lineChanges, now);
+    }
 
+    private void applyChanges(Line line, LineChanges lineChanges, Instant now) {
         line.update(lineChanges);
-
-        lastUpdatedAt = now;
-
+        this.lastUpdatedAt = now;
     }
 
     private void requireNotBeforeLastUpdate(Instant now) {

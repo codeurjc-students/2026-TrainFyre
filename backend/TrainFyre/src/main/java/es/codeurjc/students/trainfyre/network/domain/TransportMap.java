@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,32 +34,32 @@ public class TransportMap {
     }
 
     public static TransportMap createTransportMap(MapMetadata mapMetadata) {
-        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-
-        return new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<>(), new HashMap<>());
+        return createTransportMap(mapMetadata, List.of());
     }
 
-    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines){
-
+    public static TransportMap createTransportMap(MapMetadata mapMetadata, Collection<Line> lines) {
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        Objects.requireNonNull(lines, "lines shoul not be null");
+        Objects.requireNonNull(lines, "lines should not be null");
 
-        Map<LineId, Line> linesById = new HashMap<>();
-        Map<String, Line> linesByExternalId = new HashMap<>();
+        TransportMap map = new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<>(), new HashMap<>());
+        lines.forEach(map::index);
+        return map;
+    }
 
-        for(Line line : lines){
+    private void index(Line line) {
+        Objects.requireNonNull(line, "line should not be null");
 
-            if(line.getId() != null) {
-                if(linesById.containsKey(line.getId())) throw new DuplicateLineException("A line with id: " + line.getId() + " already exists");
-                linesById.put(line.getId(), line);
-            }
-
-            if(linesByExternalId.containsKey(line.getExternalId())) throw new DuplicateLineException("A line with external id: " + line.getId() + " already exists");
-            linesByExternalId.put(line.getExternalId(), line);
-
+        if (linesByExternalId.containsKey(line.getExternalId())) {
+            throw new DuplicateLineException("a line with external id " + line.getExternalId() + " already exists");
+        }
+        if (line.getId() != null && lines.containsKey(line.getId())) {
+            throw new DuplicateLineException("a line with id " + line.getId().value() + " already exists");
         }
 
-        return new TransportMap(MapId.generate(), mapMetadata, null, linesById, linesByExternalId);
+        linesByExternalId.put(line.getExternalId(), line);
+        if (line.getId() != null) {
+            lines.put(line.getId(), line);
+        }
     }
 
     public Collection<Line> lines() {

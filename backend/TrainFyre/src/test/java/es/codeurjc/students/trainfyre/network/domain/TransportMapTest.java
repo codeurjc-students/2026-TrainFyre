@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.net.URI;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -18,7 +19,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 class TransportMapTest {
 
@@ -29,7 +32,10 @@ class TransportMapTest {
     private static final MapId OTHER_MAP_ID = new MapId(UUID.fromString("223e4567-e89b-12d3-a456-426614174000"));
     private static final MapMetadata OTHER_METADATA =
             new MapMetadata("Metro Madrid", ZoneId.of("Europe/Madrid"), null, null);
+    private static final MapMetadata FULL_METADATA =
+            new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), "ES", URI.create("https://www.renfe.com"));
     private static final Instant LATER = NOW.plusSeconds(3600);
+    private static final Instant EARLIER = NOW.minusSeconds(3600);
     private static final Line LINE_WITHOUT_ID =newLine(null, "C1");
     private static final Line LINE_WITH_ID = newLine(1L, "C2");
     private static final Line SECOND_LINE_WITH_ID = newLine(2L, "C3");
@@ -246,6 +252,107 @@ class TransportMapTest {
         TransportMap map = TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
 
         assertThat(map).isNotEqualTo(other);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForUpdateMetadata")
+    void shouldThrowNullPointerExceptionWhenMetadataIsUpdatedWithNullArguments(String scenario,
+                                                                               MapMetadata metadata,
+                                                                               Instant now) {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.updateMetadata(metadata, now))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenMetadataIsUpdatedWithInstantBeforeLastUpdate() {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.updateMetadata(OTHER_METADATA, EARLIER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rejectedMetadataUpdates")
+    void shouldKeepMetadataAndLastUpdatedAtWhenMetadataUpdateIsRejected(String scenario,
+                                                                        MapMetadata metadata,
+                                                                        Instant now) {
+        TransportMap map = mapUpdatedAtNow();
+
+        catchThrowable(() -> map.updateMetadata(metadata, now));
+
+        assertThat(map.getMapMetadata()).isEqualTo(METADATA);
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @Test
+    void shouldReplaceWholeMetadataWhenMetadataIsUpdated() {
+        TransportMap map = TransportMap.reconstitute(MAP_ID, FULL_METADATA, NOW, List.of());
+
+        map.updateMetadata(METADATA, LATER);
+
+        assertThat(map.getMapMetadata()).isEqualTo(METADATA);
+        assertThat(map.getMapMetadata().country()).isNull();
+        assertThat(map.getMapMetadata().website()).isNull();
+    }
+
+    @Test
+    void shouldSetLastUpdatedAtToNowWhenMetadataIsUpdated() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.updateMetadata(OTHER_METADATA, LATER);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(LATER);
+    }
+
+    @Test
+    void shouldAcceptInstantEqualToLastUpdateWhenMetadataIsUpdated() {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatCode(() -> map.updateMetadata(OTHER_METADATA, NOW)).doesNotThrowAnyException();
+        assertThat(map.getMapMetadata()).isEqualTo(OTHER_METADATA);
+    }
+
+    @Test
+    void shouldSetLastUpdatedAtToNowWhenUpdatedMetadataIsEqualToCurrent() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.updateMetadata(METADATA, LATER);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(LATER);
+    }
+
+    @Test
+    void shouldKeepIdLinesAndEqualityWhenMetadataIsUpdated() {
+        TransportMap map = mapUpdatedAtNow();
+        TransportMap sameIdBeforeUpdate = mapUpdatedAtNow();
+        int hashCodeBeforeUpdate = map.hashCode();
+
+        map.updateMetadata(OTHER_METADATA, LATER);
+
+        assertThat(map.getId()).isEqualTo(MAP_ID);
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+        assertThat(map.linesByExternalId()).containsExactly(LINE_WITH_ID);
+        assertThat(map).isEqualTo(sameIdBeforeUpdate);
+        assertThat(map.hashCode()).isEqualTo(hashCodeBeforeUpdate);
+    }
+
+    private static TransportMap mapUpdatedAtNow() {
+        return TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForUpdateMetadata() {
+        return Stream.of(
+                Arguments.of("null metadata", null, LATER),
+                Arguments.of("null now", OTHER_METADATA, null),
+                Arguments.of("null metadata and now", null, null));
+    }
+
+    private static Stream<Arguments> rejectedMetadataUpdates() {
+        return Stream.concat(
+                invalidNullArgumentsForUpdateMetadata(),
+                Stream.of(Arguments.of("now before last update", OTHER_METADATA, EARLIER)));
     }
 
     private static Stream<Arguments> mapsWithSameIdAndDifferentState() {

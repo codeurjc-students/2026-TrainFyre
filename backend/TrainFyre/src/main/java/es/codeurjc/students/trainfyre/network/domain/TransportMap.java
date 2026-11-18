@@ -90,4 +90,8 @@ public class TransportMap {
     public Collection<Line> linesByExternalId() {
         return Collections.unmodifiableCollection(linesByExternalId.values());
     }
+
+    public void updateMetadata(MapMetadata mapMetadata, Instant now) {
+        throw new UnsupportedOperationException();
+    }
 }

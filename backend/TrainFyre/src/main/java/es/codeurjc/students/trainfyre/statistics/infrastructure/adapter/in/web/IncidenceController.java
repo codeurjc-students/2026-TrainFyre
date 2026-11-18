@@ -10,6 +10,7 @@ import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetAl
 import es.codeurjc.students.trainfyre.statistics.application.port.in.query.GetIncidenceByIdQuery;
 import es.codeurjc.students.trainfyre.statistics.domain.Incidence;
 import es.codeurjc.students.trainfyre.statistics.domain.IncidenceDetails;
+import es.codeurjc.students.trainfyre.statistics.infrastructure.adapter.in.web.request.UpdateIncidenceRequest;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.hexagonal.PrimaryAdapter;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @PrimaryAdapter
 @RestController
-@RequestMapping("/api/v1/incidence")
+@RequestMapping("/api/v1/incidences")
 public class IncidenceController {
 
 
@@ -49,15 +50,24 @@ public class IncidenceController {
         return getIncidenceByIdUseCase.execute(getIncidenceByIdQuery);
     }
 
-   @PutMapping
+   @PutMapping("/{id}")
    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public Void updateIncidence(@RequestBody UpdateIncidenceCommand updateIncidenceCommand){
-        return updateIncidenceUseCase.execute(updateIncidenceCommand);
+    public Void updateIncidence(@PathVariable("id") UUID id, @RequestBody UpdateIncidenceRequest updateIncidenceRequest){
+
+        return updateIncidenceUseCase.execute(
+                new UpdateIncidenceCommand(
+                        id,
+                        updateIncidenceRequest.affectedNetwork(),
+                        updateIncidenceRequest.occurrence(),
+                        updateIncidenceRequest.description(),
+                        updateIncidenceRequest.classification()
+                )
+        );
    }
 
-   @DeleteMapping
+   @DeleteMapping("/{id}")
    @ResponseStatus(HttpStatus.NO_CONTENT)
-   public Void deleteIncidence(@RequestBody DeleteIncidenceCommand deleteIncidenceCommand){
-        return deleteIncidenceUseCase.execute(deleteIncidenceCommand);
+   public Void deleteIncidence(@PathVariable("id") UUID id){
+        return deleteIncidenceUseCase.execute(new DeleteIncidenceCommand(id));
    }
 }

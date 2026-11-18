@@ -3,8 +3,6 @@ package es.codeurjc.students.trainfyre.statistics.E2E;
 import es.codeurjc.students.trainfyre.security.TestAccessTokens;
 import es.codeurjc.students.trainfyre.security.domain.AccessTokenIssuer;
 import es.codeurjc.students.trainfyre.statistics.application.port.in.command.CreateIncidenceCommand;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.command.DeleteIncidenceCommand;
-import es.codeurjc.students.trainfyre.statistics.application.port.in.command.UpdateIncidenceCommand;
 import es.codeurjc.students.trainfyre.statistics.domain.*;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +23,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -77,12 +76,11 @@ class IncidenceMariaDbE2ETest {
 
         assertThat(id).isNotNull();
 
-        // El GET por ID devuelve IncidenceDetails, sin campo "id".
         given()
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/api/v1/incidence/{id}", id)
+                .get("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"))
@@ -97,7 +95,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/api/v1/incidence/{id}", id)
+                .get("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"))
@@ -117,7 +115,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/api/v1/incidence/{id}", id)
+                .get("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería actualizada"))
@@ -142,7 +140,6 @@ class IncidenceMariaDbE2ETest {
         assertThat(secondPage.path("totalElements").asInt()).isEqualTo(2);
         assertThat(secondPage.path("content").size()).isEqualTo(1);
 
-        // No suponemos un orden concreto si la API no lo garantiza.
         assertThat(List.of(
                 firstPage.path("content").get(0).path("id").asText(),
                 secondPage.path("content").get(0).path("id").asText()
@@ -162,7 +159,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/api/v1/incidence")
+                .get("/api/v1/incidences")
                 .then()
                 .statusCode(200)
                 .body("content.id", hasItem(id.toString()));
@@ -175,7 +172,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/api/v1/incidence")
+                .get("/api/v1/incidences")
                 .then()
                 .statusCode(200)
                 .body("content.id", not(hasItem(id.toString())));
@@ -189,7 +186,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/api/v1/incidence/{id}", id)
+                .get("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería"));
@@ -200,7 +197,7 @@ class IncidenceMariaDbE2ETest {
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .when()
-                .get("/api/v1/incidence/{id}", id)
+                .get("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(200)
                 .body("description.name", equalTo("Avería actualizada"))
@@ -212,7 +209,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/api/v1/incidence")
+                .get("/api/v1/incidences")
                 .then()
                 .statusCode(200)
                 .body("content.id", hasItem(id.toString()));
@@ -225,7 +222,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", 0)
                 .queryParam("size", 10)
                 .when()
-                .get("/api/v1/incidence")
+                .get("/api/v1/incidences")
                 .then()
                 .statusCode(200)
                 .body("content.id", not(hasItem(id.toString())));
@@ -248,7 +245,7 @@ class IncidenceMariaDbE2ETest {
                 .contentType(ContentType.JSON)
                 .body(objectMapper.writeValueAsString(command))
                 .when()
-                .post("/api/v1/incidence")
+                .post("/api/v1/incidences")
                 .then()
                 .statusCode(201)
                 .extract().asString();
@@ -260,21 +257,17 @@ class IncidenceMariaDbE2ETest {
 
     private void updateDescription(UUID id, String name, String summary)
             throws Exception {
-        UpdateIncidenceCommand command = new UpdateIncidenceCommand(
-                id,
-                null,
-                null,
-                new Description(name, summary),
-                null
-        );
+        String body = objectMapper.writeValueAsString(Map.of(
+                "description", new Description(name, summary)
+        ));
 
         given()
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
                 .contentType(ContentType.JSON)
-                .body(objectMapper.writeValueAsString(command))
+                .body(body)
                 .when()
-                .put("/api/v1/incidence")
+                .put("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(204);
     }
@@ -283,12 +276,8 @@ class IncidenceMariaDbE2ETest {
         given()
                 .port(port)
                 .header("Authorization", TestAccessTokens.bearerForRandomAdmin(accessTokenIssuer))
-                .contentType(ContentType.JSON)
-                .body(objectMapper.writeValueAsString(
-                        new DeleteIncidenceCommand(id)
-                ))
                 .when()
-                .delete("/api/v1/incidence")
+                .delete("/api/v1/incidences/{id}", id)
                 .then()
                 .statusCode(204);
     }
@@ -300,7 +289,7 @@ class IncidenceMariaDbE2ETest {
                 .queryParam("page", page)
                 .queryParam("size", size)
                 .when()
-                .get("/api/v1/incidence")
+                .get("/api/v1/incidences")
                 .then()
                 .statusCode(200)
                 .extract().asString();

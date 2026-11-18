@@ -13,7 +13,7 @@ import type {
 } from '../model'
 
 const encode = encodeURIComponent
-const INCIDENCE_PATH = '/incidence'
+const INCIDENCE_PATH = '/incidences'
 const USERS_PATH = '/users'
 const AVATARS_PATH = '/avatars'
 const HTTP_NOT_FOUND = 404
@@ -84,22 +84,15 @@ export const api = {
     },
 
     updateIncidence(id: string, body: IncidenceDetails) {
-        return request<void>(INCIDENCE_PATH, {
+        return request<void>(`${INCIDENCE_PATH}/${encode(id)}`, {
             method: 'PUT',
-            body: {
-                uuid: id,
-                changeAffectedNetwork: body.affectedNetwork,
-                changeOccurrence: body.occurrence,
-                changeDescription: body.description,
-                changeClassification: body.classification,
-            },
+            body,
         })
     },
 
     deleteIncidence(id: string) {
-        return request<void>(INCIDENCE_PATH, {
+        return request<void>(`${INCIDENCE_PATH}/${encode(id)}`, {
             method: 'DELETE',
-            body: { id },
         })
     },
 }
@@ -197,7 +190,7 @@ export async function loadIncidence(
         return normalizeIncidence({ ...details, id })
     }
 
-    // El backend actual protege GET /incidence/{id}.
+    // El backend actual protege GET /incidences/{id}.
     // El detalle público se obtiene del listado público, que ya contiene sus datos.
     const rows = await loadIncidences(signal, id)
     const result = rows.find(row => row.id === id)

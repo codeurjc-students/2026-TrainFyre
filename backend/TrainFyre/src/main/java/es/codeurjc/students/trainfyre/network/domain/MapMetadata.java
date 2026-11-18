@@ -26,6 +26,7 @@ public record MapMetadata(
     private static final Set<String> WEBSITE_SCHEMES = Set.of("http", "https");
 
     public MapMetadata {
+        Objects.requireNonNull(source, "source should not be null");
         Objects.requireNonNull(name, "name should not be null");
         Objects.requireNonNull(timezone, "timezone should not be null");
 

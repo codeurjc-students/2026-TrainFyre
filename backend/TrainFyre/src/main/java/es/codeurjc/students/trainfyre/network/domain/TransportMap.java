@@ -93,10 +93,7 @@ public class TransportMap {
 
     public void updateMetadata(MapMetadata mapMetadata, Instant now) {
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        Objects.requireNonNull(now, "now should not be null");
-        if (now.isBefore(lastUpdatedAt)) {
-            throw new IllegalArgumentException("now cannot be before the last update");
-        }
+        requireNotBeforeLastUpdate(now);
 
         this.mapMetadata = mapMetadata;
         this.lastUpdatedAt = now;
@@ -108,13 +105,18 @@ public class TransportMap {
 
     public void addLine(Line line, Instant now) {
 
+        requireNotBeforeLastUpdate(now);
+
+        index(line);
+
+        this.lastUpdatedAt = now;
+
+    }
+
+    private void requireNotBeforeLastUpdate(Instant now) {
         Objects.requireNonNull(now, "now should not be null");
         if (now.isBefore(lastUpdatedAt)) {
             throw new IllegalArgumentException("now cannot be before the last update");
         }
-
-        addLine(line);
-
-        lastUpdatedAt = now;
     }
 }

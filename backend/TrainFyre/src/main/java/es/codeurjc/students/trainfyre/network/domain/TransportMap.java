@@ -5,15 +5,21 @@ import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @AggregateRoot
-@Getter
 public class TransportMap {
 
     @Identity
+    @Getter
     private final MapId id;
+    @Getter
     private MapMetadata mapMetadata;
+    @Getter
     private Instant lastUpdatedAt;
     private final Map<LineId, Line> lines;
     private final Map<String, Line> linesByExternalId;
@@ -27,13 +33,12 @@ public class TransportMap {
     }
 
     public static TransportMap createTransportMap(MapMetadata mapMetadata) {
-
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
 
-        return new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<LineId, Line>(), new HashMap<String, Line>());
+        return new TransportMap(MapId.generate(), mapMetadata, null, new HashMap<>(), new HashMap<>());
     }
 
     public Collection<Line> lines() {
-        return Collections.unmodifiableCollection(lines.values());
+        return Collections.unmodifiableCollection(linesByExternalId.values());
     }
 }

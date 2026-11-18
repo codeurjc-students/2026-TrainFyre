@@ -37,6 +37,13 @@ class LineColorsTest {
     }
 
     @Test
+    void shouldThrowNullPointerExceptionWhenDefaultColorsAreGeneratedFromNullExternalId() {
+        assertThatThrownBy(() -> LineColors.defaultFor(null))
+                .isInstanceOf(NullPointerException.class)
+                .hasMessage("external id should not be null");
+    }
+
+    @Test
     void shouldUseBlackTextWhenDefaultColorsAreGenerated() {
         assertThat(LineColors.defaultFor(EXTERNAL_ID).textColor()).isEqualTo(BLACK);
     }

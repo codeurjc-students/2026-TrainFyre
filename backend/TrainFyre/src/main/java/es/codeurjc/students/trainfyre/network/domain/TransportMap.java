@@ -101,4 +101,12 @@ public class TransportMap {
         this.mapMetadata = mapMetadata;
         this.lastUpdatedAt = now;
     }
+
+    public void addLine(Line line) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void addLine(Line line, Instant now) {
+        addLine(line);
+    }
 }

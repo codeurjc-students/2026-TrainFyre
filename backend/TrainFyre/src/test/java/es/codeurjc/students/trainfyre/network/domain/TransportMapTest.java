@@ -338,6 +338,173 @@ class TransportMapTest {
         assertThat(map.hashCode()).isEqualTo(hashCodeBeforeUpdate);
     }
 
+    @Test
+    void shouldThrowNullPointerExceptionWhenNullLineIsAdded() {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.addLine(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldIndexOnlyByExternalIdWhenLineWithoutIdIsAdded() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.addLine(LINE_WITHOUT_ID);
+
+        assertThat(map.linesByExternalId()).containsExactlyInAnyOrder(LINE_WITH_ID, LINE_WITHOUT_ID);
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+    }
+
+    @Test
+    void shouldIndexByExternalIdAndLineIdWhenLineWithIdIsAdded() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.addLine(SECOND_LINE_WITH_ID);
+
+        assertThat(map.linesByExternalId()).containsExactlyInAnyOrder(LINE_WITH_ID, SECOND_LINE_WITH_ID);
+        assertThat(map.lines()).containsExactlyInAnyOrder(LINE_WITH_ID, SECOND_LINE_WITH_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("duplicatedLinesToAdd")
+    void shouldThrowDuplicateLineExceptionWhenDuplicatedLineIsAdded(String scenario, Line line) {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.addLine(line))
+                .isInstanceOf(DuplicateLineException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rejectedLinesToAdd")
+    void shouldKeepLinesAndLastUpdatedAtWhenLineIsRejected(String scenario, Line line) {
+        TransportMap map = mapUpdatedAtNow();
+
+        catchThrowable(() -> map.addLine(line));
+
+        assertMapUnchanged(map);
+    }
+
+    @Test
+    void shouldKeepLastUpdatedAtWhenLineIsAddedWithoutInstant() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.addLine(LINE_WITHOUT_ID);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @Test
+    void shouldKeepIdAndEqualityWhenLineIsAdded() {
+        TransportMap map = mapUpdatedAtNow();
+        TransportMap sameIdBeforeAdd = mapUpdatedAtNow();
+        int hashCodeBeforeAdd = map.hashCode();
+
+        map.addLine(LINE_WITHOUT_ID, LATER);
+
+        assertThat(map.getId()).isEqualTo(MAP_ID);
+        assertThat(map).isEqualTo(sameIdBeforeAdd);
+        assertThat(map.hashCode()).isEqualTo(hashCodeBeforeAdd);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidNullArgumentsForAddLineWithInstant")
+    void shouldThrowNullPointerExceptionWhenLineIsAddedWithNullArguments(String scenario, Line line, Instant now) {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.addLine(line, now))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentExceptionWhenLineIsAddedWithInstantBeforeLastUpdate() {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.addLine(LINE_WITHOUT_ID, EARLIER))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("duplicatedLinesToAdd")
+    void shouldThrowDuplicateLineExceptionWhenDuplicatedLineIsAddedWithInstant(String scenario, Line line) {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatThrownBy(() -> map.addLine(line, LATER))
+                .isInstanceOf(DuplicateLineException.class);
+    }
+
+    @Test
+    void shouldIndexLineWhenLineIsAddedWithInstant() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.addLine(LINE_WITHOUT_ID, LATER);
+        map.addLine(SECOND_LINE_WITH_ID, LATER);
+
+        assertThat(map.linesByExternalId()).containsExactlyInAnyOrder(LINE_WITH_ID, LINE_WITHOUT_ID, SECOND_LINE_WITH_ID);
+        assertThat(map.lines()).containsExactlyInAnyOrder(LINE_WITH_ID, SECOND_LINE_WITH_ID);
+    }
+
+    @Test
+    void shouldSetLastUpdatedAtToNowWhenLineIsAddedWithInstant() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.addLine(LINE_WITHOUT_ID, LATER);
+
+        assertThat(map.getLastUpdatedAt()).isEqualTo(LATER);
+    }
+
+    @Test
+    void shouldAcceptInstantEqualToLastUpdateWhenLineIsAddedWithInstant() {
+        TransportMap map = mapUpdatedAtNow();
+
+        assertThatCode(() -> map.addLine(LINE_WITHOUT_ID, NOW)).doesNotThrowAnyException();
+        assertThat(map.linesByExternalId()).contains(LINE_WITHOUT_ID);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("rejectedLinesToAddWithInstant")
+    void shouldKeepLinesAndLastUpdatedAtWhenLineWithInstantIsRejected(String scenario, Line line, Instant now) {
+        TransportMap map = mapUpdatedAtNow();
+
+        catchThrowable(() -> map.addLine(line, now));
+
+        assertMapUnchanged(map);
+    }
+
+    private static void assertMapUnchanged(TransportMap map) {
+        assertThat(map.lines()).containsExactly(LINE_WITH_ID);
+        assertThat(map.linesByExternalId()).containsExactly(LINE_WITH_ID);
+        assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    private static Stream<Arguments> duplicatedLinesToAdd() {
+        return Stream.of(
+                Arguments.of("same external id without id", newLine(null, "C2")),
+                Arguments.of("same external id with id", newLine(5L, "C2")),
+                Arguments.of("same line id", newLine(1L, "C9")));
+    }
+
+    private static Stream<Arguments> rejectedLinesToAdd() {
+        return Stream.concat(
+                Stream.of(Arguments.of("null line", (Line) null)),
+                duplicatedLinesToAdd());
+    }
+
+    private static Stream<Arguments> invalidNullArgumentsForAddLineWithInstant() {
+        return Stream.of(
+                Arguments.of("null line", null, LATER),
+                Arguments.of("null now", LINE_WITHOUT_ID, null),
+                Arguments.of("null line and now", null, null));
+    }
+
+    private static Stream<Arguments> rejectedLinesToAddWithInstant() {
+        return Stream.of(
+                invalidNullArgumentsForAddLineWithInstant(),
+                Stream.of(Arguments.of("now before last update", LINE_WITHOUT_ID, EARLIER)),
+                duplicatedLinesToAdd().map(arguments -> Arguments.of(arguments.get()[0], arguments.get()[1], LATER)))
+                .flatMap(Function.identity());
+    }
+
     private static TransportMap mapUpdatedAtNow() {
         return TransportMap.reconstitute(MAP_ID, METADATA, NOW, List.of(LINE_WITH_ID));
     }

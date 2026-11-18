@@ -15,6 +15,7 @@ import java.util.Set;
  */
 @ValueObject
 public record MapMetadata(
+        DataSource source,
         String name,
         ZoneId timezone,
         String country,

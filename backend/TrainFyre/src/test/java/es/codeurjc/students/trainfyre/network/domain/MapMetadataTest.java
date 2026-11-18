@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class MapMetadataTest {
 
+    private static final DataSource SOURCE = new DataSource("renfe", "cercanias-madrid");
     private static final String NAME = "Cercanias Madrid";
     private static final ZoneId TIMEZONE = ZoneId.of("Europe/Madrid");
     private static final String COUNTRY = "ES";
@@ -24,8 +25,9 @@ class MapMetadataTest {
 
     @Test
     void shouldExposeAllValuesWhenArgumentsAreValid() {
-        MapMetadata metadata = new MapMetadata(NAME, TIMEZONE, COUNTRY, WEBSITE);
+        MapMetadata metadata = new MapMetadata(SOURCE, NAME, TIMEZONE, COUNTRY, WEBSITE);
 
+        assertThat(metadata.source()).isEqualTo(SOURCE);
         assertThat(metadata.name()).isEqualTo(NAME);
         assertThat(metadata.timezone()).isEqualTo(TIMEZONE);
         assertThat(metadata.country()).isEqualTo(COUNTRY);
@@ -34,7 +36,7 @@ class MapMetadataTest {
 
     @Test
     void shouldAllowNullCountryAndWebsiteWhenTheyAreOptional() {
-        MapMetadata metadata = new MapMetadata(NAME, TIMEZONE, null, null);
+        MapMetadata metadata = new MapMetadata(SOURCE, NAME, TIMEZONE, null, null);
 
         assertThat(metadata.country()).isNull();
         assertThat(metadata.website()).isNull();
@@ -42,34 +44,37 @@ class MapMetadataTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("invalidNullArguments")
-    void shouldThrowNullPointerExceptionWhenNameOrTimezoneIsNull(String scenario, String name, ZoneId timezone) {
-        assertThatThrownBy(() -> new MapMetadata(name, timezone, COUNTRY, WEBSITE))
+    void shouldThrowNullPointerExceptionWhenSourceNameOrTimezoneIsNull(String scenario,
+                                                                       DataSource source,
+                                                                       String name,
+                                                                       ZoneId timezone) {
+        assertThatThrownBy(() -> new MapMetadata(source, name, timezone, COUNTRY, WEBSITE))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @ParameterizedTest(name = "name = \"{0}\"")
     @MethodSource("blankNames")
     void shouldThrowIllegalArgumentExceptionWhenNameIsEmptyOrBlank(String name) {
-        assertThatThrownBy(() -> new MapMetadata(name, TIMEZONE, COUNTRY, WEBSITE))
+        assertThatThrownBy(() -> new MapMetadata(SOURCE, name, TIMEZONE, COUNTRY, WEBSITE))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @ParameterizedTest(name = "name = \"{0}\"")
     @ValueSource(strings = {" Cercanias Madrid", "Cercanias Madrid ", "  Cercanias Madrid\t", "\nCercanias Madrid\n"})
     void shouldStripNameWhenItHasSurroundingWhitespace(String name) {
-        assertThat(new MapMetadata(name, TIMEZONE, COUNTRY, WEBSITE).name()).isEqualTo(NAME);
+        assertThat(new MapMetadata(SOURCE, name, TIMEZONE, COUNTRY, WEBSITE).name()).isEqualTo(NAME);
     }
 
     @ParameterizedTest(name = "country = \"{0}\"")
     @ValueSource(strings = {"es", "Es", "eS", "ES"})
     void shouldNormalizeCountryToUppercaseWhenItIsAValidIsoAlpha2Code(String country) {
-        assertThat(new MapMetadata(NAME, TIMEZONE, country, WEBSITE).country()).isEqualTo(COUNTRY);
+        assertThat(new MapMetadata(SOURCE, NAME, TIMEZONE, country, WEBSITE).country()).isEqualTo(COUNTRY);
     }
 
     @ParameterizedTest(name = "country = \"{0}\"")
     @ValueSource(strings = {"ESP", "E", "ZZ", "12", "E1"})
     void shouldThrowIllegalArgumentExceptionWhenCountryIsNotAnIsoAlpha2Code(String country) {
-        assertThatThrownBy(() -> new MapMetadata(NAME, TIMEZONE, country, WEBSITE))
+        assertThatThrownBy(() -> new MapMetadata(SOURCE, NAME, TIMEZONE, country, WEBSITE))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -78,21 +83,22 @@ class MapMetadataTest {
     void shouldAcceptWebsiteWhenSchemeIsHttpOrHttpsAndHasHost(String website) {
         URI uri = URI.create(website);
 
-        assertThat(new MapMetadata(NAME, TIMEZONE, COUNTRY, uri).website()).isEqualTo(uri);
+        assertThat(new MapMetadata(SOURCE, NAME, TIMEZONE, COUNTRY, uri).website()).isEqualTo(uri);
     }
 
     @ParameterizedTest(name = "website = {0}")
     @MethodSource("invalidWebsites")
     void shouldThrowIllegalArgumentExceptionWhenWebsiteIsNotAnHttpOrHttpsUrlWithHost(URI website) {
-        assertThatThrownBy(() -> new MapMetadata(NAME, TIMEZONE, COUNTRY, website))
+        assertThatThrownBy(() -> new MapMetadata(SOURCE, NAME, TIMEZONE, COUNTRY, website))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static Stream<Arguments> invalidNullArguments() {
         return Stream.of(
-                Arguments.of("name is null", null, TIMEZONE),
-                Arguments.of("timezone is null", NAME, null),
-                Arguments.of("both are null", null, null)
+                Arguments.of("source is null", null, NAME, TIMEZONE),
+                Arguments.of("name is null", SOURCE, null, TIMEZONE),
+                Arguments.of("timezone is null", SOURCE, NAME, null),
+                Arguments.of("all are null", null, null, null)
         );
     }
 

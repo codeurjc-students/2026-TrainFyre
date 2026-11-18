@@ -25,15 +25,17 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 class TransportMapTest {
 
+    private static final DataSource SOURCE = new DataSource("renfe", "cercanias-madrid");
+    private static final DataSource OTHER_SOURCE = new DataSource("metro", "metro-madrid");
     private static final MapMetadata METADATA =
-            new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), null, null);
+            new MapMetadata(SOURCE, "Cercanias Madrid", ZoneId.of("Europe/Madrid"), null, null);
     private static final Instant NOW = Instant.parse("2026-01-01T10:00:00Z");
     private static final MapId MAP_ID = new MapId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
     private static final MapId OTHER_MAP_ID = new MapId(UUID.fromString("223e4567-e89b-12d3-a456-426614174000"));
     private static final MapMetadata OTHER_METADATA =
-            new MapMetadata("Metro Madrid", ZoneId.of("Europe/Madrid"), null, null);
+            new MapMetadata(OTHER_SOURCE, "Metro Madrid",ZoneId.of("Europe/Madrid"), null, null);
     private static final MapMetadata FULL_METADATA =
-            new MapMetadata("Cercanias Madrid", ZoneId.of("Europe/Madrid"), "ES", URI.create("https://www.renfe.com"));
+            new MapMetadata(SOURCE, "Cercanias Madrid", ZoneId.of("Europe/Madrid"), "ES", URI.create("https://www.renfe.com"));
     private static final LineId UPDATABLE_LINE_ID = new LineId(1L);
     private static final LineId OTHER_LINE_ID = new LineId(2L);
     private static final String UPDATABLE_EXTERNAL_ID = "C2";
@@ -291,6 +293,15 @@ class TransportMapTest {
 
         assertThat(map.getMapMetadata()).isEqualTo(METADATA);
         assertThat(map.getLastUpdatedAt()).isEqualTo(NOW);
+    }
+
+    @Test
+    void shouldReplaceSourceWhenMetadataIsUpdated() {
+        TransportMap map = mapUpdatedAtNow();
+
+        map.updateMetadata(OTHER_METADATA, LATER);
+
+        assertThat(map.getMapMetadata().source()).isEqualTo(OTHER_SOURCE);
     }
 
     @Test

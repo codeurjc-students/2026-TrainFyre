@@ -9,9 +9,12 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Descriptive, replaceable data of a {@link TransportMap}. The {@code country} is optional and, when present,
- * an ISO 3166-1 alpha-2 code normalized to uppercase. The {@code website} is optional and, when present,
- * an absolute http(s) URL.
+ * Data of a {@link TransportMap} that is replaced as a whole when it changes.
+ * <p>
+ * The {@code source} identifies the map in the outside world and is required. The {@code name} is required,
+ * is stripped and cannot be blank. The {@code timezone} is required. The {@code country} is optional and,
+ * when present, an ISO 3166-1 alpha-2 code normalized to uppercase. The {@code website} is optional and,
+ * when present, an absolute http(s) URL with a host.
  */
 @ValueObject
 public record MapMetadata(

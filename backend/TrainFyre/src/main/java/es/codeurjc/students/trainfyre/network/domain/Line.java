@@ -6,6 +6,15 @@ import org.jmolecules.ddd.annotation.Identity;
 
 import java.util.Objects;
 
+/**
+ * Line of a {@link TransportMap}. Its external id never changes and identifies it within its map. Its
+ * {@link LineId} is absent until the line is persisted, so a line created with
+ * {@link #createLine(String, LineName, LineType, LineColors)} has no id. The rest of its data can only be
+ * changed through the {@link TransportMap} it belongs to.
+ * <p>
+ * It does not define {@code equals} and {@code hashCode}, so two instances are equal only if they are the
+ * same object.
+ */
 @Entity
 @Getter
 public final class Line {
@@ -25,6 +34,13 @@ public final class Line {
         this.colors = Objects.requireNonNull(colors, "line colors should not be null");
     }
 
+    /**
+     * Creates a line that has not been persisted yet, so it has no {@link LineId}. The external id is
+     * stripped. If {@code colors} is {@code null}, {@link LineColors#defaultFor(String)} is used.
+     *
+     * @throws NullPointerException if {@code externalId}, {@code name} or {@code type} is {@code null}
+     * @throws IllegalArgumentException if {@code externalId} is empty or blank
+     */
     public static Line createLine(String externalId, LineName name, LineType type, LineColors colors) {
         String normalizedExternalId = normalizeExternalId(externalId);
         LineColors resolvedColors = colors != null ? colors : LineColors.defaultFor(normalizedExternalId);
@@ -32,12 +48,25 @@ public final class Line {
         return new Line(null, normalizedExternalId, name, type, resolvedColors);
     }
 
+    /**
+     * Rebuilds a persisted line. Unlike {@link #createLine(String, LineName, LineType, LineColors)}, the id
+     * and the colors are required. The external id is stripped.
+     *
+     * @throws NullPointerException if any argument is {@code null}
+     * @throws IllegalArgumentException if {@code externalId} is empty or blank
+     */
     public static Line reconstitute(LineId id, String externalId, LineName name, LineType type, LineColors colors) {
         Objects.requireNonNull(id, "id should not be null");
 
         return new Line(id, normalizeExternalId(externalId), name, type, colors);
     }
 
+    /**
+     * Strips an external id. It is also used by {@link TransportMap} to normalize the external ids it searches.
+     *
+     * @throws NullPointerException if {@code externalId} is {@code null}
+     * @throws IllegalArgumentException if {@code externalId} is empty or blank
+     */
     static String normalizeExternalId(String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");
 
@@ -48,6 +77,12 @@ public final class Line {
         return normalized;
     }
 
+    /**
+     * Applies the components of the changes that are not {@code null}. It is package-private on purpose:
+     * only {@link TransportMap} may call it, which {@code LineEncapsulationArchitectureTest} enforces.
+     *
+     * @throws NullPointerException if {@code lineChanges} is {@code null}
+     */
     void update(LineChanges lineChanges) {
         Objects.requireNonNull(lineChanges, "line changes should not be null");
 

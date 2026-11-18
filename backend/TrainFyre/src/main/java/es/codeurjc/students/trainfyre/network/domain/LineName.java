@@ -2,6 +2,11 @@ package es.codeurjc.students.trainfyre.network.domain;
 
 import org.jmolecules.ddd.annotation.ValueObject;
 
+/**
+ * Name of a line, with a short form (e.g. {@code "C1"}) and a long one (e.g. {@code "Cercanías Madrid C1"}).
+ * Both are stripped, and a {@code null} or blank one counts as missing. At least one is required, and when
+ * only one is given the other takes its value, so both are always present.
+ */
 @ValueObject
 public record LineName(String shortName, String longName) {
 

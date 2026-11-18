@@ -7,8 +7,11 @@ import java.util.Objects;
 
 /**
  * Natural key of a {@link TransportMap} in the outside world: who publishes it ({@code provider},
- * e.g. {@code "renfe"}) and how that publisher identifies it ({@code externalId}).
- * The provider is case-insensitive, the external id keeps its case.
+ * e.g. {@code "renfe"}) and how that publisher identifies it ({@code externalId}). It is the
+ * {@code source} of the map's {@link MapMetadata}.
+ * <p>
+ * Both values are required, stripped and cannot be blank. The provider is case-insensitive, so it is
+ * converted to lowercase, and the external id keeps its case.
  */
 @ValueObject
 public record DataSource(String provider, String externalId) {

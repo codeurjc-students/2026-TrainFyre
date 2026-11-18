@@ -4,6 +4,9 @@ import org.jmolecules.ddd.annotation.ValueObject;
 
 import java.util.Objects;
 
+/**
+ * Colors of a line: {@code color} is the background and {@code textColor} the text drawn over it.
+ */
 @ValueObject
 public record LineColors(HexColor color, HexColor textColor) {
 
@@ -27,6 +30,8 @@ public record LineColors(HexColor color, HexColor textColor) {
     /**
      * Deterministic default colors for a line: a pastel background whose hue is derived from the external id
      * (consecutive ids get well separated hues) and black text.
+     *
+     * @throws NullPointerException if {@code externalId} is {@code null}
      */
     public static LineColors defaultFor(String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");

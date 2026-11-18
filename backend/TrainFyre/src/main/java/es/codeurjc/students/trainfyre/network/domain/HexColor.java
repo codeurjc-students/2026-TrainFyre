@@ -6,6 +6,10 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+/**
+ * Six-digit hexadecimal RGB color. The value is stripped, may start with {@code #} and is stored in
+ * uppercase and without the {@code #}, so {@code "#ff0000"} and {@code "FF0000"} are the same color.
+ */
 @ValueObject
 public record HexColor(String value) {
 

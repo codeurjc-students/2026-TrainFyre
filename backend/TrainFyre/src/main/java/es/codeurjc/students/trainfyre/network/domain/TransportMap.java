@@ -49,6 +49,77 @@ public class TransportMap {
         return build(id, mapMetadata, lastUpdatedAt, lines);
     }
 
+    public Collection<Line> lines() {
+        return Collections.unmodifiableCollection(lines.values());
+    }
+
+    public Collection<Line> linesByExternalId() {
+        return Collections.unmodifiableCollection(linesByExternalId.values());
+    }
+
+    public Line findLine(LineId lineId) {
+        Objects.requireNonNull(lineId, "line id should not be null");
+
+        Line line = lines.get(lineId);
+        if (line == null) {
+            throw new LineNotFoundException("no line with id " + lineId.value() + " exists");
+        }
+        return line;
+    }
+
+    public Line findLine(String externalId) {
+        String normalizedExternalId = Line.normalizeExternalId(externalId);
+
+        Line line = linesByExternalId.get(normalizedExternalId);
+        if (line == null) {
+            throw new LineNotFoundException("no line with external id " + normalizedExternalId + " exists");
+        }
+        return line;
+    }
+
+    public void updateMetadata(MapMetadata mapMetadata, Instant now) {
+        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
+        requireNotBeforeLastUpdate(now);
+
+        this.mapMetadata = mapMetadata;
+        this.lastUpdatedAt = now;
+    }
+
+    public void addLine(Line line) {
+        index(line);
+    }
+
+    public void addLine(Line line, Instant now) {
+        requireNotBeforeLastUpdate(now);
+
+        index(line);
+        this.lastUpdatedAt = now;
+    }
+
+    public void updateLine(LineId lineId, LineChanges lineChanges, Instant now) {
+        requireNotBeforeLastUpdate(now);
+
+        applyChanges(findLine(lineId), lineChanges, now);
+    }
+
+    public void updateLine(String externalId, LineChanges lineChanges, Instant now) {
+        requireNotBeforeLastUpdate(now);
+
+        applyChanges(findLine(externalId), lineChanges, now);
+    }
+
+    public void removeLine(LineId lineId, Instant now) {
+        requireNotBeforeLastUpdate(now);
+
+        remove(findLine(lineId), now);
+    }
+
+    public void removeLine(String externalId, Instant now) {
+        requireNotBeforeLastUpdate(now);
+
+        remove(findLine(externalId), now);
+    }
+
     private static TransportMap build(MapId id, MapMetadata mapMetadata, Instant lastUpdatedAt, Collection<Line> lines) {
         Objects.requireNonNull(id, "id should not be null");
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
@@ -83,63 +154,11 @@ public class TransportMap {
         }
     }
 
-    public Collection<Line> lines() {
-        return Collections.unmodifiableCollection(lines.values());
-    }
-
-    public Collection<Line> linesByExternalId() {
-        return Collections.unmodifiableCollection(linesByExternalId.values());
-    }
-
-    public void updateMetadata(MapMetadata mapMetadata, Instant now) {
-        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
-        requireNotBeforeLastUpdate(now);
-
-        this.mapMetadata = mapMetadata;
-        this.lastUpdatedAt = now;
-    }
-
-    public void addLine(Line line) {
-        index(line);
-    }
-
-    public void addLine(Line line, Instant now) {
-        requireNotBeforeLastUpdate(now);
-
-        index(line);
-        this.lastUpdatedAt = now;
-    }
-
-    public Line findLine(LineId lineId) {
-        Objects.requireNonNull(lineId, "line id should not be null");
-
-        Line line = lines.get(lineId);
-        if (line == null) {
-            throw new LineNotFoundException("no line with id " + lineId.value() + " exists");
+    private void unindex(Line line) {
+        linesByExternalId.remove(line.getExternalId());
+        if (line.getId() != null) {
+            lines.remove(line.getId());
         }
-        return line;
-    }
-
-    public Line findLine(String externalId) {
-        String normalizedExternalId = Line.normalizeExternalId(externalId);
-
-        Line line = linesByExternalId.get(normalizedExternalId);
-        if (line == null) {
-            throw new LineNotFoundException("no line with external id " + normalizedExternalId + " exists");
-        }
-        return line;
-    }
-
-    public void updateLine(LineId lineId, LineChanges lineChanges, Instant now) {
-        requireNotBeforeLastUpdate(now);
-
-        applyChanges(findLine(lineId), lineChanges, now);
-    }
-
-    public void updateLine(String externalId, LineChanges lineChanges, Instant now) {
-        requireNotBeforeLastUpdate(now);
-
-        applyChanges(findLine(externalId), lineChanges, now);
     }
 
     private void applyChanges(Line line, LineChanges lineChanges, Instant now) {
@@ -147,28 +166,9 @@ public class TransportMap {
         this.lastUpdatedAt = now;
     }
 
-    public void removeLine(LineId lineId, Instant now) {
-        requireNotBeforeLastUpdate(now);
-
-        remove(findLine(lineId), now);
-    }
-
-    public void removeLine(String externalId, Instant now) {
-        requireNotBeforeLastUpdate(now);
-
-        remove(findLine(externalId), now);
-    }
-
     private void remove(Line line, Instant now) {
         unindex(line);
         this.lastUpdatedAt = now;
-    }
-
-    private void unindex(Line line) {
-        linesByExternalId.remove(line.getExternalId());
-        if (line.getId() != null) {
-            lines.remove(line.getId());
-        }
     }
 
     private void requireNotBeforeLastUpdate(Instant now) {

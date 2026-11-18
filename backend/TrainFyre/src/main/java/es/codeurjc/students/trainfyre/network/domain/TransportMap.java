@@ -103,10 +103,18 @@ public class TransportMap {
     }
 
     public void addLine(Line line) {
-        throw new UnsupportedOperationException();
+        index(line);
     }
 
     public void addLine(Line line, Instant now) {
+
+        Objects.requireNonNull(now, "now should not be null");
+        if (now.isBefore(lastUpdatedAt)) {
+            throw new IllegalArgumentException("now cannot be before the last update");
+        }
+
         addLine(line);
+
+        lastUpdatedAt = now;
     }
 }

@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.network.domain;
 
+import lombok.Getter;
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Identity;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @AggregateRoot
+@Getter
 public class TransportMap {
 
     @Identity

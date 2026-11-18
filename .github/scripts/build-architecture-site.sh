@@ -20,8 +20,10 @@ read -r -a plantuml <<< "${PLANTUML:-plantuml}"
 asciidoctor -o "$out/jmolecules-catalog.html" "$src/jmolecules-catalog.adoc"
 
 figure() {
-  if [ -f "$out/$1" ]; then
-    printf '<figure><img src="%s" alt="%s"><figcaption>%s</figcaption></figure>\n' "$1" "$2" "$2"
+  local file="$1"
+  local caption="$2"
+  if [[ -f "$out/$file" ]]; then
+    printf '<figure><img src="%s" alt="%s"><figcaption>%s</figcaption></figure>\n' "$file" "$caption" "$caption"
   fi
 }
 
@@ -52,7 +54,7 @@ HTML
   figure components.svg "Spring Modulith components"
 
   for file in "$out"/hexagonal-*.svg; do
-    [ -e "$file" ] || continue
+    [[ -e "$file" ]] || continue
     module="${file##*/hexagonal-}"
     module="${module%.svg}"
     echo "<h2>Module: ${module}</h2>"

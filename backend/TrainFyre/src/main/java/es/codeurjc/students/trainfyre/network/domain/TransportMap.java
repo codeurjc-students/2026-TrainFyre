@@ -131,11 +131,27 @@ public class TransportMap {
     }
 
     public void updateLine(LineId lineId, LineChanges lineChanges, Instant now) {
-        throw new UnsupportedOperationException();
+
+        requireNotBeforeLastUpdate(now);
+
+        Line line = findLine(lineId);
+
+        line.update(lineChanges);
+
+        lastUpdatedAt = now;
+
     }
 
     public void updateLine(String externalId, LineChanges lineChanges, Instant now) {
-        throw new UnsupportedOperationException();
+
+        requireNotBeforeLastUpdate(now);
+
+        Line line = findLine(externalId);
+
+        line.update(lineChanges);
+
+        lastUpdatedAt = now;
+
     }
 
     private void requireNotBeforeLastUpdate(Instant now) {

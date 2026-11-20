@@ -4,7 +4,6 @@ import es.codeurjc.students.trainfyre.network.application.port.in.UpdateTranspor
 import es.codeurjc.students.trainfyre.network.application.port.in.command.UpdateTransportMapBySourceCommand;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
 import es.codeurjc.students.trainfyre.network.domain.DataSource;
-import es.codeurjc.students.trainfyre.network.domain.MapNotFoundException;
 import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
@@ -20,7 +19,7 @@ public class UpdateTransportMapBySourceService implements UpdateTransportMapBySo
     @CommandHandler
     @Override
     public Void execute(UpdateTransportMapBySourceCommand input) {
-        TransportMap transportMap = findBySource(input.source());
+        TransportMap transportMap = mapSourcePolicy.requireExistingMap(input.source());
         DataSource newSource = input.mapMetadata().source();
 
         if (!newSource.equals(transportMap.getMapMetadata().source())) {
@@ -31,10 +30,5 @@ public class UpdateTransportMapBySourceService implements UpdateTransportMapBySo
         transportMapPort.save(transportMap);
 
         return null;
-    }
-
-    private TransportMap findBySource(DataSource source) {
-        return transportMapPort.findBySource(source)
-                .orElseThrow(() -> new MapNotFoundException("no map with source " + source + " exists"));
     }
 }

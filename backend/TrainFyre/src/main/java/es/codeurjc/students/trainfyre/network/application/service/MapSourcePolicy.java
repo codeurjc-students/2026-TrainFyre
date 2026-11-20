@@ -3,6 +3,8 @@ package es.codeurjc.students.trainfyre.network.application.service;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
 import es.codeurjc.students.trainfyre.network.domain.DataSource;
 import es.codeurjc.students.trainfyre.network.domain.MapAlreadyExistsException;
+import es.codeurjc.students.trainfyre.network.domain.MapNotFoundException;
+import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +28,16 @@ public class MapSourcePolicy {
         if (transportMapPort.findBySource(source).isPresent()) {
             throw new MapAlreadyExistsException("a map with source " + source + " already exists");
         }
+    }
+
+    /**
+     * @return the map that has the source
+     * @throws NullPointerException if {@code source} is {@code null}
+     * @throws MapNotFoundException if no map has the source
+     */
+    public TransportMap requireExistingMap(DataSource source) {
+        Objects.requireNonNull(source, "source should not be null");
+        return transportMapPort.findBySource(source)
+                .orElseThrow(() -> new MapNotFoundException("no map with source " + source + " exists"));
     }
 }

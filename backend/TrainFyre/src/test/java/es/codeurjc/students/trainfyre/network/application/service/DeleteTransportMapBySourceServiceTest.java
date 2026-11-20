@@ -43,7 +43,7 @@ class DeleteTransportMapBySourceServiceTest {
 
     @BeforeEach
     void setUp() {
-        deleteTransportMapBySourceUseCase = new DeleteTransportMapBySourceService(transportMapPort);
+        deleteTransportMapBySourceUseCase = new DeleteTransportMapBySourceService(transportMapPort, new MapSourcePolicy(transportMapPort));
         existingMap = TransportMap.createTransportMap(METADATA, CREATED_AT);
         mapId = existingMap.getId().value();
     }

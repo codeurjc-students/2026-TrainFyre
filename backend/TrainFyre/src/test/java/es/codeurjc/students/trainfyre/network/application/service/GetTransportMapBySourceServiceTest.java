@@ -36,7 +36,7 @@ class GetTransportMapBySourceServiceTest {
 
     @BeforeEach
     void setUp() {
-        getTransportMapBySourceUseCase = new GetTransportMapBySourceService(transportMapPort);
+        getTransportMapBySourceUseCase = new GetTransportMapBySourceService(new MapSourcePolicy(transportMapPort));
         existingMap = TransportMap.createTransportMap(METADATA, CREATED_AT);
     }
 

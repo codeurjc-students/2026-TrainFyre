@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CreateTransportMapCommandTest {
@@ -42,8 +42,9 @@ class CreateTransportMapCommandTest {
     }
 
     @Test
-    void shouldAcceptNullLines() {
-        assertThatCode(() -> new CreateTransportMapCommand(METADATA, null, NOW))
-                .doesNotThrowAnyException();
+    void shouldNormalizeNullLinesToEmptyCollection() {
+        CreateTransportMapCommand command = new CreateTransportMapCommand(METADATA, null, NOW);
+
+        assertThat(command.lines()).isNotNull().isEmpty();
     }
 }

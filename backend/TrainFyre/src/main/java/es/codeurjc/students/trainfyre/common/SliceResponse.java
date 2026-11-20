@@ -15,8 +15,4 @@ public record SliceResponse<T>(List<T> content, int page, boolean hasNext) {
         content = List.copyOf(content);
 
     }
-
-    public List<T> content() {
-        return List.copyOf(content);
-    }
 }

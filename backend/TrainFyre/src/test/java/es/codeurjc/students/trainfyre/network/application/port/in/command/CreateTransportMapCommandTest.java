@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
@@ -46,5 +47,21 @@ class CreateTransportMapCommandTest {
         CreateTransportMapCommand command = new CreateTransportMapCommand(METADATA, null, NOW);
 
         assertThat(command.lines()).isNotNull().isEmpty();
+    }
+
+    static Stream<Arguments> linesSources() {
+        return Stream.of(
+                Arguments.of("null lines", null),
+                Arguments.of("mutable lines", new ArrayList<Line>())
+        );
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("linesSources")
+    void shouldExposeImmutableLines(String scenario, Collection<Line> lines) {
+        CreateTransportMapCommand command = new CreateTransportMapCommand(METADATA, lines, NOW);
+
+        assertThatThrownBy(() -> command.lines().add(null))
+                .isInstanceOf(UnsupportedOperationException.class);
     }
 }

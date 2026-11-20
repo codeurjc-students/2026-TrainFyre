@@ -21,12 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Generates one PlantUML diagram per module showing its hexagonal components and their real dependencies,
- * plus a module-level overview. Output goes next to the Spring Modulith documentation.
+ * plus a module-level overview. Output goes to {@code target/architecture-docs}.
  */
 class ArchitectureDiagramTest {
 
     private static final String ROOT = "es.codeurjc.students.trainfyre";
-    private static final Path OUTPUT = Path.of("target", "spring-modulith-docs");
+    // Not spring-modulith-docs: Modulith's Documenter empties that folder when it writes its own documents.
+    private static final Path OUTPUT = Path.of("target", "architecture-docs");
 
     private static final JavaClasses PRODUCTION_CLASSES = new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeTests())

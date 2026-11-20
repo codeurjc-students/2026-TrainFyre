@@ -57,7 +57,7 @@ jobs:
           # The PlantUML in apt is too old for the C4 diagrams of Modulith; Maven verifies the checksums.
           mvn -B -ntp dependency:get -Dartifact=net.sourceforge.plantuml:plantuml:1.2025.4
           PLANTUML="java -jar $HOME/.m2/repository/net/sourceforge/plantuml/plantuml/1.2025.4/plantuml-1.2025.4.jar" \
-            bash ../../.github/scripts/build-architecture-site.sh target/spring-modulith-docs target/architecture-site
+            bash ../../.github/scripts/build-architecture-site.sh target/architecture-site target/spring-modulith-docs target/architecture-docs
 
       - name: Upload architecture documentation
         if: always()
@@ -278,6 +278,14 @@ jobs:
         with:
           name: architecture-docs
           path: site
+
+      - name: Check that the site has an index
+        run: |
+          if [[ ! -f site/index.html ]]; then
+            echo "::error::site/index.html is missing: the architecture rendering step failed in the backend job"
+            ls -la site
+            exit 1
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

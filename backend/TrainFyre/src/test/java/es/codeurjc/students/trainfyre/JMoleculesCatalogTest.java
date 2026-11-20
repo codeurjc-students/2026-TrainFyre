@@ -42,12 +42,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Generates, from the jMolecules annotations of all production classes, an AsciiDoc catalog per module,
  * a PlantUML domain class diagram per module and an {@code architecture.adoc} index that links every
- * generated artifact, including the Spring Modulith ones. Output goes next to the Modulith documentation.
+ * generated artifact, including the Spring Modulith ones. Output goes to {@code target/architecture-docs}.
  */
 class JMoleculesCatalogTest {
 
     private static final String ROOT = "es.codeurjc.students.trainfyre";
-    private static final Path OUTPUT = Path.of("target", "spring-modulith-docs");
+    // Not spring-modulith-docs: Modulith's Documenter empties that folder when it writes its own documents.
+    private static final Path OUTPUT = Path.of("target", "architecture-docs");
+    private static final String MODULITH_DOCS = "../spring-modulith-docs/";
 
     private static final JavaClasses PRODUCTION_CLASSES = new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeTests())
@@ -204,7 +206,8 @@ class JMoleculesCatalogTest {
     private static String index(Set<String> modules, Set<String> modulesWithDomainDiagram) {
         StringBuilder adoc = new StringBuilder("= Architecture\n\n== Module dependencies\n\n")
                 .append("plantuml::modules-dependencies.puml[]\n\n== Spring Modulith components\n\n")
-                .append("plantuml::components.puml[]\n\ninclude::all-docs.adoc[leveloffset=+1]\n\n");
+                .append("plantuml::").append(MODULITH_DOCS).append("components.puml[]\n\n")
+                .append("include::").append(MODULITH_DOCS).append("all-docs.adoc[leveloffset=+1]\n\n");
         modules.forEach(module -> {
             adoc.append("== Hexagonal view: ").append(module).append("\n\n")
                     .append("plantuml::hexagonal-").append(module).append(".puml[]\n\n");

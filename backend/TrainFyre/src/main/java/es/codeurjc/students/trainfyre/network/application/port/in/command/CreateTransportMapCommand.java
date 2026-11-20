@@ -6,7 +6,13 @@ import org.jmolecules.architecture.cqrs.Command;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Objects;
 
 @Command
 public record CreateTransportMapCommand(MapMetadata mapMetadata, Collection<Line> lines, Instant now) {
+
+    public CreateTransportMapCommand {
+        Objects.requireNonNull(mapMetadata, "map metadata should not be null");
+        Objects.requireNonNull(now, "instant should not be null");
+    }
 }

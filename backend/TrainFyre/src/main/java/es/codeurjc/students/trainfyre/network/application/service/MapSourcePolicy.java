@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 /**
- * Keeps the {@link DataSource} of a transport map unique across the maps of the system.
+ * Rules about the {@link DataSource} of a transport map: it must be unique across the maps of the system
+ * and it must be resolvable to the map that has it.
  */
 @Component
 @AllArgsConstructor

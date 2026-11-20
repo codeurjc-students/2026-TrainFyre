@@ -19,11 +19,11 @@ public class UpdateTransportMapByIdService implements UpdateTransportMapByIdUseC
     @CommandHandler
     @Override
     public Void execute(UpdateTransportMapByIdCommand input) {
-
         TransportMap transportMap = transportMapPort.findById(input.uuid(), TransportMap.class);
+        DataSource newSource = input.mapMetadata().source();
 
-        if(!transportMap.getMapMetadata().source().equals(input.mapMetadata().source())) {
-            requireUnusedSource(input.mapMetadata().source());
+        if (!newSource.equals(transportMap.getMapMetadata().source())) {
+            requireUnusedSource(newSource);
         }
 
         transportMap.updateMetadata(input.mapMetadata(), input.now());

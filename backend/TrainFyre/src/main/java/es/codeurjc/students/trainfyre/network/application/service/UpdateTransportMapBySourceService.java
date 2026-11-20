@@ -20,14 +20,8 @@ public class UpdateTransportMapBySourceService implements UpdateTransportMapBySo
     @CommandHandler
     @Override
     public Void execute(UpdateTransportMapBySourceCommand input) {
-
-        DataSource source = input.source();
+        TransportMap transportMap = findBySource(input.source());
         DataSource newSource = input.mapMetadata().source();
-
-        TransportMap transportMap = transportMapPort.findBySource(source)
-                .orElseThrow(
-                        () -> new MapNotFoundException("Map with source: "+source+ " was not found")
-                );
 
         if (!newSource.equals(transportMap.getMapMetadata().source())) {
             requireUnusedSource(newSource);
@@ -37,6 +31,11 @@ public class UpdateTransportMapBySourceService implements UpdateTransportMapBySo
         transportMapPort.save(transportMap);
 
         return null;
+    }
+
+    private TransportMap findBySource(DataSource source) {
+        return transportMapPort.findBySource(source)
+                .orElseThrow(() -> new MapNotFoundException("no map with source " + source + " exists"));
     }
 
     private void requireUnusedSource(DataSource source) {

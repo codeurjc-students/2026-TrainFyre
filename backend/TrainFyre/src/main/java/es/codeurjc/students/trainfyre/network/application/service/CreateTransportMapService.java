@@ -3,8 +3,6 @@ package es.codeurjc.students.trainfyre.network.application.service;
 import es.codeurjc.students.trainfyre.network.application.port.in.CreateTransportMapUseCase;
 import es.codeurjc.students.trainfyre.network.application.port.in.command.CreateTransportMapCommand;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
-import es.codeurjc.students.trainfyre.network.domain.DataSource;
-import es.codeurjc.students.trainfyre.network.domain.MapAlreadyExistsException;
 import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
@@ -17,21 +15,16 @@ import java.util.UUID;
 public class CreateTransportMapService implements CreateTransportMapUseCase {
 
     private final TransportMapPort transportMapPort;
+    private final MapSourcePolicy mapSourcePolicy;
 
     @CommandHandler
     @Override
     public UUID execute(CreateTransportMapCommand input) {
-        requireUnusedSource(input.mapMetadata().source());
+        mapSourcePolicy.requireUnusedSource(input.mapMetadata().source());
 
         TransportMap transportMap = TransportMap.createTransportMap(input.mapMetadata(), input.lines(), input.now());
         transportMapPort.save(transportMap);
 
         return transportMap.getId().value();
-    }
-
-    private void requireUnusedSource(DataSource source) {
-        if (transportMapPort.findBySource(source).isPresent()) {
-            throw new MapAlreadyExistsException("a map with source " + source + " already exists");
-        }
     }
 }

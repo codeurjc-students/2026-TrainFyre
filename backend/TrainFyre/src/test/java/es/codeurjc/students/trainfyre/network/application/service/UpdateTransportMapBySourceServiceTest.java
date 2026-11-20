@@ -50,7 +50,7 @@ class UpdateTransportMapBySourceServiceTest {
 
     @BeforeEach
     void setUp() {
-        updateTransportMapBySourceUseCase = new UpdateTransportMapBySourceService(transportMapPort);
+        updateTransportMapBySourceUseCase = new UpdateTransportMapBySourceService(transportMapPort, new MapSourcePolicy(transportMapPort));
         existingMap = TransportMap.createTransportMap(CURRENT_METADATA, CREATED_AT);
     }
 

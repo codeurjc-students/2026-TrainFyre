@@ -19,7 +19,7 @@ public class MapSourcePolicy {
 
     /**
      * @throws NullPointerException if {@code source} is {@code null}
-     * @throws es.codeurjc.students.trainfyre.network.domain.MapAlreadyExistsException if a map already has the source
+     * @throws MapAlreadyExistsException if a map already has the source
      */
     public void requireUnusedSource(DataSource source) {
         Objects.requireNonNull(source, "source should not be null");

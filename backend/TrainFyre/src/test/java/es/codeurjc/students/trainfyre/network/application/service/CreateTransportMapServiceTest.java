@@ -50,7 +50,7 @@ class CreateTransportMapServiceTest {
 
     @BeforeEach
     void setUp() {
-        createTransportMapUseCase = new CreateTransportMapService(transportMapPort);
+        createTransportMapUseCase = new CreateTransportMapService(transportMapPort, new MapSourcePolicy(transportMapPort));
     }
 
     @Test

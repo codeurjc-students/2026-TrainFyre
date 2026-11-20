@@ -49,7 +49,7 @@ class UpdateTransportMapByIdServiceTest {
 
     @BeforeEach
     void setUp() {
-        updateTransportMapByIdUseCase = new UpdateTransportMapByIdService(transportMapPort);
+        updateTransportMapByIdUseCase = new UpdateTransportMapByIdService(transportMapPort, new MapSourcePolicy(transportMapPort));
         existingMap = TransportMap.createTransportMap(CURRENT_METADATA, CREATED_AT);
         mapId = existingMap.getId().value();
     }

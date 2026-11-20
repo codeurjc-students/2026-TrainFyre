@@ -2,10 +2,12 @@ package es.codeurjc.students.trainfyre.network.application.port.in.command;
 
 import es.codeurjc.students.trainfyre.network.domain.DataSource;
 import es.codeurjc.students.trainfyre.network.domain.MapMetadata;
+import org.jmolecules.architecture.cqrs.Command;
 
 import java.time.Instant;
 import java.util.Objects;
 
+@Command
 public record UpdateTransportMapBySourceCommand(DataSource source, MapMetadata mapMetadata, Instant now) {
 
     public UpdateTransportMapBySourceCommand {

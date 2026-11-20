@@ -20,6 +20,6 @@ class GetTransportMapBySourceQueryTest {
     void shouldExposeTheGivenSourceWhenItIsProvided() {
         GetTransportMapBySourceQuery query = new GetTransportMapBySourceQuery(SOURCE);
 
-        assertThat(query.dataSource()).isEqualTo(SOURCE);
+        assertThat(query.source()).isEqualTo(SOURCE);
     }
 }

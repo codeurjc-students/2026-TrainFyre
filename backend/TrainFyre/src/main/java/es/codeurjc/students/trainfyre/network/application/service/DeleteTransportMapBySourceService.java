@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @AllArgsConstructor
 public class DeleteTransportMapBySourceService implements DeleteTransportMapBySourceUseCase {

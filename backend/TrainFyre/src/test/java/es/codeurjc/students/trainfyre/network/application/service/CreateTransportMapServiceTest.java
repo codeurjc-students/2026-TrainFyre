@@ -118,6 +118,27 @@ class CreateTransportMapServiceTest {
         verify(transportMapPort, never()).save(any(TransportMap.class));
     }
 
+    @Test
+    void shouldPropagateExceptionWithoutSavingWhenSourceLookupFails() {
+        RuntimeException lookupFailure = new RuntimeException("Could not look up transport map");
+        when(transportMapPort.findBySource(METADATA.source())).thenThrow(lookupFailure);
+        CreateTransportMapCommand command = new CreateTransportMapCommand(METADATA, LINES, NOW);
+
+        assertThatThrownBy(() -> createTransportMapUseCase.execute(command)).isSameAs(lookupFailure);
+        verify(transportMapPort, never()).save(any(TransportMap.class));
+    }
+
+    @Test
+    void shouldThrowMapAlreadyExistsExceptionWhenSourceExistsAndLinesAreDuplicated() {
+        when(transportMapPort.findBySource(METADATA.source()))
+                .thenReturn(Optional.of(TransportMap.createTransportMap(METADATA, NOW)));
+        List<Line> duplicatedLines = List.of(newLine(FIRST_EXTERNAL_ID), newLine(FIRST_EXTERNAL_ID));
+        CreateTransportMapCommand command = new CreateTransportMapCommand(METADATA, duplicatedLines, NOW);
+
+        assertThatThrownBy(() -> createTransportMapUseCase.execute(command))
+                .isInstanceOf(MapAlreadyExistsException.class);
+    }
+
     private TransportMap captureSavedMap() {
         ArgumentCaptor<TransportMap> captor = ArgumentCaptor.forClass(TransportMap.class);
         verify(transportMapPort).save(captor.capture());

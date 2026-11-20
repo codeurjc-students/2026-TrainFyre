@@ -68,13 +68,13 @@ class UpdateTransportMapByIdServiceTest {
     }
 
     @Test
-    void shouldSaveTheMapWhenTheSourceBelongsToTheSameMap() {
+    void shouldSaveTheMapWithoutLookingUpTheSourceWhenTheSourceIsUnchanged() {
         givenExistingMap();
-        when(transportMapPort.findBySource(CURRENT_METADATA.source())).thenReturn(Optional.of(existingMap));
 
         updateTransportMapByIdUseCase.execute(new UpdateTransportMapByIdCommand(mapId, RENAMED_METADATA, NOW));
 
         assertThat(captureSavedMap().getMapMetadata()).isEqualTo(RENAMED_METADATA);
+        verify(transportMapPort, never()).findBySource(any(DataSource.class));
     }
 
     @Test

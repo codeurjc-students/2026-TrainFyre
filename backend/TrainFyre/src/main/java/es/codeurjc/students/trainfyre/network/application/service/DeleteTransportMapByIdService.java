@@ -16,7 +16,6 @@ public class DeleteTransportMapByIdService implements DeleteTransportMapByIdUseC
     @CommandHandler
     @Override
     public Void execute(DeleteTransportMapByIdCommand input) {
-
         transportMapPort.delete(input.id());
 
         return null;

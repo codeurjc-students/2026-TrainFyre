@@ -9,6 +9,6 @@ import java.util.UUID;
 public record GetTransportMapByIdQuery(UUID uuid) {
 
     public GetTransportMapByIdQuery {
-        Objects.requireNonNull(uuid, "id should not be null");
+        Objects.requireNonNull(uuid, "uuid should not be null");
     }
 }

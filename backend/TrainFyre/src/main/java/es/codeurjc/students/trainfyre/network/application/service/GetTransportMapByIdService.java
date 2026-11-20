@@ -5,7 +5,6 @@ import es.codeurjc.students.trainfyre.network.application.port.in.query.GetTrans
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
 import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
-import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +13,8 @@ public class GetTransportMapByIdService implements GetTransportMapByIdUseCase {
 
     private final TransportMapPort transportMapPort;
 
-    @CommandHandler
     @Override
     public TransportMap execute(GetTransportMapByIdQuery input) {
-        return null;
+        return transportMapPort.findById(input.uuid(), TransportMap.class);
     }
 }

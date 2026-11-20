@@ -3,13 +3,13 @@ package es.codeurjc.students.trainfyre.network.application.service;
 import es.codeurjc.students.trainfyre.network.application.port.in.CreateTransportMapUseCase;
 import es.codeurjc.students.trainfyre.network.application.port.in.command.CreateTransportMapCommand;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
+import es.codeurjc.students.trainfyre.network.domain.DataSource;
 import es.codeurjc.students.trainfyre.network.domain.MapAlreadyExistsException;
 import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
 import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -21,16 +21,17 @@ public class CreateTransportMapService implements CreateTransportMapUseCase {
     @CommandHandler
     @Override
     public UUID execute(CreateTransportMapCommand input) {
-
-        transportMapPort.findBySource(input.mapMetadata().source()).ifPresent(exception -> {
-            throw new MapAlreadyExistsException("Map with source: " + input.mapMetadata().source() + " already exists");
-        });
-
+        requireUnusedSource(input.mapMetadata().source());
 
         TransportMap transportMap = TransportMap.createTransportMap(input.mapMetadata(), input.lines(), input.now());
-
         transportMapPort.save(transportMap);
 
         return transportMap.getId().value();
+    }
+
+    private void requireUnusedSource(DataSource source) {
+        if (transportMapPort.findBySource(source).isPresent()) {
+            throw new MapAlreadyExistsException("a map with source " + source + " already exists");
+        }
     }
 }

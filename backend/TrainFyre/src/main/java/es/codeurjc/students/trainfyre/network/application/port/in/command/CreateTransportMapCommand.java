@@ -6,6 +6,7 @@ import org.jmolecules.architecture.cqrs.Command;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 @Command
@@ -14,5 +15,6 @@ public record CreateTransportMapCommand(MapMetadata mapMetadata, Collection<Line
     public CreateTransportMapCommand {
         Objects.requireNonNull(mapMetadata, "map metadata should not be null");
         Objects.requireNonNull(now, "instant should not be null");
+        lines = lines == null ? List.of() : List.copyOf(lines);
     }
 }

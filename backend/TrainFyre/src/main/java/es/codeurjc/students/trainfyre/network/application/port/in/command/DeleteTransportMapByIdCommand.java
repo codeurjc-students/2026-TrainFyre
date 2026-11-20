@@ -9,6 +9,6 @@ import java.util.UUID;
 public record DeleteTransportMapByIdCommand(UUID id) {
 
     public DeleteTransportMapByIdCommand {
-        Objects.requireNonNull(id, "id sould not be null");
+        Objects.requireNonNull(id, "id should not be null");
     }
 }

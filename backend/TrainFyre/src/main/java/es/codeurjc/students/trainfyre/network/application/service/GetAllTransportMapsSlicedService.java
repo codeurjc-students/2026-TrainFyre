@@ -6,7 +6,6 @@ import es.codeurjc.students.trainfyre.network.application.port.in.query.GetAllTr
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
 import es.codeurjc.students.trainfyre.network.domain.TransportMap;
 import lombok.AllArgsConstructor;
-import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +14,6 @@ public class GetAllTransportMapsSlicedService implements GetAllTransportMapsSlic
 
     private final TransportMapPort transportMapPort;
 
-    @CommandHandler
     @Override
     public SliceResponse<TransportMap> execute(GetAllTransportMapsSlicedQuery input) {
         return transportMapPort.findSlice(input.pageable());

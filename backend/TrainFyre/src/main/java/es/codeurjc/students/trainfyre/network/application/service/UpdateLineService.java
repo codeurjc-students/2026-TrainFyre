@@ -21,11 +21,13 @@ public class UpdateLineService implements UpdateLineUseCase {
     @Override
     public Void execute(UpdateLineCommand input) {
         TransportMap map = mapResolver.require(input.map());
+
         switch (input.line()) {
             case LineRef.ById(LineId id) -> map.updateLine(id, input.changes(), input.now());
             case LineRef.ByExternalId(String externalId) -> map.updateLine(externalId, input.changes(), input.now());
         }
         transportMapPort.save(map);
+
         return null;
     }
 }

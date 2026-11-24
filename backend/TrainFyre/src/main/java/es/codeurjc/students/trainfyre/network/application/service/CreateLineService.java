@@ -19,11 +19,12 @@ public class CreateLineService implements CreateLineUseCase {
     @CommandHandler
     @Override
     public Void execute(CreateLineCommand input) {
-
         TransportMap transportMap = mapResolver.require(input.map());
-        transportMap.addLine(Line.createLine(input.externalId(), input.name(), input.type(), input.colors()), input.now());
-        transportMapPort.save(transportMap);
-        return null;
+        Line line = Line.createLine(input.externalId(), input.name(), input.type(), input.colors());
 
+        transportMap.addLine(line, input.now());
+        transportMapPort.save(transportMap);
+
+        return null;
     }
 }

@@ -62,12 +62,14 @@ public final class Line {
     }
 
     /**
-     * Strips an external id. It is also used by {@link TransportMap} to normalize the external ids it searches.
+     * Strips an external id. It is the single definition of a valid external id: {@link TransportMap} uses
+     * it to normalize the external ids it searches, and the application layer uses it to normalize the ones
+     * it receives, so every layer agrees on what identifies a line.
      *
      * @throws NullPointerException if {@code externalId} is {@code null}
      * @throws IllegalArgumentException if {@code externalId} is empty or blank
      */
-    static String normalizeExternalId(String externalId) {
+    public static String normalizeExternalId(String externalId) {
         Objects.requireNonNull(externalId, "external id should not be null");
 
         String normalized = externalId.strip();

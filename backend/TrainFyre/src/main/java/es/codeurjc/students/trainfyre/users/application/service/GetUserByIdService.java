@@ -7,7 +7,6 @@ import es.codeurjc.students.trainfyre.users.domain.User;
 import es.codeurjc.students.trainfyre.users.domain.UserAccessPolicy;
 import es.codeurjc.students.trainfyre.users.domain.UserDetails;
 import lombok.AllArgsConstructor;
-import org.jmolecules.architecture.cqrs.CommandHandler;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,7 +15,6 @@ public class GetUserByIdService implements GetUserByIdUseCase {
 
     private final UserPort userPort;
 
-    @CommandHandler
     @Override
     public UserDetails execute(GetUserByIdQuery input) {
 

@@ -4,8 +4,11 @@ import es.codeurjc.students.trainfyre.network.domain.LineId;
 
 import java.util.Objects;
 
+/**
+ * Way to identify an existing line of a transport map in a use case: by its {@link LineId} or by its
+ * external id.
+ */
 public sealed interface LineRef {
-
 
     record ById(LineId id) implements LineRef {
 
@@ -14,13 +17,10 @@ public sealed interface LineRef {
         }
     }
 
-
-    record ByExternalId(String externalId) implements LineRef{
+    record ByExternalId(String externalId) implements LineRef {
 
         public ByExternalId {
             Objects.requireNonNull(externalId, "external id should not be null");
         }
     }
-
-
 }

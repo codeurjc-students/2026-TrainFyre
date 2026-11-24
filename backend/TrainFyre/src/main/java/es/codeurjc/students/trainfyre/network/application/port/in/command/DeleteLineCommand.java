@@ -1,7 +1,7 @@
 package es.codeurjc.students.trainfyre.network.application.port.in.command;
 
-import es.codeurjc.students.trainfyre.network.application.port.in.LineRef;
-import es.codeurjc.students.trainfyre.network.application.port.in.MapRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.LineRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.MapRef;
 
 import org.jmolecules.architecture.cqrs.Command;
 

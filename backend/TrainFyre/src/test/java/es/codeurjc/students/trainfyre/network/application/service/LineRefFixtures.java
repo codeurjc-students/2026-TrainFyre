@@ -1,6 +1,6 @@
 package es.codeurjc.students.trainfyre.network.application.service;
 
-import es.codeurjc.students.trainfyre.network.application.port.in.LineRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.LineRef;
 import es.codeurjc.students.trainfyre.network.domain.LineId;
 import org.junit.jupiter.params.provider.Arguments;
 

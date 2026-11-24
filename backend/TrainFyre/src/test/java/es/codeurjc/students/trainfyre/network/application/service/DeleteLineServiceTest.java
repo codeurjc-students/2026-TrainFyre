@@ -1,8 +1,8 @@
 package es.codeurjc.students.trainfyre.network.application.service;
 
 import es.codeurjc.students.trainfyre.network.application.port.in.DeleteLineUseCase;
-import es.codeurjc.students.trainfyre.network.application.port.in.LineRef;
-import es.codeurjc.students.trainfyre.network.application.port.in.MapRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.LineRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.MapRef;
 import es.codeurjc.students.trainfyre.network.application.port.in.command.DeleteLineCommand;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;
 import es.codeurjc.students.trainfyre.network.domain.HexColor;

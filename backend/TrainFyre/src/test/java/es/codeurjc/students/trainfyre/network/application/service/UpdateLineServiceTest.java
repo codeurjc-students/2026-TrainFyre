@@ -1,7 +1,7 @@
 package es.codeurjc.students.trainfyre.network.application.service;
 
-import es.codeurjc.students.trainfyre.network.application.port.in.LineRef;
-import es.codeurjc.students.trainfyre.network.application.port.in.MapRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.LineRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.MapRef;
 import es.codeurjc.students.trainfyre.network.application.port.in.UpdateLineUseCase;
 import es.codeurjc.students.trainfyre.network.application.port.in.command.UpdateLineCommand;
 import es.codeurjc.students.trainfyre.network.application.port.out.TransportMapPort;

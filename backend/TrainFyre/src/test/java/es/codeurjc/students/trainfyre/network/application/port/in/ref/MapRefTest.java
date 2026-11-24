@@ -1,4 +1,4 @@
-package es.codeurjc.students.trainfyre.network.application.port.in;
+package es.codeurjc.students.trainfyre.network.application.port.in.ref;
 
 import es.codeurjc.students.trainfyre.network.domain.DataSource;
 import org.junit.jupiter.api.Test;

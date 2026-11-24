@@ -1,6 +1,6 @@
 package es.codeurjc.students.trainfyre.network.application.port.in.command;
 
-import es.codeurjc.students.trainfyre.network.application.port.in.MapRef;
+import es.codeurjc.students.trainfyre.network.application.port.in.ref.MapRef;
 import es.codeurjc.students.trainfyre.network.domain.DataSource;
 import es.codeurjc.students.trainfyre.network.domain.HexColor;
 import es.codeurjc.students.trainfyre.network.domain.LineColors;

@@ -12,11 +12,9 @@ import java.util.Objects;
 public record UpdateLineCommand(MapRef map, LineRef line, LineChanges changes, Instant now) {
 
     public UpdateLineCommand {
-
         Objects.requireNonNull(map, "map should not be null");
         Objects.requireNonNull(line, "line should not be null");
         Objects.requireNonNull(changes, "changes should not be null");
         Objects.requireNonNull(now, "now should not be null");
-
     }
 }

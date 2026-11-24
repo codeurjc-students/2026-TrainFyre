@@ -18,6 +18,6 @@ public class GetAllTransportMapsSlicedService implements GetAllTransportMapsSlic
     @CommandHandler
     @Override
     public SliceResponse<TransportMap> execute(GetAllTransportMapsSlicedQuery input) {
-        return null;
+        return transportMapPort.findSlice(input.pageable());
     }
 }

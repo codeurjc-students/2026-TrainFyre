@@ -1,5 +1,6 @@
 package es.codeurjc.students.trainfyre.network.application.port.in;
 
+import es.codeurjc.students.trainfyre.network.domain.Line;
 import es.codeurjc.students.trainfyre.network.domain.LineId;
 
 import java.util.Objects;
@@ -20,17 +21,7 @@ public sealed interface LineRef {
     record ByExternalId(String externalId) implements LineRef {
 
         public ByExternalId {
-            externalId = normalizeExternalId(externalId);
-        }
-
-        private String normalizeExternalId(String externalId) {
-            Objects.requireNonNull(externalId, "external id should not be null");
-
-            String normalized = externalId.strip();
-            if (normalized.isEmpty()) {
-                throw new IllegalArgumentException("external id cannot be blank");
-            }
-            return normalized;
+            externalId = Line.normalizeExternalId(externalId);
         }
     }
 }

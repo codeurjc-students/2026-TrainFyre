@@ -9,9 +9,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Command
-public record RemoveLineCommand(MapRef map, LineRef line, Instant now) {
+public record DeleteLineCommand(MapRef map, LineRef line, Instant now) {
 
-    public RemoveLineCommand {
+    public DeleteLineCommand {
         Objects.requireNonNull(map, "map should not be null");
         Objects.requireNonNull(line, "line should not be null");
         Objects.requireNonNull(now, "now should not be null");

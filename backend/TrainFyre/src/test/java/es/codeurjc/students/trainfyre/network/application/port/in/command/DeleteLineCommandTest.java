@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class RemoveLineCommandTest {
+class DeleteLineCommandTest {
 
     private static final MapRef MAP = new MapRef.BySource(new DataSource("renfe", "cercanias-madrid"));
     private static final LineRef LINE = new LineRef.ByExternalId("C-1");
@@ -34,13 +34,13 @@ class RemoveLineCommandTest {
                                                               MapRef map,
                                                               LineRef line,
                                                               Instant now) {
-        assertThatThrownBy(() -> new RemoveLineCommand(map, line, now))
+        assertThatThrownBy(() -> new DeleteLineCommand(map, line, now))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void shouldExposeTheGivenArgumentsWhenAllAreProvided() {
-        RemoveLineCommand command = new RemoveLineCommand(MAP, LINE, NOW);
+        DeleteLineCommand command = new DeleteLineCommand(MAP, LINE, NOW);
 
         assertThat(command.map()).isEqualTo(MAP);
         assertThat(command.line()).isEqualTo(LINE);

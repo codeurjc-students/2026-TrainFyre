@@ -3,9 +3,12 @@ package es.codeurjc.students.trainfyre.network.application.port.in.command;
 import es.codeurjc.students.trainfyre.network.application.port.in.LineRef;
 import es.codeurjc.students.trainfyre.network.application.port.in.MapRef;
 
+import org.jmolecules.architecture.cqrs.Command;
+
 import java.time.Instant;
 import java.util.Objects;
 
+@Command
 public record RemoveLineCommand(MapRef map, LineRef line, Instant now) {
 
     public RemoveLineCommand {

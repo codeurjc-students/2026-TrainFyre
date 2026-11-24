@@ -17,13 +17,11 @@ public class GetLineService implements GetLineUseCase {
 
     @Override
     public Line execute(GetLineQuery input) {
-
         TransportMap transportMap = mapResolver.require(input.map());
 
         return switch (input.line()) {
             case LineRef.ById(LineId id) -> transportMap.findLine(id);
             case LineRef.ByExternalId(String externalId) -> transportMap.findLine(externalId);
         };
-
     }
 }

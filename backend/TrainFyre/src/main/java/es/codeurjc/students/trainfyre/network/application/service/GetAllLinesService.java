@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -16,6 +17,6 @@ public class GetAllLinesService implements GetAllLinesUseCase {
 
     @Override
     public Collection<Line> execute(GetAllLinesQuery input) {
-        return mapResolver.require(input.map()).lines();
+        return List.copyOf(mapResolver.require(input.map()).lines());
     }
 }

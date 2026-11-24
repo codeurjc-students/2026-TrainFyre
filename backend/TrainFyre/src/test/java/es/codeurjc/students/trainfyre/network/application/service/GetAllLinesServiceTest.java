@@ -78,6 +78,18 @@ class GetAllLinesServiceTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void shouldReturnASnapshotThatDoesNotReflectLaterChangesOfTheMap() {
+        Line existingLine = Line.reconstitute(new LineId(7L), "C-1", NAME, TYPE, COLORS);
+        TransportMap map = mapWith(existingLine);
+        givenMapFound(transportMapPort, BY_SOURCE, map);
+        Collection<Line> result = getAllLinesUseCase.execute(new GetAllLinesQuery(BY_SOURCE));
+
+        map.addLine(Line.reconstitute(new LineId(8L), "C-2", NAME, TYPE, COLORS));
+
+        assertThat(result).containsExactly(existingLine);
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource(MAP_REFS)
     void shouldThrowMapNotFoundExceptionWhenNoMapMatchesTheRef(String scenario, MapRef mapRef) {
